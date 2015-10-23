@@ -7,25 +7,31 @@ end
 @client = Client.new
 @client.start
 
-putsing = Thread.new {
-  loop do
-    sleep 0.1
-    @client.puts_message
-  end
-}
-
-getsing = Thread.new {
-  loop do
-    sleep 0.1
-    input = read_nonblock(1000)
-    @client.provide_input(input)
-  end
-}
-
 loop do
-  Thread.kill(putsing) if over?
-  Thread.kill(getsing) if over?
+  @client.puts_message
+  sleep 0.1
+  @client.provide_input(gets.chomp)
+  sleep 0.1
 end
 
-puts "STARTED"
-puts @client.socket.is_a? TCPSocket
+
+# These will block each other and prevent the program from running
+# putsing = Thread.new {
+#   loop do
+#     sleep 2
+#     @client.puts_message
+#   end
+# }
+#
+# getsing = Thread.new {
+#   loop do
+#     sleep 2
+#     input = gets.chomp
+#     @client.provide_input(input)
+#   end
+# }
+#
+# loop do
+#   Thread.kill(putsing) if over?
+#   Thread.kill(getsing) if over?
+# end

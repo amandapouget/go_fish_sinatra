@@ -225,7 +225,7 @@ describe Server do
               end
             end
 
-            describe 'find_client' do # successfully test if you can reconnect a user!
+            describe 'find_client' do
               it 'rejoins a lost user to the game it was in before it was disconnected' do
                 server.stop_connection(@client2_socket)
                 client2.start
@@ -235,7 +235,6 @@ describe Server do
                 expect(client2.capture_output).to include "Reconnected!"
               end
 
-              # successfully test the timeout!
               it 'ends the match if a user takes more than a given number of seconds to respond' do
                 server.get_input_or_end_match(match, user1, 0.001)
                 expect(client2.output).to include Server::FORFEIT

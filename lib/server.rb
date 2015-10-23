@@ -104,7 +104,7 @@ class Server
 
   def ask_to_start_match(match)
     match.users.each { |user| send_output(user.client, START) }
-    match.users.each { |user| get_input_or_end_match(match, user, 30) }
+    match.users.each { |user| get_input(user.client) || die }
   end
 
   def make_match(user1, user2)
@@ -131,11 +131,16 @@ class Server
     opponent = match.opponent(user) # user get_opponent(match, user, timeout_sec) with multiple opponents
     puts "GOT OPPONENT"
     unless opponent.is_a? NullPlayer
+      puts "OPPONENT NOT NULLPLAYER"
       opponent_user = match.user(opponent)
+      puts "GOT OPPONENT USER"
       send_output(opponent_user.client, "Do you have any #{rank}s?")
-      get_input_or_end_match(match, opponent_user, timeout_sec)
+      puts "SENT OPPONENT REQUEST"
+      get_input(opponent_user.client)|| die
+      puts "GOT OPPONENT RESPONSE"
     end
     winnings = player.request_cards(opponent, rank)
+    puts "GOT WINNINGS?"
     if winnings.length > 0
       tell_winnings(match, user, winnings)
       puts "TOLD WINNINGS"
@@ -148,25 +153,25 @@ class Server
 
   def get_rank(match, user, timeout_sec = 30)
     send_output(user.client, RANK_REQUEST)
-    get_input_or_end_match(match, user, timeout_sec)
+    get_input(user.client)|| die
   end
 
   def get_opponent(match, user, timeout_sec = 30)
     send_output(user.client, OPPONENT_REQUEST)
-    player_name = get_input_or_end_match(match, user, timeout_sec)
+    player_name = get_input(user.client)|| die
     player = match.player_from_name(player_name)
   end
 
   def play_fish(match, user, timeout_sec = 30)
     player = match.player(user)
     send_output(user.client, GO_FISH)
-    get_input_or_end_match(match, user, timeout_sec)
+    get_input(user.client)|| die
     card_drawn = match.game.go_fish(match.player(user)).to_s
     send_output(user.client, "You drew #{card_drawn}.")
     tell_player(match, user)
   end
 
-  def get_input_or_end_match(match, user, timeout_sec)
+  def get_input_or_end_match(match, user, timeout_sec) # not currently used
     input = nil
     begin
       Timeout::timeout(timeout_sec) { input = get_input(user.client) until input }
