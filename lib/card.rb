@@ -17,6 +17,6 @@ class Card
   end
 
   def to_s
-    rank + " of " + suit
+    "the " + rank + " of " + suit
   end
 end

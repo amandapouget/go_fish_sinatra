@@ -16,6 +16,7 @@ class Player
   end
 
   def request_cards(player, rank)
+    return [] unless player.is_a? Player
     valid = false
     @cards.each { |card| valid = true if card.rank == rank }
     return [] if !valid
@@ -23,13 +24,14 @@ class Player
   end
 
   def collect_winnings(cards)
-    cards.each do |card|
-      add_card(card)
-    end
+    cards.each { |card| add_card(card) }
+    make_books
   end
 
   def go_fish(deck)
-    add_card(deck.deal_next_card)
+    fish = deck.deal_next_card
+    add_card(fish)
+    fish
   end
 
   def make_books

@@ -45,9 +45,9 @@ describe Card do
 
     describe '#to_s' do
       it 'returns the string value of the rank and suit of a card' do
-        expect(card_7s.to_s).to eq "seven of spades"
-        expect(card_ah.to_s).to eq "ace of hearts"
-        expect(card_7h.to_s).to eq "seven of hearts"
+        expect(card_7s.to_s).to eq "the seven of spades"
+        expect(card_ah.to_s).to eq "the ace of hearts"
+        expect(card_7h.to_s).to eq "the seven of hearts"
       end
     end
   end

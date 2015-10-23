@@ -32,6 +32,10 @@ class Game
     @loser
   end
 
+  def go_fish(player)
+    player.go_fish(deck)
+  end
+
   def game_over?
     player1.out_of_cards? || player2.out_of_cards? || deck.empty?
   end

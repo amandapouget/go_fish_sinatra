@@ -66,6 +66,14 @@ describe Game do
       end
     end
 
+    describe '#go_fish' do
+      it 'makes a player go fish' do
+        count = @player1.count_cards
+        expect(@game.go_fish(@player1)).to be_a Card
+        expect(@player1.count_cards).to eq count + 1
+      end
+    end
+
     describe '#game_over?' do
       it 'returns false if both players and the deck still have cards' do
         @player1.add_card(card_kh)

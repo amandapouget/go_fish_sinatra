@@ -39,19 +39,25 @@ describe Match do
     expect(my_match.user(player2)).to eq my_match.user2
   end
 
-  it 'can give you a json-worthy hash containing the most critical information about the objects it contains' do
-    game.winner = game.player1
-    game.loser = game.player2
-    json_hash = {
-      type: "match",
-      player1: "Amanda",
-      player2: "Vianney",
-      player1_cards: 0,
-      player2_cards: 0,
-      winner: "Amanda",
-      loser: "Vianney",
-    }
-    expect(my_match.to_json).to eq json_hash
+  it 'can find a player when given a name' do
+    expect(my_match.player_from_name("Amanda")).to eq my_match.player1
+    expect(my_match.player_from_name("Vianney")).to eq my_match.player2
+  end
+
+  it 'can return a users opponent user' do
+    expect(my_match.opponent(my_match.user1)).to eq my_match.user2
+  end
+
+  it 'returns a nullplayer if it cant find such a player' do
+    expect(my_match.player_from_name("Bob")).to be_a NullPlayer
+  end
+
+  it 'can give you a json string containing the most critical information about the objects it contains' do
+    expect(my_match.to_json).to be_a Hash
+  end
+
+  it 'if a user is passed, gives information only about that user' do
+    expect(my_match.to_json(my_match.user1)).to be_a Hash
   end
 
   it 'can end itself' do

@@ -54,6 +54,10 @@ describe Player do
         expect(player.request_cards(opponent, "three")).to eq [card_3c, card_3d]
       end
 
+      it 'returns an empty array if not given a proper player in the argument' do
+        expect(player.request_cards("Friend", "three")).to eq []
+      end
+
       it 'returns an empty array if the requester does not have a card of that rank themselves' do
         expect(player.request_cards(opponent, "seven")).to eq []
       end
@@ -80,6 +84,14 @@ describe Player do
         player.go_fish(deck)
         expect(player.count_cards).to eq player_count + 1
         expect(deck.count_cards).to eq deck_count - 1
+      end
+
+      it 'returns the card fished' do
+        deck = Deck.new(type: 'regular')
+        deck.shuffle
+        deck_count = deck.count_cards
+        player_count = player.count_cards
+        expect(player.go_fish(deck)).to eq player.cards.last
       end
     end
 
