@@ -29,7 +29,7 @@ class Player
   end
 
   def go_fish(deck)
-    add_card(deck.cards.shift)
+    add_card(deck.deal_next_card)
   end
 
   def make_books
