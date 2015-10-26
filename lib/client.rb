@@ -10,8 +10,7 @@ class Client
     # could put your JSON in here to load the welcome message and identifier given by accept in war_server
   end
 
-  def puts_message(delay=0.1)
-    sleep(delay)
+  def puts_message
     begin
       message = @socket.read_nonblock(1000).chomp # Read lines from socket
       if message[0] == "{"
@@ -20,7 +19,15 @@ class Client
         puts message
       end
     rescue IO::WaitReadable
-      retry
+    end
+  end
+
+  def give_input_when_asked
+    begin
+      input = ($stdin.read_nonblock(1000)).chomp
+      provide_input(input)
+    rescue => e
+      puts e.message
     end
   end
 

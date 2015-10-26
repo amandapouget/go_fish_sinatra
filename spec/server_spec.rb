@@ -89,7 +89,7 @@ describe Server do
         describe '#player_pair_ready?' do
           it 'returns false when only one player is connected' do
             server.accept
-            expect(server.player_pair_ready?).to be_falsey
+            expect(server.player_pair_ready?).to be false
           end
         end
       end

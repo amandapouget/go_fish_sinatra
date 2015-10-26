@@ -2,7 +2,7 @@ require 'socket'
 require 'json'
 require_relative './game'
 require_relative './player'
-require './lib/user.rb'
+require_relative './user.rb'
 require 'pry'
 require 'timeout'
 
@@ -73,8 +73,8 @@ class Server
     begin
       client.read_nonblock(1000).chomp
     rescue IO::WaitReadable
-      IO.select([client])
-      retry
+      sleep 0.1
+      return nil
     rescue IOError
       return nil
     end

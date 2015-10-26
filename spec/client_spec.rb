@@ -14,6 +14,16 @@ describe Client do
     $stdout = old
   end
 
+  def provide_stdin(input = "", &blk)
+    old = $stdin
+    $stdin = StringIO.new
+    $stdin << input
+    $stdin.rewind
+    blk.call
+  ensure
+    $stdin = old
+  end
+
   it 'does nothing when initialized' do
     expect { client }.to_not raise_exception
   end
@@ -26,29 +36,47 @@ describe Client do
     end
   end
 
-  context 'server and client started, connection accepted,' do
+  context 'server started' do
     before do
       server.start
-      client.start
-      @client_socket = server.accept
     end
 
     after do
       server.stop_server
     end
 
-    it '#start when it successfully connects, gets a welcome message back from the server' do
-      expect { client.socket.read_nonblock(1000) }.to_not raise_exception
+    it 'makes a connection when started' do
+      expect { client.start }.to_not raise_exception
     end
 
-    it 'puts the welcome message to the client' do
-      putted = capture_stdout { client.puts_message }
-      expect(putted).to match /.+/
-    end
+    context 'server and client started, connection accepted' do
+      before do
+        client.start
+        @client_socket = server.accept
+      end
 
-    it 'provides input' do
-      client.provide_input("yes")
-      expect(server.get_input(@client_socket)).to eq "yes"
+      it 'can receive messages and display them ' do
+        output = capture_stdout do
+          expect { client.puts_message }.to_not raise_exception
+        end
+        expect(output.length).to be > 0
+        output = capture_stdout do
+          expect { client.puts_message }.to_not raise_exception
+        end
+        expect(output.length).to be 0
+      end
+
+      it 'provides input' do
+        client.provide_input("yes")
+        expect(server.get_input(@client_socket)).to eq "yes"
+      end
+
+      it 'gives input when asked' do
+        provide_stdin("Fred\n") do
+          client.give_input_when_asked
+          expect(server.get_input(@client_socket)).to eq "Fred"
+        end
+      end
     end
   end
 

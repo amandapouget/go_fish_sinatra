@@ -1,3 +1,5 @@
+require 'pry'
+
 class Player
 
   attr_accessor :name, :cards, :books
@@ -23,23 +25,30 @@ class Player
     player.give_cards(rank)
   end
 
-  def collect_winnings(cards)
-    cards.each { |card| add_card(card) }
+  def collect_winnings(winnings)
+    winnings.each { |card| add_card(card) }
     make_books
+    sort_cards
   end
 
   def go_fish(deck)
     fish = deck.deal_next_card
     add_card(fish)
+    make_books
+    sort_cards
     fish
+  end
+
+  def sort_cards
+    @cards = @cards.sort_by { |card| card.rank_value }
   end
 
   def make_books
     rank_totals = Hash.new(0)
-    cards.each { |card| rank_totals[card.rank] += 1 }
+    @cards.each { |card| rank_totals[card.rank] += 1 }
     ranks_to_book = []
-    rank_totals.each { |rank_total, rank_name| ranks_to_book << rank if rank_total == 4 }
-    ranks_to_book.each { @books << request_cards(self, rank) }
+    rank_totals.each { |rank_name, rank_total| ranks_to_book << rank_name if rank_total == 4 }
+    ranks_to_book.each { |rank| @books << request_cards(self, rank) }
   end
 
   def add_card(card)
@@ -80,6 +89,9 @@ class NullPlayer < Player
   end
 
   def make_books
+  end
+
+  def sort_cards
   end
 
   def ==(player)

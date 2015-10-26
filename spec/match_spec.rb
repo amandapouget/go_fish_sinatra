@@ -1,69 +1,91 @@
 require 'spec_helper'
 
 describe Match do
-  let(:game) { Game.new(player1: Player.new(name: "Amanda"), player2: Player.new(name:"Vianney")) }
-  let(:my_match) { Match.new(game: game, user1: User.new, user2: User.new) }
+  let(:user1) { User.new(name: "Amanda") }
+  let(:user2) { User.new(name: "Vianney") }
+  let(:user3) { User.new(name: "Frederique") }
+  let(:match) { Match.new(user1, user2, user3) }
+  let(:users) { match.users }
+  let(:players ) { match.players }
 
-  it 'initializes with a game and two users, an array of the users, plus two players discerned from the game' do
-    expect(my_match.game).to be_a Game
-    expect(my_match.user1).to be_a User
-    expect(my_match.user2).to be_a User
-    expect(my_match.player1).to eq my_match.game.player1
-    expect(my_match.player2).to eq my_match.game.player2
-    expect(my_match.user1.current_match).to eq my_match
-    expect(my_match.user2.current_match).to eq my_match
-    expect(my_match.users).to match_array [my_match.user1, my_match.user2]
+  before do
+    match
+  end
+
+  after do
+    Match.clear
+  end
+
+  it 'initializes with a game and users, an array of the users, plus players connected to the game' do
+    expect(match.game).to be_a Game
+    expect(match.users).to match_array [user1, user2, user3]
+    expect(match.game.players).to match_array match.players
   end
 
   it 'upon initialization, makes the user acknowledge it as the current_match' do
-    expect(my_match.user1.current_match).to eq my_match
-    expect(my_match.user2.current_match).to eq my_match
+    users.each { |user| expect(user.current_match).to eq match.object_id }
   end
 
-  it 'can give you an array of its users' do
-    expect(my_match.users[0]).to eq my_match.user1
-    expect(my_match.users[1]).to eq my_match.user2
+  it 'upon initialization, saves self to the matches class array' do
+    expect(Match.all[0]).to eq match
+  end
+
+  it 'can clear all saved matches' do
+    Match.clear
+    expect(Match.all).to eq []
+  end
+
+  it 'can find a match based on object_id' do
+    expect(Match.find_by_obj_id(match.object_id)).to eq match
+  end
+
+  it 'returns nil if no such match is found' do
+    expect(Match.find_by_obj_id(0)).to eq nil
   end
 
   it 'can tell you which player is matched to one of its users' do
-    user = my_match.user1
-    expect(my_match.player(user)).to eq my_match.player1
-    user2 = my_match.user2
-    expect(my_match.player(user2)).to eq my_match.player2
+    expect(match.player(users[0])).to eq players[0]
   end
 
   it 'can tell you which user is matched to one of its players' do
-    player1 = my_match.player1
-    expect(my_match.user(player1)).to eq my_match.user1
-    player2 = my_match.player2
-    expect(my_match.user(player2)).to eq my_match.user2
+    expect(match.user(players[0])).to eq users[0]
+  end
+
+  it 'returns nil when searching for a player or user that is not part of this match' do
+    expect(match.user(Player.new)).to eq nil
+    expect(match.player(User.new)).to eq nil
   end
 
   it 'can find a player when given a name' do
-    expect(my_match.player_from_name("Amanda")).to eq my_match.player1
-    expect(my_match.player_from_name("Vianney")).to eq my_match.player2
-  end
-
-  it 'can return a users opponent user' do
-    expect(my_match.opponent(my_match.user1)).to eq my_match.user2
+    expect(match.player_from_name("Amanda")).to eq players[0]
+    expect(match.player_from_name("Vianney")).to eq players[1]
+    expect(match.player_from_name("Frederique")).to eq players[2]
   end
 
   it 'returns a nullplayer if it cant find such a player' do
-    expect(my_match.player_from_name("Bob")).to be_a NullPlayer
+    expect(match.player_from_name("Bob")).to be_a NullPlayer
   end
 
   it 'can give you a json string containing the most critical information about the objects it contains' do
-    expect(my_match.to_json).to be_a Hash
+    expect(match.to_json).to be_a Hash
+    expect(match.to_json.fetch(:type)).to eq "match_state"
   end
 
-  it 'if a user is passed, gives information only about that user' do
-    expect(my_match.to_json(my_match.user1)).to be_a Hash
+  it 'to_json: if a user is passed, gives information only about that user' do
+    json = match.to_json(users[0])
+    expect(json).to be_a Hash
+    expect(json.fetch(:type)).to eq "player_state"
   end
 
   it 'can end itself' do
-    my_match.end_match
-    expect(my_match.user1.current_match).to be nil
-    expect(my_match.user2.current_match).to be nil
+    match.end_match
+    users.each { |user| expect(user.current_match).to be nil }
+  end
+
+  it 'can tell you if it has been ended' do
+    expect(match.over).to be_falsey
+    match.end_match
+    expect(match.over).to be true
   end
 end
 
@@ -76,7 +98,10 @@ describe NullMatch do
     expect(nullmatch.user(player)).to eq nil
     expect(nullmatch.player(user)).to eq nil
     expect(nullmatch.users).to eq []
-    expect { nullmatch.to_json }.to_not raise_exception
+    expect(nullmatch.players).to eq []
+    expect(nullmatch.player_from_name("any string")).to eq nil
+    expect { nullmatch.save }.to_not raise_exception
+    expect(nullmatch.to_json).to eq nil
   end
 
   it 'calls equal two nullmatches but not a nullmatch and a regular match' do

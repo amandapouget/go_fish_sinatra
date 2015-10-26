@@ -5,7 +5,6 @@ describe User do
   let(:user2) { User.new() }
   let(:match) { Match.new() }
   let(:match2) { Match.new() }
-  let(:game) { Game.new }
 
   after do
     User.clear
@@ -33,12 +32,12 @@ describe User do
     user.add_match(match)
     user.add_match(match)
     user.add_match(match2)
-    expect(user.matches).to match_array [match, match2]
+    expect(user.matches).to match_array [match.object_id, match2.object_id]
   end
 
   it 'knows if a match is currently in session and which one' do
-    user.current_match = match
-    expect(user.current_match).to eq match
+    user.add_match(match)
+    expect(user.current_match).to eq match.object_id
   end
 
   it 'ends a match by removing the current_match' do
@@ -47,8 +46,8 @@ describe User do
     expect(user.current_match).to be nil
   end
 
-  it 'returns a list of all users that exist' do
-    user
+  it 'returns a list of all users' do
+    user.save
     expect(User.all).to eq [user]
   end
 
@@ -59,12 +58,13 @@ describe User do
     expect(User.all).to eq []
   end
 
-  it 'tells you if its current match is still in progress' do
-    user.current_match = match
-    user.current_match.game = game
-    expect(user.match_in_progress?).to be false
-    user.current_match.game.deal
+  it 'tells you if its current match is in progress' do
+    user.current_match = match.object_id
     expect(user.match_in_progress?).to be true
+    match.game.deal
+    expect(user.match_in_progress?).to be true
+    match.end_match
+    expect(user.match_in_progress?).to be false
   end
 end
 
@@ -78,9 +78,6 @@ describe NullUser do
     expect(nulluser.matches).to eq []
     expect(nulluser.name).to be nil
     expect(nulluser.client).to be nil
-  end
-
-  it 'has a nil value for current_match' do
     expect(nulluser.current_match).to be nil
   end
 
@@ -89,15 +86,6 @@ describe NullUser do
     expect { nulluser.add_match(match) }.to_not raise_exception
     expect { nulluser.end_current_match }.to_not raise_exception
     expect { nulluser.current_match_in_progress? }.to_not raise_exception
-    expect { NullUser.clear }.to_not raise_exception
-  end
-
-  it 'returns an empty array when the self.all method is called on the class' do
-    expect(NullUser.all).to eq []
-  end
-
-  it 'returns a NullUser for all find requests' do
-    expect(NullUser.find(nulluser.id)).to eq NullUser.new
   end
 
   it 'calls equal any two nullusers' do

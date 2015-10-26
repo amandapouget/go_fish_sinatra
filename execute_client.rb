@@ -9,9 +9,7 @@ end
 
 loop do
   @client.puts_message
-  sleep 0.1
-  @client.provide_input(gets.chomp)
-  sleep 0.1
+  @client.give_input_when_asked
 end
 
 

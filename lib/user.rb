@@ -24,8 +24,8 @@ class User
   end
 
   def add_match(match)
-    @current_match = match
-    @matches << match
+    @current_match = match.object_id
+    @matches << match.object_id
     @matches.uniq!
   end
 
@@ -42,7 +42,9 @@ class User
   end
 
   def match_in_progress?
-    @current_match != nil && !@current_match.game.game_over?
+    return false if @current_match == nil
+    match = Match.find_by_obj_id(@current_match)
+    return !match.over
   end
 end
 
@@ -50,28 +52,16 @@ class NullUser
   attr_accessor :id, :matches, :current_match, :name, :client
 
   def initialize
-    @current_match = nil
     @matches = []
   end
 
   def end_current_match
   end
 
-  def self.find(id)
-    NullUser.new
-  end
-
   def save
   end
 
   def add_match(match)
-  end
-
-  def self.all
-    []
-  end
-
-  def self.clear
   end
 
   def current_match_in_progress?

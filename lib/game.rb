@@ -1,35 +1,37 @@
 require './lib/deck.rb'
 require './lib/player.rb'
+require 'pry'
 
 class Game
-  attr_accessor :player1, :player2, :deck, :winner, :loser
+  attr_accessor :players, :deck, :hand_size, :winner
 
-  def initialize(player1: Player.new, player2: Player.new)
-    @player1 = player1
-    @player2 = player2
+  def initialize(players = [], hand_size: 5)
+    raise ArgumentError, "Cannot have more than five players" if players.length > 5
+    raise ArgumentError, "Hand size out of range" if (hand_size * players.length > 52 || hand_size < 1)
+    @players = players
+    @players = [Player.new, Player.new] if players.length < 2
     @deck = Deck.new(type: 'regular')
-    @winner = NullPlayer.new
-    @loser = NullPlayer.new
+    @hand_size = hand_size
   end
 
   def deal
-    deck.shuffle
-    5.times do
-      player1.add_card(deck.deal_next_card)
-      player2.add_card(deck.deal_next_card)
-    end
+    @deck.shuffle
+    5.times { @players.each { |player| player.add_card(@deck.deal_next_card) } }
   end
 
   def winner
-    @winner = player1 if player1.books.length > player2.books.length
-    @winner = player2 if player1.books.length < player2.books.length
-    @winner
+    return NullPlayer.new unless game_over?
+    return player_with_most_books
   end
 
-  def loser
-    @loser = player2 if player1.books.length > player2.books.length
-    @loser = player1 if player1.books.length < player2.books.length
-    @loser
+  # possibly remove the loser (ack loser)
+
+  def player_with_most_books
+    players_sorted = @players.clone # learned a bit about the importance of cloning here!
+    players_sorted.sort_by { |player| player.books.length }
+    players_sorted.reverse!
+    return players_sorted[0] if players_sorted[0].books.length > players_sorted[1].books.length
+    return NullPlayer.new
   end
 
   def go_fish(player)
@@ -37,6 +39,9 @@ class Game
   end
 
   def game_over?
-    player1.out_of_cards? || player2.out_of_cards? || deck.empty?
+    over = false
+    @players.each { |player| over = true if player.out_of_cards? }
+    over = true if @deck.empty?
+    over
   end
 end
