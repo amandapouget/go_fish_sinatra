@@ -12,11 +12,14 @@ end
 describe Server do
   context 'create server' do
     let(:server) { Server.new }
-    let(:client) { MockClient.new() }
-    let(:client2){ MockClient.new() }
+    let(:client0) { MockClient.new() }
+    let(:client1) { MockClient.new() }
+    let(:client2) { MockClient.new() }
+    let(:clients) { [client0, client1, client2] }
 
     after do
-      client.erase_output
+      client0.erase_output
+      client1.erase_output
       client2.erase_output
     end
 
@@ -28,7 +31,7 @@ describe Server do
 
       it 'is not listening when it is created' do
         begin
-          client.start
+          client0.start
         rescue => e
           expect(e.message).to match(/connection refused/i)
         end
@@ -40,7 +43,7 @@ describe Server do
         server.start
       end
 
-      after :each do
+      after do
         server.stop_server
       end
 
@@ -52,253 +55,299 @@ describe Server do
         end
 
         it 'is listening when started and connects to a client' do
-          expect{ client.start }.to_not raise_exception
+          expect{ client0.start }.to_not raise_exception
         end
 
         it 'when started, connects to multiple clients at once' do
-          client.start
-          expect{ client2.start }.to_not raise_exception
+          client0.start
+          expect{ client1.start }.to_not raise_exception
         end
       end
 
       context 'two clients are started' do
-        before :each do
-          client.start
+        before do
+          client0.start
+          client1.start
           client2.start
         end
 
         describe '#accept' do
           it 'accepts the client and welcomes the player' do
             server.accept
-            expect(client.output).to include Server::WELCOME
+            expect(client0.output).to include Server::WELCOME
           end
 
-          it 'accepts two clients and welcomes both players' do
+          it 'accepts multiple clients and welcomes them' do
             server.accept
-            expect(client.output).to include Server::WELCOME
+            expect(client0.output).to include Server::WELCOME
+            server.accept
+            expect(client1.output).to include Server::WELCOME
             server.accept
             expect(client2.output).to include Server::WELCOME
           end
 
           it 'adds the client to clients' do
-            client_socket = server.accept
-            expect(server.clients[0]).to eq client_socket
+            client0_socket = server.accept
+            expect(server.clients[0]).to eq client0_socket
           end
         end
 
-        describe '#player_pair_ready?' do
-          it 'returns false when only one player is connected' do
-            server.accept
-            expect(server.player_pair_ready?).to be false
-          end
-        end
-      end
+        context 'two clients are accepted and users connected to clients exist' do
+          let(:user0) { User.new(name: "Amanda", client: @client0_socket) }
+          let(:user1) { User.new(name: "Vianney", client: @client1_socket) }
+          let(:user2) { User.new(name: "Frederique", client: @client2_socket) }
+          let(:users) { [user0, user1, user2] }
+          let(:client_sockets) { [@client0_socket, @client1_socket, @client2_socket] }
 
-      context 'two clients are accepted and users connected to clients exist' do
-        let(:user1) { User.new(client: @client_socket) }
-        let(:user2) { User.new(client: @client2_socket) }
-
-        before do
-          client.start
-          client2.start
-          @client_socket = server.accept
-          @client2_socket = server.accept
-        end
-
-        describe '#get_id' do
-          it 'asks for a unique id and takes client input' do
-            client.provide_input("\n")
-            server.get_id(@client_socket)
-            expect(client.output).to include Server::ENTER_ID
-          end
-        end
-
-        describe '#get_name' do
-          it 'asks the client for the players name and returns it as a string' do
-            client.provide_input("Amanda")
-            name = server.get_name(@client_socket)
-            expect(client.output).to include Server::ASK_NAME
-            expect(name).to eq "Amanda"
-          end
-        end
-
-        describe '#match_user' do
-          it 'returns a user based on id if a good user id # is given' do
-            client2.provide_input("\n")
-            expect(server.match_user(@client2_socket, user1.id)).to eq user1
+          before do
+            @client0_socket = server.accept
+            @client1_socket = server.accept
+            @client2_socket = server.accept
           end
 
-          it 'returns a new user with name if no good user id # is given and tells the client its user id' do
-            client.provide_input("\n")
-            expect(server.match_user(@client_socket, 0)).to be_a User
-            expect(client.output).to include "Your unique id is"
-          end
-
-          it 'sets the user.client to the client_socket' do
-            client.provide_input("\n")
-            user = server.match_user(@client_socket, 0)
-            expect(user.client).to be_a TCPSocket
-          end
-        end
-
-        describe '#player_pair_ready?' do
-          it 'returns true when two or more users are waiting to join a game' do
-            server.pending_users << user1
-            server.pending_users << user2
-            expect(server.player_pair_ready?).to be true
-            server.pending_users << User.new
-            expect(server.player_pair_ready?).to be true
-          end
-
-          it 'returns false when there are less than two users waiting to join a game' do
-            expect(server.player_pair_ready?).to be false
-            server.pending_users << user1
-            expect(server.player_pair_ready?).to be false
-          end
-        end
-
-        describe '#make_match' do
-          it 'takes two users and returns a match object with an a Game and Players corresponding to the users' do
-            match = server.make_match(user1, user2)
-            expect(match).to be_a Match
-          end
-
-          it 'changes the users current_match to this match' do
-            match = server.make_match(user1, user2)
-            expect(user1.current_match).to eq match
-            expect(user2.current_match).to eq match
-          end
-        end
-
-        context 'match is made' do
-          let(:player1) { match.game.player1 }
-          let(:player2) { match.game.player2 }
-          let(:game) { match.game }
-          let(:match) { server.make_match(user1, user2) }
-
-          describe '#ask_to_start_match' do
-            it 'asks the two clients to hit enter to play' do
-              client.provide_input("\n")
-              client2.provide_input("\n")
-              server.ask_to_start_match(match)
-              expect(client.output).to include Server::START
-            end
-          end
-
-          it 'plays the game until over' do
-            client.provide_input("\n")
-            client2.provide_input("\n")
-            server.play_match(match)
-            expect(game.game_over?).to be true
-          end
-
-          context 'players each one have one card to play a round' do
-            before do
-              game.player1.add_card(Card.new(rank: "ace", suit: "spades"))
-              game.player2.add_card(Card.new(rank: "jack", suit: "spades"))
-            end
-
-            describe '#play_match, #play_move, #play_fish' do
-              it 'then asks him for a rank to request' do
-                client.provide_input("two")
-                rank = server.get_rank(match, user1, 0.001)
-                expect(client.output).to include Server::RANK_REQUEST
-                expect(rank).to eq "two"
+          describe '#get_id' do
+            it 'asks for a unique id and takes client input' do
+              failures = []
+              1000.times do |time| # run this many times to pull out if it fails 1% of the time as was happening before added sleep... sleep reduces but does not eliminate odds of this happening!
+                client0.provide_input("123")
+                id = server.get_id(@client0_socket)
+                failures << time if id != 123
               end
+              expect(failures).to eq []
+              expect(client0.output).to include Server::ENTER_ID
+            end
+          end
 
-              it 'asks him for a player to request' do
-                match.player2.name = "Amanda"
-                client.provide_input("Amanda")
-                opponent = server.get_opponent(match, user1, 0.001)
-                expect(client.output).to include Server::OPPONENT_REQUEST
-                expect(opponent).to eq player2
+          describe '#get_name' do
+            it 'asks the client for the players name and returns it as a string' do
+              failures = []
+              1000.times do |time| # run this many times to pull out if it fails 1% of the time as was happening before added sleep
+                client0.provide_input("Amanda")
+                name = server.get_name(@client0_socket)
+                failures << time if name != "Amanda"
               end
-
-              it 'tells the player he must go fish, waits for input, then makes the player go fish and then tells him his result and his cards' do
-                count = player1.count_cards
-                client.provide_input("\n")
-                server.play_fish(match, user1, 0.001)
-                expect(player1.count_cards).to eq count + 1
-                expect(client.output).to include Server::GO_FISH
-                expect(client.output).to include "You drew"
-                expect(client.output).to include JSON.dump(match.to_json(user1))
-              end
-            end
-
-            describe 'find_client' do
-              it 'rejoins a lost user to the game it was in before it was disconnected' do
-                server.stop_connection(@client2_socket)
-                client2.start
-                new_socket = server.accept
-                server.match_user(new_socket, user2.id)
-                server.send_output(match.user2.client, "Reconnected!")
-                expect(client2.capture_output).to include "Reconnected!"
-              end
-
-              it 'ends the match if a user takes more than a given number of seconds to respond' do
-                server.get_input_or_end_match(match, user1, 0.001)
-                expect(client2.output).to include Server::FORFEIT
-              end
+              expect(failures).to eq []
+              expect(client0.output).to include Server::ASK_NAME
             end
           end
 
-          describe '#tell_winnings' do
-            it 'tells the player what he won' do
-              card = Card.new(rank: "ace", suit: "spades")
-              server.tell_winnings(match, user1, [card])
-              expect(client.output).to include "You received:"
-              expect(client.output).to include card.to_s
+          describe '#match_user' do
+            it 'returns a user based on id if a good user id # is given' do
+              expect(server.match_user(@client1_socket, user0.id)).to eq user0
+            end
+
+            it 'returns a new user with name if no good user id # is given and tells the client its user id' do
+              client0.provide_input("Jane")
+              expect(server.match_user(@client0_socket, 0)).to be_a User
+              expect(client0.output).to include "Your unique id is" # how to make this a constant? (had variable in it...)
+            end
+
+            it 'in both cases, sets the user.client to the client0_socket' do
+              client0.provide_input("Jane")
+              created_user = server.match_user(@client0_socket, 0)
+              found_user = server.match_user(@client1_socket, user1.id)
+              expect(created_user.client).to be_a TCPSocket
+              expect(found_user.client).to be_a TCPSocket
             end
           end
 
-          describe '#tell_player' do
-            it 'tells a player his own current state (cards, books, etc)' do
-              server.tell_player(match, user1)
-              expect(client.output).to include JSON.dump(match.to_json(user1))
+          describe '#add_user' do
+            before { only_match_in_progress = Match.new([user0, user1]) }
+
+            it 'adds a user to @pending_users if the user does not have a match in progress' do
+              server.add_user(user2.client, user2.id)
+              expect(server.pending_users.length).to eq 1
+            end
+
+            it 'does not add a user to @pending_users if the user does have a match in progress' do
+              server.add_user(user0.client, user0.id)
+              expect(server.pending_users.length).to eq 0
             end
           end
 
-          describe '#tell_match' do
-            it 'sends both match clients a json hash with info about the match' do
-              server.tell_match(match)
-              expect(client.output).to include JSON.dump(match.to_json)
-              expect(client2.output).to include JSON.dump(match.to_json)
+          describe '#enough_players?' do
+            it 'returns false when 0 - 1 users are waiting to join a game' do
+              expect(server.enough_players?).to be false
+              server.pending_users << user0
+              expect(server.enough_players?).to be false
             end
-          end
-
-          describe '#stop_connection' do
-            it 'closes the client connection to the server unless client already closed' do
-              expect(@client_socket.closed?).to be false
-              server.stop_connection(@client_socket)
-              expect(@client_socket.closed?).to be true
-            end
-
-            it 'removes the connection from clients if it is in clients' do
-              server.clients << @client_socket
-              expect(server.clients.include?(@client_socket)).to be true
-              server.stop_connection(@client_socket)
-              expect(server.clients.include?(@client_socket)).to be false
-            end
-          end
-
-          describe '#stop_server' do
-            it 'closes all the connections in clients and removes them from clients' do
-              server.stop_server
-              expect(@client_socket.closed?).to be true
-              expect(@client2_socket.closed?).to be true
-              expect(server.clients.length).to eq 0
-            end
-
-            it 'removes all the pending users' do
+            it 'returns true when two or more users are waiting to join a game' do
+              server.pending_users << user0
               server.pending_users << user1
+              expect(server.enough_players?).to be true
               server.pending_users << user2
-              server.stop_server
-              expect(server.pending_users).to eq []
+              expect(server.enough_players?).to be true
             end
 
-            it 'closes the server socket' do
-              server.stop_server
-              expect(server.socket.closed?).to be true
+            it 'returns false when there are less than two users waiting to join a game' do
+              expect(server.enough_players?).to be false
+              server.pending_users << user0
+              expect(server.enough_players?).to be false
+            end
+          end
+
+          describe '#make_match' do
+            it 'takes two users and returns a match object with an a Game and Players corresponding to the users' do
+              match = server.make_match(users)
+              expect(match).to be_a Match
+              expect(match.game.players).to eq match.players
+              users.each do |user|
+                player = match.player(user)
+                expect(match.user(player)).to eq user
+              end
+            end
+
+            it 'changes the users current_match to this match' do
+              match = server.make_match(users)
+              users.each { |user| expect(Match.find_by_obj_id(user.current_match)).to eq match }
+            end
+          end
+
+          context 'match is made' do
+            let(:match) { server.make_match(users) }
+
+            describe '#ask_to_start_match' do
+              it 'asks the clients to hit enter to play' do
+                clients.each { |client| client.provide_input("\n") }
+                server.ask_to_start_match(match)
+                clients.each { |client| expect(client.output).to include Server::START_GAME }
+              end
+            end
+
+
+            describe '#play_match' do
+              it 'plays the game until over and ends the match' do
+                expect(match.over).to be false
+                clients.each { |client| client.provide_input("\n") }
+                server.play_match(match)
+                expect(match.game.game_over?).to be true
+                expect(match.over).to be true
+              end
+            end
+
+            context 'players each one have one card to play a round' do
+              before do
+                match.players.each { |player| player.add_card(match.game.deck.deal_next_card) }
+              end
+
+              describe '#play_move, #play_fish' do
+                it 'it asks a player for a rank to request' do
+                  client0.provide_input("two")
+                  rank = server.get_rank(match, user0, 0.001)
+                  expect(client0.output).to include Server::RANK_REQUEST
+                  expect(rank).to eq "two"
+                end
+
+                it 'asks him for a player to request cards from' do
+                  client0.provide_input("#{user1.name}")
+                  opponent = server.get_opponent(match, user0, 0.001)
+                  expect(client0.output).to include Server::OPPONENT_REQUEST
+                  expect(opponent).to eq user1
+                end
+
+                it 'tells the player he must go fish, waits for input, then makes the player go fish and then tells him his result and his cards' do
+                  count = match.players[2].count_cards
+                  client2.provide_input("\n")
+                  server.play_fish(match, user2, 0.001)
+                  expect(match.players[2].count_cards).to eq count + 1
+                  expect(client2.output).to include Server::GO_FISH
+                  expect(client2.output).to include "You drew"
+                  expect(client2.output).to include JSON.dump(match.json_ready(user2))
+                end
+              end
+
+              describe 'find_client' do
+                it 'rejoins a lost user to the game it was in before it was disconnected' do
+                  server.stop_connection(@client1_socket)
+                  client1.start
+                  new_socket = server.accept
+                  server.match_user(new_socket, user1.id)
+                  server.send_output(match.users[1].client, "Reconnected!")
+                  expect(client1.capture_output).to include "Reconnected!"
+                end
+              end
+
+              describe '#get_input_or_end_match' do
+                it 'ends the match if a user takes more than a given number of seconds to respond' do
+                  server.get_input_or_end_match(match, user0, 0.001)
+                  clients.each { |client| expect(client.output).to include Server::FORFEIT }
+                  expect(match.over).to be true
+                end
+              end
+            end
+
+            describe '#tell_fish' do
+              it 'announces someone went fish' do
+                server.tell_fish(match, users[0])
+                clients.each { |client| expect(client.output).to include "#{users[0].name} went fish!" }
+              end
+            end
+
+            describe '#tell_request' do
+              it 'announces one players rank and opponent request to all players' do
+                server.tell_request(match, "two", users[0], users[1])
+                clients.each { |client| expect(client.output).to include "#{users[0].name} requested every two in #{users[1].name}'s hand!" }
+              end
+            end
+
+            describe '#tell_winnings' do
+              it 'tells the player what he won' do
+                card = Card.new(rank: "ace", suit: "spades")
+                server.tell_winnings(match, user0, [card])
+                expect(client0.output).to include "You received:"
+                expect(client0.output).to include card.to_s
+              end
+            end
+
+            describe '#tell_player' do
+              it 'tells a player his own current state (cards, books, etc)' do
+                server.tell_player(match, user0)
+                expect(client0.output).to include JSON.dump(match.json_ready(user0))
+              end
+            end
+
+            describe '#tell_match' do
+              it 'sends all match clients a json hash with info about the match' do
+                server.tell_match(match)
+                clients.each { |client| expect(client.output).to include JSON.dump(match.json_ready) }
+              end
+            end
+
+            describe '#stop_connection' do
+              it 'closes the client connection to the server unless socket already closed' do
+                client_sockets.each do |socket|
+                  expect(socket.closed?).to be false
+                  server.stop_connection(socket)
+                  expect(socket.closed?).to be true
+                end
+              end
+
+              it 'removes the connection from clients if it is in clients' do
+                client_sockets.each do |socket|
+                  expect(server.clients.include?(socket)).to be true
+                  server.stop_connection(socket)
+                  expect(server.clients.include?(socket)).to be false
+                end
+              end
+            end
+
+            describe '#stop_server' do
+              it 'closes all the connections in clients and removes them from clients' do
+                server.stop_server
+                client_sockets.each { |socket| expect(socket.closed?).to be true }
+                expect(server.clients.length).to eq 0
+              end
+
+              it 'removes all the pending users' do
+                users.each { |user| server.pending_users << user }
+                server.stop_server
+                expect(server.pending_users).to eq []
+              end
+
+              it 'closes the server socket' do
+                server.stop_server
+                expect(server.socket.closed?).to be true
+              end
             end
           end
         end

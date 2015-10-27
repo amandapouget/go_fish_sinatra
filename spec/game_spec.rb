@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe Game do
+  let(:players) { [Player.new, Player.new, Player.new, Player.new, Player.new, Player.new] }
+
   describe 'number of players allowed' do
     it 'automatically initializes with at least two players' do
       game = Game.new
@@ -8,31 +10,28 @@ describe Game do
     end
 
     it 'can be initialized with two to five players' do
-      expect { Game.new([Player.new, Player.new]) }.to_not raise_exception
-      expect { Game.new([Player.new, Player.new, Player.new])}.to_not raise_exception
-      expect { Game.new([Player.new, Player.new, Player.new, Player.new])}.to_not raise_exception
-      expect { Game.new([Player.new, Player.new, Player.new, Player.new, Player.new])}.to_not raise_exception
+      4.times { |num_players| expect { Game.new(players: players[0..num_players + 1]) }.to_not raise_exception }
     end
 
     it 'cannot be initialized with more than five players' do
-      expect { Game.new([Player.new, Player.new, Player.new, Player.new, Player.new, Player.new])}.to raise_error(ArgumentError)
+      expect { Game.new(players: players[0..5])}.to raise_error(ArgumentError)
     end
   end
 
   describe 'hand_size range allowed' do
     it 'defaults to 5 cards dealt per player but can be initialized to deal an alternate number' do
-      game = Game.new([Player.new, Player.new], hand_size: 7)
+      game = Game.new(hand_size: 7)
       expect(game.hand_size).to eq 7
-      game = Game.new([Player.new, Player.new])
+      game = Game.new
       expect(game.hand_size).to eq 5
     end
 
     it 'requires a hand_size of at least 1' do
-      expect { Game.new([Player.new, Player.new], hand_size: 0) }.to raise_error(ArgumentError)
+      expect { Game.new(hand_size: 0) }.to raise_error(ArgumentError)
     end
 
     it 'raises an error if the number of cards to be dealt is greater than allowable given the number of players' do
-      expect { Game.new([Player.new, Player.new, Player.new], hand_size: 20) }.to raise_error(ArgumentError)
+      expect { Game.new(players: players[0..2], hand_size: 20) }.to raise_error(ArgumentError)
     end
   end
 
@@ -47,7 +46,7 @@ describe Game do
       @player0 = Player.new(name: "Amanda")
       @player1 = Player.new(name: "Vianney")
       @player2 = Player.new(name: "Frederique")
-      @game = Game.new([@player0, @player1, @player2])
+      @game = Game.new(players: [@player0, @player1, @player2])
     end
 
     describe '#initialize' do

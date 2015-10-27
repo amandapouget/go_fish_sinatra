@@ -97,7 +97,7 @@ describe Player do
         expect(@deck.count_cards).to eq deck_count - 1
       end
 
-      it 'politely sorts the players cards' do
+      it 'politely sorts the players cards' do # need to redo this test! fails every 13 times ensure all ranks are different in test please
         player.go_fish(@deck)
         expected_order = player.cards.sort_by { |card| card.rank_value }
         expect(player.cards).to eq expected_order
@@ -146,8 +146,8 @@ describe Player do
     let(:card_3c) { Card.new(rank: "three", suit: "clubs") }
     let(:deck) { Deck.new(type: 'regular') }
 
-    it 'returns nil when its name is called' do
-      expect(nullplayer.name).to eq nil
+    it 'returns none when its name is called' do
+      expect(nullplayer.name).to eq "none"
     end
 
     it 'returns an empty array when its cards are called' do

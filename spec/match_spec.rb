@@ -4,7 +4,7 @@ describe Match do
   let(:user1) { User.new(name: "Amanda") }
   let(:user2) { User.new(name: "Vianney") }
   let(:user3) { User.new(name: "Frederique") }
-  let(:match) { Match.new(user1, user2, user3) }
+  let(:match) { Match.new([user1, user2, user3]) }
   let(:users) { match.users }
   let(:players ) { match.players }
 
@@ -52,8 +52,8 @@ describe Match do
   end
 
   it 'returns nil when searching for a player or user that is not part of this match' do
-    expect(match.user(Player.new)).to eq nil
-    expect(match.player(User.new)).to eq nil
+    expect(match.user(Player.new)).to eq NullUser.new
+    expect(match.player(User.new)).to eq NullPlayer.new
   end
 
   it 'can find a player when given a name' do
@@ -67,12 +67,12 @@ describe Match do
   end
 
   it 'can give you a json string containing the most critical information about the objects it contains' do
-    expect(match.to_json).to be_a Hash
-    expect(match.to_json.fetch(:type)).to eq "match_state"
+    expect(match.json_ready).to be_a Hash
+    expect(match.json_ready.fetch(:type)).to eq "match_state"
   end
 
-  it 'to_json: if a user is passed, gives information only about that user' do
-    json = match.to_json(users[0])
+  it 'json_ready: if a user is passed, gives information only about that user' do
+    json = match.json_ready(users[0])
     expect(json).to be_a Hash
     expect(json.fetch(:type)).to eq "player_state"
   end
@@ -83,7 +83,7 @@ describe Match do
   end
 
   it 'can tell you if it has been ended' do
-    expect(match.over).to be_falsey
+    expect(match.over).to be false
     match.end_match
     expect(match.over).to be true
   end

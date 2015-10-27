@@ -5,7 +5,7 @@ require 'pry'
 class Game
   attr_accessor :players, :deck, :hand_size, :winner
 
-  def initialize(players = [], hand_size: 5)
+  def initialize(players: [], hand_size: 5)
     raise ArgumentError, "Cannot have more than five players" if players.length > 5
     raise ArgumentError, "Hand size out of range" if (hand_size * players.length > 52 || hand_size < 1)
     @players = players
@@ -16,7 +16,7 @@ class Game
 
   def deal
     @deck.shuffle
-    5.times { @players.each { |player| player.add_card(@deck.deal_next_card) } }
+    hand_size.times { @players.each { |player| player.add_card(@deck.deal_next_card) } }
   end
 
   def winner

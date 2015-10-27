@@ -11,12 +11,14 @@ class Server
   WELCOME = "Welcome to go fish! I will connect you with your partner..."
   ENTER_ID = "Please enter your unique id or hit enter to create a new user."
   ASK_NAME = "What is your name?"
-  START = "Hit enter to play!"
+  START_GAME = "Hit enter to play!"
   RANK_REQUEST = "What rank would you like to ask for? (Enter as a word.)"
   OPPONENT_REQUEST = "What player would you like to ask?"
   GO_FISH = "Hit enter to go fish!"
   FORFEIT = "Game forfeited!"
-
+  MIN_PLAYERS = 2
+  MAX_PLAYERS = 5
+  HAND_SIZE = 5
 
   def initialize(port: 2000)
     @port = port
@@ -42,12 +44,12 @@ class Server
   end
 
   def run(client) # NOT TESTED
-    user = match_user(client, get_id(client))
-    @pending_users << user unless user.match_in_progress?
-    if player_pair_ready?
-      opponent = @pending_users.shift
-      user = @pending_users.shift
-      match = make_match(user, opponent)
+    add_user(client)
+    sleep 1 # gives it one second to allow more players to connect; so game defaults to MIN_PLAYERS users but could welcome up to MAX_PLAYERS if connect volume is high enough...
+    if enough_players?
+      users_to_play = []
+      MAX_PLAYERS.times { users_to_play << @pending_users.shift unless @pending_users.empty? }
+      match = make_match(users_to_play)
       ask_to_start_match(match)
       match.game.deal
       play_match(match)
@@ -55,26 +57,31 @@ class Server
     end
   end
 
-  def player_pair_ready?
-    @pending_users.length >= 2
+  def add_user(client, id = nil) # had to add the optional argument just to make testable
+    user = match_user(client, id || get_id(client))
+    @pending_users << user unless user.match_in_progress?
+  end
+
+  def enough_players?
+    @pending_users.length >= MIN_PLAYERS
   end
 
   def get_id(client)
     send_output(client, ENTER_ID)
-    get_input(client).to_i || die
+    get_input(client).to_i || die(client)
   end
 
   def get_name(client)
     send_output(client, ASK_NAME)
-    get_input(client) || die # add time-out for unresponsive user?
+    get_input(client) || die(client) # add time-out for unresponsive user?
   end
 
   def get_input(client)
     begin
-      client.read_nonblock(1000).chomp
+      sleep 0.0001
+      client.read_nonblock(1000).strip
     rescue IO::WaitReadable
-      sleep 0.1
-      return nil
+      retry
     rescue IOError
       return nil
     end
@@ -96,23 +103,19 @@ class Server
       send_output(client, "Welcome back #{user.name}!")
     else
       user = User.new(name: get_name(client))
-      send_output(client, "Your unique id is #{user.object_id}. Don't lose it! You'll need it to log in again as you play.")
+      send_output(client, "Welcome, #{user.name}! Your unique id is #{user.object_id}. Don't lose it! You'll need it to log in again as you play.")
     end
     user.client = client
     user
   end
 
   def ask_to_start_match(match)
-    match.users.each { |user| send_output(user.client, START) }
-    match.users.each { |user| get_input(user.client) || die }
+    match.users.each { |user| send_output(user.client, START_GAME) }
+    match.users.each { |user| get_input(user.client) }
   end
 
-  def make_match(user1, user2)
-    player1 = Player.new(name: user1.name)
-    player2 = Player.new(name: user2.name)
-    game = Game.new(player1: player1, player2: player2)
-    match = Match.new(game: game, user1: user1, user2: user2)
-    match
+  def make_match(users)
+    Match.new(users, hand_size: HAND_SIZE)
   end
 
   def play_match(match, timeout_sec = 30) # need to tell the players who they are playing
@@ -125,47 +128,38 @@ class Server
 
   def play_move(match, user, timeout_sec = 30) # NOT TESTED
     tell_player(match, user)
-    player = match.player(user)
     rank = get_rank(match, user, timeout_sec)
-    puts "GOT RANK"
-    opponent = match.opponent(user) # user get_opponent(match, user, timeout_sec) with multiple opponents
-    puts "GOT OPPONENT"
+    opponent = get_opponent(match, user, timeout_sec)
+    match.users.each { |user| tell_request(rank, user, opponent) }
     unless opponent.is_a? NullPlayer
-      puts "OPPONENT NOT NULLPLAYER"
-      opponent_user = match.user(opponent)
-      puts "GOT OPPONENT USER"
-      send_output(opponent_user.client, "Do you have any #{rank}s?")
-      puts "SENT OPPONENT REQUEST"
-      get_input(opponent_user.client)|| die
-      puts "GOT OPPONENT RESPONSE"
+      send_output(opponent.client, "Do you have any #{rank}s?")
+      get_input_or_end_match(match, opponent, timeout_sec)
     end
-    winnings = player.request_cards(opponent, rank)
-    puts "GOT WINNINGS?"
+    winnings = player.request_cards(match.player(opponent), rank)
     if winnings.length > 0
       tell_winnings(match, user, winnings)
-      puts "TOLD WINNINGS"
     else
       play_fish(match, user, timeout_sec)
-      puts "PLAYED FISH"
-      puts "CARDS IN DECK #{match.game.deck.count_cards}"
+      match.users.each { |user| tell_fish(match, user) }
     end
   end
 
   def get_rank(match, user, timeout_sec = 30)
     send_output(user.client, RANK_REQUEST)
-    get_input(user.client)|| die
+    get_input_or_end_match(match, user, timeout_sec)
   end
 
   def get_opponent(match, user, timeout_sec = 30)
     send_output(user.client, OPPONENT_REQUEST)
-    player_name = get_input(user.client)|| die
+    player_name = get_input_or_end_match(match, user, timeout_sec)
     player = match.player_from_name(player_name)
+    return match.user(player)
   end
 
   def play_fish(match, user, timeout_sec = 30)
     player = match.player(user)
     send_output(user.client, GO_FISH)
-    get_input(user.client)|| die
+    get_input_or_end_match(match, user, timeout_sec)
     card_drawn = match.game.go_fish(match.player(user)).to_s
     send_output(user.client, "You drew #{card_drawn}.")
     tell_player(match, user)
@@ -186,18 +180,26 @@ class Server
     input if input
   end
 
+  def tell_fish(match, user_playing)
+    match.users.each { |user| send_output(user.client, "#{user_playing.name} went fish!") }
+  end
+
+  def tell_request(match, rank, user_playing, opponent)
+    match.users.each { |user| send_output(user.client, "#{user_playing.name} requested every two in #{opponent.name}'s hand!") }
+  end
+
   def tell_winnings(match, user, winnings)
     send_output(user.client, "You received:")
     winnings.each { |card| send_output(user.client, card.to_s) }
   end
 
   def tell_player(match, user)
-    player_info = JSON.dump(match.to_json(user))
+    player_info = JSON.dump(match.json_ready(user))
     send_output(user.client, player_info)
   end
 
   def tell_match(match)
-    match_info = JSON.dump(match.to_json)
+    match_info = JSON.dump(match.json_ready)
     match.users.each { |user| send_output(user.client, match_info) }
   end
 

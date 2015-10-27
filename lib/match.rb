@@ -7,14 +7,15 @@ class Match
 
   @@all = []
 
-  def initialize(*users)
+  def initialize(users = [], hand_size: 5)
     @users = users # possible to refactor these two lines into one?
     @users = [User.new, User.new] if @users.length < 2
     @players = []
     @users.each { |user| @players << Player.new(name: user.name) }
-    @game = Game.new(@players)
+    @game = Game.new(players: @players, hand_size: hand_size)
     @users.each { |user| user.add_match(self) }
     save
+    @over = false
   end
 
   def save
@@ -38,13 +39,13 @@ class Match
   def user(player)
     user_index = @players.index(player)
     return @users[user_index] unless !user_index
-    return nil
+    return NullUser.new
   end
 
   def player(user)
     player_index = @users.index(user)
     return @players[player_index] unless !player_index
-    return nil
+    return NullPlayer.new
   end
 
   def player_from_name(name) # currently doesn't account for users with the same name
@@ -52,15 +53,16 @@ class Match
     NullPlayer.new
   end
 
-  def to_json(user = nil)
+  def json_ready(user = nil)
     player = player(user) if user
     return {
       type: "player_state",
-      match: self
+      player: @players.index(player),
+      match: self.object_id
     } if player
     return {
       type: "match_state",
-      match: self
+      match: self.object_id
     }
   end
 

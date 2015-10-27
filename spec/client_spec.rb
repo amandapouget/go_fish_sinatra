@@ -87,7 +87,7 @@ describe Client do
       client2.start
       @client_socket = server.socket.accept
       @client2_socket = server.socket.accept
-      @match = (Match.new(game: Game.new, user1: User.new(name: "Amanda", client: @client_socket), user2: User.new(name: "Vianney", client: @client2_socket)))
+      @match = Match.new([User.new(name: "Amanda", client: @client_socket), User.new(name: "Vianney", client: @client2_socket)])
       @match.game.deal
     end
 
@@ -102,9 +102,9 @@ describe Client do
     end
 
     it 'interprets json and prints player state correctly' do
-      server.tell_player(@match, @match.user1)
+      server.tell_player(@match, @match.users[0])
       putted = capture_stdout { client.puts_message }
-      expect(putted).to include "Amanda, you have"
+      expect(putted).to include "you have"
     end
 
     it 'turns an array of card strings into a simple string' do

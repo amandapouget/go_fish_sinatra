@@ -68,7 +68,7 @@ class NullPlayer < Player
   attr_accessor :name, :cards, :books
 
   def initialize
-    @name = nil
+    @name = "none"
     @cards = []
     @books = []
   end

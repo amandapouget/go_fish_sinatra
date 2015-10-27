@@ -1,6 +1,6 @@
 require 'socket'
 require 'json'
-require 'pry'
+require './lib/match.rb'
 
 class Client
   attr_reader :socket
@@ -13,9 +13,9 @@ class Client
   def puts_message
     begin
       message = @socket.read_nonblock(1000).chomp # Read lines from socket
-      if message[0] == "{"
+      begin
         interpret(message)
-      else
+      rescue
         puts message
       end
     rescue IO::WaitReadable
@@ -27,7 +27,6 @@ class Client
       input = ($stdin.read_nonblock(1000)).chomp
       provide_input(input)
     rescue => e
-      puts e.message
     end
   end
 
@@ -41,36 +40,32 @@ class Client
     playerify(message_hash) if message_hash.fetch("type") == "player_state"
   end
 
-  def matchify(hash)
-    player1 = hash.fetch("player1")
-    player2 = hash.fetch("player2")
-    player1_cards = hash.fetch("player1_cards")
-    player2_cards = hash.fetch("player2_cards")
-    player1_num_cards = hash.fetch("player1_num_cards")
-    player2_num_cards = hash.fetch("player2_num_cards")
-    player1_num_books = hash.fetch("player1_num_books")
-    player2_num_books = hash.fetch("player2_num_books")
-    player1_books = hash.fetch("player1_books")
-    player2_books = hash.fetch("player2_books")
-    deck_num_cards = hash.fetch("deck_num_cards")
-    game_over = hash.fetch("game_over?")
-    winner = hash.fetch("winner") || "tied"
-    loser = hash.fetch("loser") || "tied"
+  def matchify(message_hash)
+    match_id = message_hash.fetch("match") # can't get it to parse / inflate!!!
+    match = Match.find_by_obj_id(match_id) # cheating... how would the client have access to all Match info...
+    players = match.players
+    player_names = []
+    match.players.each { |player| player_names << player.name }
+    player_names = seriesify(player_names)
 
-    output = "Players: #{player1} and #{player2}. #{player1} has #{player1_num_books} books. #{player2} has #{player2_num_books} books. #{player1} has #{player1_num_cards} cards, including #{seriesify(player1_cards)}. #{player2} has #{player2_num_cards} cards, including #{seriesify(player2_cards)}. The deck has #{deck_num_cards} cards left to fish for."
-    output += " Therefore, the game is over. Winner: #{winner}. Loser: #{loser}." if game_over
+    output = "Players: #{player_names}."
+    players.each { |player| output += " #{player.name} has #{player.books.length} books and #{player.count_cards} cards." }
+    output += " The deck has #{match.game.deck.count_cards} cards left to fish for."
+    output += " The game is over. Winner: #{winner}." if match.over
     puts output
   end
 
-  def playerify(hash)
-    player = hash.fetch("player")
-    player_cards = hash.fetch("player_cards")
-    player_num_cards = hash.fetch("player_num_cards")
-    player_num_books = hash.fetch("player_num_books")
-    game_over = hash.fetch("game_over?")
+  def playerify(message_hash)
+    match_id = message_hash.fetch("match") # can't get it to parse / inflate!!!
+    match = Match.find_by_obj_id(match_id) # cheating... how would the client have access to all Match info...
+    player_index = message_hash.fetch("player").to_i
+    player = match.players[player_index]
+    player_cards = []
+    player.cards.each { |card| player_cards << card.to_s }
+    player = match.players[player_index]
 
-    output = "#{player}, you have #{player_num_cards} cards, including #{seriesify(player_cards)}. You have #{player_num_books} books."
-    output += " The game is over!" if game_over
+    output = "#{player.name}, you have #{player.count_cards} cards, including #{seriesify(player_cards)}. You have #{player.books.length} books."
+    output += " The game is over!" if match.over
     puts output
   end
 
