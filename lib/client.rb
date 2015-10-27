@@ -38,6 +38,7 @@ class Client
     message_hash = JSON.parse(message)
     matchify(message_hash) if message_hash.fetch("type") == "match_state"
     playerify(message_hash) if message_hash.fetch("type") == "player_state"
+    raise ArgumentError, "Not a match_state or player_state"
   end
 
   def matchify(message_hash)

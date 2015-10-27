@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Go Fish</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Rock+Salt' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Lato:400,400italic,700,700italic,900italic,900' rel='stylesheet' type='text/css'>
+    <link href='../styles/styles.css'rel='stylesheet' type='text/css' >
+  </head>
+  <body>
+    <header>
+      <h1>Go Fish</h1>
+    </header>
+    <main class='game' >
+      <div class="top-row">
+        <div class="two-in-box">
+          <h4>Jaws</h4>
+          <img src="../images/player_dino.png" height="96px" width="71px">
+          <img src="../images/cards/backs_blue.png" height="96px" width="71px">
+        </div>
+        <div class="two-in-box">
+          <h4>Nemo</h4>
+          <img src="../images/player_penguin.png" height="96px" width="71px">
+          <img src="../images/cards/backs_blue.png" height="96px" width="71px">
+        </div>
+      </div>
+      <div class="middle-row">
+        <div class="three-in-box box-small">
+          <h4>Dory</h4>
+          <img src="../images/player_bee.png" height="96px" width="71px">
+          <img src="../images/cards/backs_blue.png" height="96px" width="71px">
+        </div>
+        <div class="three-in-box box-center">
+          <div id="speech">
+          </div>
+          <div class="fish-blue">
+            <img src="../images/fish_blue.png" height="200px" width="210px">
+          </div>
+        </div>
+        <div class="three-in-box box-small">
+          <h4>Puffer</h4>
+          <img src="../images/player_elephant.png" height="96px" width="71px">
+          <img src="../images/cards/backs_blue.png" height="96px" width="71px">
+        </div>
+      </div>
+      <div class="bottom-row">
+        <div class="two-in-box" id="books">
+          <h4>Your Books</h4>
+          <img src="../images/cards/backs_blue.png">
+        </div>
+        <div class="two-in-box">
+          <h4>Amanda (You)</h4>
+          <img src="../images/player_bear.png" height="96px" width="71px">
+          <img src="../images/cards/backs_blue.png" height="96px" width="71px">
+          <img src="../images/cards/backs_blue.png" height="96px" width="71px">
+          <img src="../images/cards/backs_blue.png" height="96px" width="71px">
+          <img src="../images/cards/backs_blue.png" height="96px" width="71px">
+          <img src="../images/cards/backs_blue.png" height="96px" width="71px">
+        </div>
+        <div class="two-in-box">
+          <h4>Fish Left</h4>
+          <h1 id="fish_left">12</h1>
+        </div>
+      </div>
+    </main>
+    <br>
+    <footer>
+      <a href='../views/index.html'><button type='button'>Restart Game</button></a>
+    </footer>
+  </body>
+</html>
