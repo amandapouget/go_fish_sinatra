@@ -1,8 +1,8 @@
 body {
-  background-color: #654321;
+  background-color: #3f2a14;
   color: white;
   padding: 5px;
-  font-size: 17pt;
+  font-size: 1.5em;
   font-family: 'Lato';
 }
 
@@ -24,14 +24,21 @@ h1 {
   font-size: 3em;
 }
 
+h2 {
+  -webkit-margin-before: 0.1em;
+  -webkit-margin-after: 0.1em;
+  color: #FFFDD0;
+  text-align: center;
+  font-family: 'Rock Salt', cursive;
+  font-size: 2em;
+}
+
 button {
   border-radius: 8px;
   background-color: #FFFDD0;
   font-size: 1em;
   font-family: 'Lato';
   color: #654321;
-  -webkit-margin-before: 0.1em;
-  -webkit-margin-after: 0.1em;
 }
 
 h4 {
@@ -41,6 +48,7 @@ h4 {
 .game {
   border: 5px solid #FFFDD0;
   border-radius: 25px;
+  background-color: #654321;
   padding: 5px;
   margin: auto;
   width: 80%;
@@ -53,6 +61,7 @@ h4 {
 
 .two-in-box {
   display: inline-block;
+  vertical-align: top;
   margin: 30px;
 }
 
@@ -70,6 +79,7 @@ h4 {
 
 .three-in-box {
   display: inline-block;
+  vertical-align: middle;
 }
 
 #speech {
@@ -91,14 +101,11 @@ h4 {
 }
 
 .bottom-row {
-  margin: auto;
-  min-height: 250px;
+  margin: 0 auto;
 }
 
-
 #fish_score {
-  font-size: 3em;
-  margin: 0;
+  line-height: 80px;
 }
 
 @media only screen and (max-width: 500px) {
