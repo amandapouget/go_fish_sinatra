@@ -1,7 +1,8 @@
-require './lib/game.rb'
-require './lib/player.rb'
-require 'pry'
+require_relative './game.rb'
+require_relative './player.rb'
 
+require_relative './user.rb'
+require 'pry'
 class Match
   attr_accessor :game, :users, :players, :over
 
@@ -55,14 +56,17 @@ class Match
 
   def json_ready(user = nil)
     player = player(user) if user
+    player_cards = []
+    player.cards.each { |card| player_cards << card.to_s } if user
     return {
       type: "player_state",
       player: @players.index(player),
-      match: self.object_id
+      player_cards: player_cards,
+      match: self
     } if player
     return {
       type: "match_state",
-      match: self.object_id
+      match: self
     }
   end
 

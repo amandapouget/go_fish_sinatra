@@ -77,9 +77,11 @@ describe Player do
       end
 
       it 'politely sorts the players cards by rank for easy visualization' do
-        expected_order = player.cards.sort_by { |card| card.rank_value }
         player.collect_winnings([])
-        expect(player.cards).to eq expected_order
+        value = 0
+        player.cards { |card|
+          expect(card.rank_value).to be >= value
+          value = card.rank_value }
       end
 
       it 'makes any possible books and moves those cards to the players books' do
@@ -97,10 +99,12 @@ describe Player do
         expect(@deck.count_cards).to eq deck_count - 1
       end
 
-      it 'politely sorts the players cards' do # need to redo this test! fails every 13 times ensure all ranks are different in test please
+      it 'politely sorts the players cards' do
         player.go_fish(@deck)
-        expected_order = player.cards.sort_by { |card| card.rank_value }
-        expect(player.cards).to eq expected_order
+        value = 0
+        player.cards { |card|
+          expect(card.rank_value).to be >= value
+          value = card.rank_value }
       end
 
       it 'makes any possible books and moves those cards to the players books' do

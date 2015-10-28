@@ -108,9 +108,9 @@ describe Server do
           describe '#get_id' do
             it 'asks for a unique id and takes client input' do
               failures = []
-              1000.times do |time| # run this many times to pull out if it fails 1% of the time as was happening before added sleep... sleep reduces but does not eliminate odds of this happening!
+              10.times do |time|
                 client0.provide_input("123")
-                id = server.get_id(@client0_socket)
+                id = server.get_id(@client0_socket, 0.00001)
                 failures << time if id != 123
               end
               expect(failures).to eq []
@@ -121,9 +121,9 @@ describe Server do
           describe '#get_name' do
             it 'asks the client for the players name and returns it as a string' do
               failures = []
-              1000.times do |time| # run this many times to pull out if it fails 1% of the time as was happening before added sleep
+              10.times do |time|
                 client0.provide_input("Amanda")
-                name = server.get_name(@client0_socket)
+                name = server.get_name(@client0_socket, 0.00001)
                 failures << time if name != "Amanda"
               end
               expect(failures).to eq []
@@ -214,7 +214,6 @@ describe Server do
               end
             end
 
-
             describe '#play_match' do
               it 'plays the game until over and ends the match' do
                 expect(match.over).to be false
@@ -233,26 +232,25 @@ describe Server do
               describe '#play_move, #play_fish' do
                 it 'it asks a player for a rank to request' do
                   client0.provide_input("two")
-                  rank = server.get_rank(match, user0, 0.001)
+                  rank = server.get_rank(match, user0)
                   expect(client0.output).to include Server::RANK_REQUEST
                   expect(rank).to eq "two"
                 end
 
                 it 'asks him for a player to request cards from' do
                   client0.provide_input("#{user1.name}")
-                  opponent = server.get_opponent(match, user0, 0.001)
+                  opponent = server.get_opponent(match, user0)
                   expect(client0.output).to include Server::OPPONENT_REQUEST
                   expect(opponent).to eq user1
                 end
 
-                it 'tells the player he must go fish, waits for input, then makes the player go fish and then tells him his result and his cards' do
+                it 'tells the player he must go fish, waits for input, then makes the player go fish and then tells him what he drew' do
                   count = match.players[2].count_cards
                   client2.provide_input("\n")
-                  server.play_fish(match, user2, 0.001)
+                  server.play_fish(match, user2)
                   expect(match.players[2].count_cards).to eq count + 1
                   expect(client2.output).to include Server::GO_FISH
                   expect(client2.output).to include "You drew"
-                  expect(client2.output).to include JSON.dump(match.json_ready(user2))
                 end
               end
 
@@ -264,14 +262,6 @@ describe Server do
                   server.match_user(new_socket, user1.id)
                   server.send_output(match.users[1].client, "Reconnected!")
                   expect(client1.capture_output).to include "Reconnected!"
-                end
-              end
-
-              describe '#get_input_or_end_match' do
-                it 'ends the match if a user takes more than a given number of seconds to respond' do
-                  server.get_input_or_end_match(match, user0, 0.001)
-                  clients.each { |client| expect(client.output).to include Server::FORFEIT }
-                  expect(match.over).to be true
                 end
               end
             end

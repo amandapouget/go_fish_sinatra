@@ -1,10 +1,10 @@
 require 'socket'
 require 'json'
+require 'pry'
 require_relative './game'
 require_relative './player'
 require_relative './user.rb'
-require 'pry'
-require 'timeout'
+require_relative './match.rb'
 
 class Server
   attr_accessor :port, :socket, :pending_users, :clients, :game
@@ -66,30 +66,33 @@ class Server
     @pending_users.length >= MIN_PLAYERS
   end
 
-  def get_id(client)
+  def get_id(client, delay=0.1)
     send_output(client, ENTER_ID)
-    get_input(client).to_i || die(client)
+    get_input(client, delay).to_i || die(client)
   end
 
-  def get_name(client)
+  def get_name(client, delay=0.1)
     send_output(client, ASK_NAME)
-    get_input(client) || die(client) # add time-out for unresponsive user?
+    get_input(client, delay) || die(client) # add time-out for unresponsive user?
   end
 
-  def get_input(client)
+  def get_input(client, delay=0.1)
     begin
-      sleep 0.0001
+      sleep delay
       client.read_nonblock(1000).strip
     rescue IO::WaitReadable
       retry
-    rescue IOError
+    rescue => e
       return nil
     end
   end
 
   def send_output(client, output)
-    client.puts(output)
-  rescue IOError
+    begin
+      sleep 0.01
+      client.print(output)
+    rescue IOError
+    end
   end
 
   def die(client) # NOT TESTED
@@ -118,66 +121,54 @@ class Server
     Match.new(users, hand_size: HAND_SIZE)
   end
 
-  def play_match(match, timeout_sec = 30) # need to tell the players who they are playing
+  def play_match(match) # need to tell the players who they are playing
     while !match.game.game_over?
-      match.users.each { |user| play_move(match, user, timeout_sec) unless match.game.game_over? }
+      match.users.each { |user| play_move(match, user) unless match.game.game_over? }
     end
     tell_match(match)
     match.end_match
   end
 
-  def play_move(match, user, timeout_sec = 30) # NOT TESTED
+  def play_move(match, user) # NOT TESTED
     tell_player(match, user)
-    rank = get_rank(match, user, timeout_sec)
-    opponent = get_opponent(match, user, timeout_sec)
-    match.users.each { |user| tell_request(rank, user, opponent) }
-    unless opponent.is_a? NullPlayer
+    rank = get_rank(match, user)
+    opponent = get_opponent(match, user,)
+    tell_request(match, rank, user, opponent)
+    unless opponent.is_a? NullUser
+      tell_player(match, opponent)
       send_output(opponent.client, "Do you have any #{rank}s?")
-      get_input_or_end_match(match, opponent, timeout_sec)
+      get_input(opponent.client)
+      winnings = match.player(user).request_cards(match.player(opponent), rank)
     end
-    winnings = player.request_cards(match.player(opponent), rank)
-    if winnings.length > 0
+    if winnings && winnings.length > 0
       tell_winnings(match, user, winnings)
     else
-      play_fish(match, user, timeout_sec)
-      match.users.each { |user| tell_fish(match, user) }
+      play_fish(match, user)
+      tell_fish(match, user)
     end
   end
 
-  def get_rank(match, user, timeout_sec = 30)
+  def get_rank(match, user)
     send_output(user.client, RANK_REQUEST)
-    get_input_or_end_match(match, user, timeout_sec)
+    get_input(user.client)
   end
 
-  def get_opponent(match, user, timeout_sec = 30)
+  def get_opponent(match, user)
     send_output(user.client, OPPONENT_REQUEST)
-    player_name = get_input_or_end_match(match, user, timeout_sec)
+    player_name = ""
+    while player_name == "" do
+      player_name = get_input(user.client)
+    end
     player = match.player_from_name(player_name)
     return match.user(player)
   end
 
-  def play_fish(match, user, timeout_sec = 30)
+  def play_fish(match, user)
     player = match.player(user)
     send_output(user.client, GO_FISH)
-    get_input_or_end_match(match, user, timeout_sec)
+    get_input(user.client)
     card_drawn = match.game.go_fish(match.player(user)).to_s
     send_output(user.client, "You drew #{card_drawn}.")
-    tell_player(match, user)
-  end
-
-  def get_input_or_end_match(match, user, timeout_sec) # not currently used
-    input = nil
-    begin
-      Timeout::timeout(timeout_sec) { input = get_input(user.client) until input }
-    rescue
-      match.users.each do |user|
-        send_output(user.client, FORFEIT)
-        stop_connection(user.client)
-      end
-      match.end_match
-      Thread.kill(Thread.current) unless timeout_sec == 0.001 # moment of cheating... can't have it kill RSPEC thread!
-    end
-    input if input
   end
 
   def tell_fish(match, user_playing)
@@ -185,7 +176,7 @@ class Server
   end
 
   def tell_request(match, rank, user_playing, opponent)
-    match.users.each { |user| send_output(user.client, "#{user_playing.name} requested every two in #{opponent.name}'s hand!") }
+    match.users.each { |user| send_output(user.client, "#{user_playing.name} requested every #{rank} in #{opponent.name}'s hand!") }
   end
 
   def tell_winnings(match, user, winnings)

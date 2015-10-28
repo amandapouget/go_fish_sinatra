@@ -10,6 +10,7 @@ describe Match do
 
   before do
     match
+    match.game.deal
   end
 
   after do

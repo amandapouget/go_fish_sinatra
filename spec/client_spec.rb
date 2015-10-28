@@ -104,7 +104,7 @@ describe Client do
     it 'interprets json and prints player state correctly' do
       server.tell_player(@match, @match.users[0])
       putted = capture_stdout { client.puts_message }
-      expect(putted).to include "you have"
+      expect(putted).to include "You have"
     end
 
     it 'turns an array of card strings into a simple string' do

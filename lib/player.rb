@@ -22,7 +22,8 @@ class Player
     valid = false
     @cards.each { |card| valid = true if card.rank == rank }
     return [] if !valid
-    player.give_cards(rank)
+    cards = player.give_cards(rank)
+    cards
   end
 
   def collect_winnings(winnings)
