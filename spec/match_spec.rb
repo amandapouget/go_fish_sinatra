@@ -10,7 +10,6 @@ describe Match do
 
   before do
     match
-    match.game.deal
   end
 
   after do
@@ -67,15 +66,22 @@ describe Match do
     expect(match.player_from_name("Bob")).to be_a NullPlayer
   end
 
+  it 'gives me player state' do
+    match.player(user1).add_card(Card.new(rank:'A', suit: 'S'))
+    json = match.player_state(user1)
+    expect(json[:type]).to eq "player_state"
+    expect(json[:player_cards]).to eq [{rank: 'A', suit: 'S'}]
+  end
+
   it 'can give you a json string containing the most critical information about the objects it contains' do
     expect(match.json_ready).to be_a Hash
-    expect(match.json_ready.fetch(:type)).to eq "match_state"
+    expect(match.json_ready[:type]).to eq "match_state"
   end
 
   it 'json_ready: if a user is passed, gives information only about that user' do
     json = match.json_ready(users[0])
     expect(json).to be_a Hash
-    expect(json.fetch(:type)).to eq "player_state"
+    expect(json[:type]).to eq "player_state"
   end
 
   it 'can end itself' do

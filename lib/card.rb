@@ -19,4 +19,12 @@ class Card
   def to_s
     "the " + @rank + " of " + @suit
   end
+
+  def as_json
+    { rank: rank, suit: suit }
+  end
+
+  def to_json(*args)
+    as_json.to_json
+  end
 end

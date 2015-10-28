@@ -54,6 +54,13 @@ class Match
     NullPlayer.new
   end
 
+  def player_state(user)
+    return {
+      type: "player_state",
+      player_cards: player(user).cards.to_json
+    }
+  end
+
   def json_ready(user = nil)
     player = player(user) if user
     player_cards = []
