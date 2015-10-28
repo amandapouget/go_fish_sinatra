@@ -64,7 +64,6 @@ class Client
     # player_cards = []
     # player.cards.each { |card| player_cards << card.to_s }
     # output = "#{player.name}, you have #{player.count_cards} cards, including #{seriesify(player_cards)}. You have #{player.books.length} books."
-    # output += " The game is over!" if match.over
     player_cards = message_hash.fetch("player_cards")
     output = "You have: #{seriesify(player_cards)}."
     return output

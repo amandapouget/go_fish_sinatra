@@ -44,7 +44,7 @@ describe Server do
       end
 
       after do
-        server.stop_server
+        server.stop
       end
 
       describe '#start' do
@@ -108,7 +108,7 @@ describe Server do
           describe '#get_id' do
             it 'asks for a unique id and takes client input' do
               failures = []
-              10.times do |time|
+              100.times do |time|
                 client0.provide_input("123")
                 id = server.get_id(@client0_socket, 0.00001)
                 failures << time if id != 123
@@ -121,7 +121,7 @@ describe Server do
           describe '#get_name' do
             it 'asks the client for the players name and returns it as a string' do
               failures = []
-              10.times do |time|
+              100.times do |time|
                 client0.provide_input("Amanda")
                 name = server.get_name(@client0_socket, 0.00001)
                 failures << time if name != "Amanda"
@@ -289,9 +289,9 @@ describe Server do
               end
             end
 
-            describe '#tell_player' do
+            describe '#tell_player_his_hand' do
               it 'tells a player his own current state (cards, books, etc)' do
-                server.tell_player(match, user0)
+                server.tell_player_his_hand(match, user0)
                 expect(client0.output).to include JSON.dump(match.json_ready(user0))
               end
             end
@@ -321,21 +321,21 @@ describe Server do
               end
             end
 
-            describe '#stop_server' do
+            describe '#stop' do
               it 'closes all the connections in clients and removes them from clients' do
-                server.stop_server
+                server.stop
                 client_sockets.each { |socket| expect(socket.closed?).to be true }
                 expect(server.clients.length).to eq 0
               end
 
               it 'removes all the pending users' do
                 users.each { |user| server.pending_users << user }
-                server.stop_server
+                server.stop
                 expect(server.pending_users).to eq []
               end
 
               it 'closes the server socket' do
-                server.stop_server
+                server.stop
                 expect(server.socket.closed?).to be true
               end
             end

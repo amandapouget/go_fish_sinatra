@@ -22,12 +22,12 @@ class Server
 
   def initialize(port: 2000)
     @port = port
+    @pending_users = []
+    @clients = []
   end
 
   def start
     @socket = TCPServer.open('localhost', @port)
-    @pending_users = []
-    @clients = []
   end
 
   def make_threads # not tested
@@ -66,17 +66,17 @@ class Server
     @pending_users.length >= MIN_PLAYERS
   end
 
-  def get_id(client, delay=0.1)
+  def get_id(client, delay=0.001)
     send_output(client, ENTER_ID)
     get_input(client, delay).to_i || die(client)
   end
 
-  def get_name(client, delay=0.1)
+  def get_name(client, delay=0.001)
     send_output(client, ASK_NAME)
     get_input(client, delay) || die(client) # add time-out for unresponsive user?
   end
 
-  def get_input(client, delay=0.1)
+  def get_input(client, delay=0.001)
     begin
       sleep delay
       client.read_nonblock(1000).strip
@@ -89,9 +89,10 @@ class Server
 
   def send_output(client, output)
     begin
-      sleep 0.01
       client.print(output)
-    rescue IOError
+      sleep 0.001
+    rescue IOError => e
+      puts e.message
     end
   end
 
@@ -130,12 +131,12 @@ class Server
   end
 
   def play_move(match, user) # NOT TESTED
-    tell_player(match, user)
+    tell_player_his_hand(match, user)
     rank = get_rank(match, user)
-    opponent = get_opponent(match, user,)
+    opponent = get_opponent(match, user)
     tell_request(match, rank, user, opponent)
     unless opponent.is_a? NullUser
-      tell_player(match, opponent)
+      tell_player_his_hand(match, opponent)
       send_output(opponent.client, "Do you have any #{rank}s?")
       get_input(opponent.client)
       winnings = match.player(user).request_cards(match.player(opponent), rank)
@@ -184,7 +185,7 @@ class Server
     winnings.each { |card| send_output(user.client, card.to_s) }
   end
 
-  def tell_player(match, user)
+  def tell_player_his_hand(match, user)
     player_info = JSON.dump(match.json_ready(user))
     send_output(user.client, player_info)
   end
@@ -199,11 +200,9 @@ class Server
     @clients.delete(client)
   end
 
-  def stop_server
-    connections = []
-    @clients.each { |client| connections << client } if @clients
-    connections.each { |client| stop_connection(client) }
-    @pending_users = [] if @pending_users
+  def stop
+    @clients.clone.each { |client| stop_connection(client) }
+    @pending_users = []
     @socket.close if (@socket && !@socket.closed?)
   end
 end

@@ -42,7 +42,7 @@ describe Client do
     end
 
     after do
-      server.stop_server
+      server.stop
     end
 
     it 'makes a connection when started' do
@@ -92,7 +92,9 @@ describe Client do
     end
 
     after do
-      server.stop_server
+      @client_socket.close
+      @client2_socket.close
+      server.stop
     end
 
     it 'interprets json and prints match state' do
@@ -102,7 +104,7 @@ describe Client do
     end
 
     it 'interprets json and prints player state correctly' do
-      server.tell_player(@match, @match.users[0])
+      server.tell_player_his_hand(@match, @match.users[0])
       putted = capture_stdout { client.puts_message }
       expect(putted).to include "You have"
     end
