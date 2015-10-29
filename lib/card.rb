@@ -26,9 +26,5 @@ class Card
 
   def to_json(*args)
     as_json.to_json
-  end\
-
-
-
-
+  end
 end
