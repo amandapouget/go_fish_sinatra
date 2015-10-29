@@ -4,22 +4,47 @@ require './app'
 Capybara.app = Sinatra::Application
 set(:show_exceptions, false) # "After line 3 in your integration testing spec (Capybara.app = Sinatra::Application), add the line set(:show_exceptions, false) to ensure that when a test is passing there are no errors." What does this mean?
 
+FISH = "/images/fish_blue.png"
+RESTART = 'Restart Game'
+
 describe 'Index' do
   feature 'initial page open' do
-    it 'see the Go Fish header' do
+    before do
       visit '/'
+    end
+
+    it 'see the Go Fish header' do
       expect(page).to have_content("Go Fish")
     end
+
     it 'makes sure all of the player images are on the page' do
-      visit '/'
-      player_image_filenames = Dir.glob('./public/images/players/*.{png, jpg}')
+      player_image_filenames = Dir.glob('./public/images/players/*.png')
       player_image_filenames.each do |file|
         file_name = file.sub(/^.\/public/,'')
         expect(page).to have_xpath("//img[contains(@src,'#{file_name}')]")
       end
     end
+
+    it 'has the blue announcement fish' do
+      expect(page).to have_xpath("//img[contains(@src,'#{FISH}')]")
+    end
+
+    it 'has the speech bubble for making game announcements' do
+      expect(page).to have_css("#speech") # only tests presence of div, not what the css supplies it
+    end
+
+    it 'has a button to reload the page' do
+      click_on(RESTART)
+      expect(current_path).to eq '/'
+    end
   end
 end
+
+# within login_form do
+#   fill_in "Email", :with => "jonas@elabs.se"
+#   fill_in "Password", :with => "capybara"
+#   click_button "Login"
+# end
 
 # expect(page).to have_xpath("//img[contains(@src,'player_bee.png')]")
 # expect(page).to have_xpath("//img[contains(@src,'#{File.basename(promotion.image.url)}')]")

@@ -6,3 +6,7 @@ also_reload '**/*.rb'
 get '/' do
   erb :index
 end
+
+get '/test' do
+  erb :no_dex
+end

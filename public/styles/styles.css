@@ -33,12 +33,15 @@ h2 {
   font-size: 2em;
 }
 
-button {
+.button {
+  display: inline-block;
+  padding: 5px 10px;
   border-radius: 8px;
   background-color: #FFFDD0;
   font-size: 1em;
   font-family: 'Lato';
   color: #654321;
+  text-decoration: none;
 }
 
 h4 {
