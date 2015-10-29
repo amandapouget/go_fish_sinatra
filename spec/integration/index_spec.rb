@@ -1,5 +1,6 @@
 require 'capybara/rspec'
-require('./app')
+require './app'
+
 Capybara.app = Sinatra::Application
 set(:show_exceptions, false) # "After line 3 in your integration testing spec (Capybara.app = Sinatra::Application), add the line set(:show_exceptions, false) to ensure that when a test is passing there are no errors." What does this mean?
 
@@ -9,8 +10,19 @@ describe 'Index' do
       visit '/'
       expect(page).to have_content("Go Fish")
     end
+    it 'makes sure all of the player images are on the page' do
+      visit '/'
+      player_image_filenames = Dir.glob('./public/images/players/*.{png, jpg}')
+      player_image_filenames.each do |file|
+        file_name = file.sub(/^.\/public/,'')
+        expect(page).to have_xpath("//img[contains(@src,'#{file_name}')]")
+      end
+    end
   end
 end
+
+# expect(page).to have_xpath("//img[contains(@src,'player_bee.png')]")
+# expect(page).to have_xpath("//img[contains(@src,'#{File.basename(promotion.image.url)}')]")
 
 # describe('CD Organizer') do
 #   before do
