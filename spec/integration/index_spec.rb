@@ -4,9 +4,11 @@ Capybara.app = Sinatra::Application
 set(:show_exceptions, false) # "After line 3 in your integration testing spec (Capybara.app = Sinatra::Application), add the line set(:show_exceptions, false) to ensure that when a test is passing there are no errors." What does this mean?
 
 describe 'Index' do
-  it 'opens the page and see the Go Fish header' do
-    visit '/'
-    expect(page).to have_conent("Go Fish")
+  feature 'initial page open' do
+    it 'see the Go Fish header' do
+      visit '/'
+      expect(page).to have_content("Go Fish")
+    end
   end
 end
 
