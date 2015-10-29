@@ -70,7 +70,7 @@ describe Match do
     match.player(user1).add_card(Card.new(rank:'A', suit: 'S'))
     json = match.player_state(user1)
     expect(json[:type]).to eq "player_state"
-    expect(json[:player_cards]).to eq [{rank: 'A', suit: 'S'}]
+    expect(json[:player_cards]).to eq "[{\"rank\":\"A\",\"suit\":\"S\"}]"
   end
 
   it 'can give you a json string containing the most critical information about the objects it contains' do
