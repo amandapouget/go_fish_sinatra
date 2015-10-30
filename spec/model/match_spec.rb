@@ -16,6 +16,10 @@ describe Match do
     Match.clear
   end
 
+  it 'can tell you how many players it has' do
+    expect(match.num_players).to eq match.players.length
+  end
+
   it 'initializes with a game and users, an array of the users, plus players connected to the game' do
     expect(match.game).to be_a Game
     expect(match.users).to match_array [user1, user2, user3]
@@ -109,6 +113,7 @@ describe NullMatch do
     expect(nullmatch.player_from_name("any string")).to eq nil
     expect { nullmatch.save }.to_not raise_exception
     expect(nullmatch.to_json).to eq nil
+    expect(nullmatch.num_players).to eq 0
   end
 
   it 'calls equal two nullmatches but not a nullmatch and a regular match' do

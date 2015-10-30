@@ -24,6 +24,10 @@ class Match
     @@all.uniq!
   end
 
+  def num_players
+    players.length
+  end
+
   def self.all
     @@all
   end
@@ -104,6 +108,10 @@ class NullMatch
   end
 
   def player_from_name(name)
+  end
+
+  def num_players
+    0
   end
 
   def to_json
