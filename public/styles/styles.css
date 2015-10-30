@@ -31,6 +31,7 @@ h2 {
   text-align: center;
   font-family: 'Rock Salt', cursive;
   font-size: 2em;
+  line-height: 80px;
 }
 
 .button {
@@ -107,8 +108,8 @@ h4 {
   margin: 0 auto;
 }
 
-#fish_score {
-  line-height: 80px;
+#no_player_message {
+  margin: 10px;
 }
 
 @media only screen and (max-width: 500px) {
