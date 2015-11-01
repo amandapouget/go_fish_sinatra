@@ -5,10 +5,11 @@ describe Player do
   let(:opponent) { Player.new(name: "Dragon") }
 
   describe '#initialize' do
-    it 'creates a player object with a name, an array for holding cards, and an array for holding books' do
+    it 'creates a player object with a name, an icon, an array for holding cards, and an array for holding books' do
       expect(player.name).to eq "John"
       expect(player.cards).to eq []
       expect(player.books).to eq []
+      expect(player.icon).to eq ""
     end
 
     it 'defaults to Anonymous if no name is given' do
@@ -166,6 +167,7 @@ describe Player do
       expect { nullplayer.add_card(card_3c) }.to_not raise_exception
       expect { nullplayer.make_books }.to_not raise_exception
       expect { nullplayer.sort_cards }.to_not raise_exception
+      expect { nullplayer.icon }.to_not raise_exception
     end
 
     it 'returns 0 when its cards are counted' do

@@ -20,10 +20,12 @@ describe Match do
     expect(match.num_players).to eq match.players.length
   end
 
-  it 'initializes with a game and users, an array of the users, plus players connected to the game' do
+  it 'initializes with a game and users, an array of the users, plus players connected to the game with unique go_fish icons' do
     expect(match.game).to be_a Game
     expect(match.users).to match_array [user1, user2, user3]
     expect(match.game.players).to match_array match.players
+    icons = Dir.glob("./public/images/players/*.png")
+    players.each { |player| expect(icons).to include "./public#{player.icon}" }
   end
 
   it 'upon initialization, makes the user acknowledge it as the current_match' do

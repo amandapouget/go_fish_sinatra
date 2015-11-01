@@ -9,14 +9,16 @@ class Match
   @@all = []
 
   def initialize(users = [], hand_size: 5)
-    @users = users # possible to refactor these two lines into one?
+    @users = users
     @users = [User.new, User.new] if @users.length < 2
     @players = []
     @users.each { |user| @players << Player.new(name: user.name) }
+    icons = (Dir.glob("./public/images/players/*.png")).map! { |filename| filename = filename.sub(/^.\/public/,'') }
+    @players.each_with_index { |player, index| player.icon = icons[index] }
     @game = Game.new(players: @players, hand_size: hand_size)
     @users.each { |user| user.add_match(self) }
-    save
     @over = false
+    save
   end
 
   def save

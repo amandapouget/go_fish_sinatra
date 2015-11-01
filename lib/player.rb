@@ -2,12 +2,13 @@ require 'pry'
 
 class Player
 
-  attr_accessor :name, :cards, :books
+  attr_accessor :name, :cards, :books, :icon
 
-  def initialize(name: "Anonymous")
+  def initialize(name: "Anonymous", icon: "")
     @name = name
     @cards = []
     @books = []
+    @icon = icon
   end
 
   def give_cards(rank)
