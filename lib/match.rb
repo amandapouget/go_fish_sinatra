@@ -107,6 +107,10 @@ class NullMatch
     []
   end
 
+  def opponents(player)
+    []
+  end
+
   def players
     []
   end

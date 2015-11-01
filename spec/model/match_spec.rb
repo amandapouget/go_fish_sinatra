@@ -118,6 +118,7 @@ describe NullMatch do
     expect { nullmatch.save }.to_not raise_exception
     expect(nullmatch.to_json).to eq nil
     expect(nullmatch.num_players).to eq 0
+    expect(nullmatch.opponents(player)).to eq []
   end
 
   it 'calls equal two nullmatches but not a nullmatch and a regular match' do
