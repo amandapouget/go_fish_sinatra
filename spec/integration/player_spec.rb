@@ -12,39 +12,42 @@ describe 'player view page' do
     feature "displays game correctly for player[#{player_id}] after deal" do
       before :each do
         visit ('/player/' + player_id.to_s)
-        @other_player_ids = (0..(NUM_PLAYERS - 1)).to_a.tap { |player_ids| player_ids.delete(player_id) }
       end
 
       it_behaves_like "a Go Fish page with layout"
 
+      it 'has all the player names' do
+        # not sure how to test this
+      end
+
       it 'has all of the player images' do
-       players_image_filenames.each do |file|
+        players_image_filenames.each do |file|
           file_name = file.sub(/^.\/public/,'')
-          expect(page).to have_xpath("//img[contains(@src,'#{file_name}')]")
+          expect(page).to have_selector "img[@src = '#{file_name}']"
         end
       end
 
       it 'has the blue announcement fish' do
-        expect(page).to have_xpath("//img[contains(@src,'#{fish_filename}')]")
+        expect(page).to have_selector "img[@src = '#{fish_filename}']"
       end
 
       it 'has the speech bubble for making game announcements' do
-        expect(page).to have_selector(:xpath, "//div[@id= 'speech']") # only testing for div, need to test for actual bubble css...
+        expect(page).to have_selector "#speech" # only testing for div, need to test for actual bubble css...
       end
 
-      it 'has only face-up cards in the your cards div' do
-        within(:xpath, "//div[@id = 'your cards']") do
+      it 'has only face-up cards in the your_cards div' do
+        within '#your_cards' do
           find_all('img').each do |img_element|
-            expect(face_up_card_filenames.include?(image_parent_folder + "#{img_element[:src]}")).to be true
+            expect(face_up_card_filenames).to include (image_parent_folder + "#{img_element[:src]}")
           end
         end
       end
 
-      it 'does not have face-up cards next to the other players icons' do
-        @other_player_ids.each do |other_player_id|
-          within(:xpath, "//div[@id = 'player[#{other_player_id}]']") do
+      it 'does not have face-up cards next to the other opponents icons' do
+        (NUM_PLAYERS - 1).times do |opponent_index|
+          within "#opponent_#{opponent_index}" do
             find_all('img').each do |img_element|
-              expect(face_up_card_filenames.include?(image_parent_folder + "#{img_element[:src]}")).to be false
+              expect(face_up_card_filenames).to_not include (image_parent_folder + "#{img_element[:src]}")
             end
           end
         end

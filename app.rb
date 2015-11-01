@@ -9,9 +9,16 @@ get '/' do
 end
 
 get '/player/:player_id' do
-  @player_id = params["player_id"].to_i
-  @other_player_ids = (0..(NUM_PLAYERS - 1)).to_a.tap { |player_ids| player_ids.delete(@player_id) }
-  if @player_id + 1 <= NUM_PLAYERS
+  user1 = User.new(name: "Amanda")
+  user2 = User.new(name: "Vianney")
+  user3 = User.new(name: "Frederique")
+  user4 = User.new(name: "JeanLuc")
+  user5 = User.new(name: "Priscille")
+  @match = Match.new([user1, user2, user3, user4, user5])
+  player_id = params["player_id"].to_i
+  if player_id < @match.num_players
+    @player = @match.players[player_id]
+    @opponents = @match.opponents(@player)
     erb :player
   else
     erb :no_player

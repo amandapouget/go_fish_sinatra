@@ -8,6 +8,6 @@ feature 'player not found page' do
   it_behaves_like "a Go Fish page with layout"
 
   it 'includes the no player message' do
-    expect(page).to have_selector('h2#no_player_message')
+    expect(page).to have_selector('div#no_player_message')
   end
 end
