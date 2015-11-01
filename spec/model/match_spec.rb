@@ -55,6 +55,10 @@ describe Match do
     expect(match.user(players[0])).to eq users[0]
   end
 
+  it 'can tell you a players opponents' do
+    expect(match.opponents(players[0])).to match_array [players[1], players[2]]
+  end
+
   it 'returns nil when searching for a player or user that is not part of this match' do
     expect(match.user(Player.new)).to eq NullUser.new
     expect(match.player(User.new)).to eq NullPlayer.new

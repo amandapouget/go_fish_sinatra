@@ -53,6 +53,10 @@ class Match
     return NullPlayer.new
   end
 
+  def opponents(player)
+    players.clone.tap { |players| players.delete(player) }
+  end
+
   def player_from_name(name) # currently doesn't account for users with the same name
     @players.each { |player| return player if player.name == name }
     NullPlayer.new
