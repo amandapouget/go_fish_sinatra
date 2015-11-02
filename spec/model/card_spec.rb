@@ -2,10 +2,11 @@ require 'spec_helper'
 
 describe Card do
   describe "#initialize" do
-    it 'creates a card with a readable rank and suit' do
+    it 'creates a card with a readable rank and suit and sets an image if possible' do
       my_card = Card.new(rank: "seven", suit: "clubs")
       expect(my_card.rank).to eq "seven"
       expect(my_card.suit).to eq "clubs"
+      expect(my_card.icon).to eq "/images/cards/c7.png"
     end
   end
 

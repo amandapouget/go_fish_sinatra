@@ -1,10 +1,12 @@
 class Card
+  attr_reader :rank, :suit, :icon
 
-  attr_reader :rank, :suit
+  ICON_SOURCE_PATH = "/images/cards/"
 
   def initialize(rank:, suit:) # to assign defaults, use this syntax... rank: 'default string'
     @rank = rank
     @suit = suit
+    @icon = set_icon
   end
 
   def rank_value
@@ -26,5 +28,10 @@ class Card
 
   def to_json(*args)
     as_json.to_json
+  end
+
+  def set_icon
+    suit_letter = suit[0]
+    ICON_SOURCE_PATH + "#{suit_letter}#{rank_value}.png"
   end
 end
