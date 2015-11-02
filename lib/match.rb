@@ -43,7 +43,7 @@ class Match
     return nil
   end
 
-  def self.fake(num_players)
+  def self.fake(num_players = 5)
     fake_users = [User.new(name: "Amanda"), User.new(name: "Vianney"), User.new(name: "Frederique"), User.new(name: "JeanLuc"), User.new(name: "Priscille")]
     users = fake_users[0...num_players]
     match = Match.new(users)
