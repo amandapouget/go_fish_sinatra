@@ -1,6 +1,6 @@
 require 'integration/integration_spec_helper'
 
-describe 'player view page' do
+feature 'player view page' do
   let(:players_image_filenames) { Dir.glob('./public/images/players/*.png') }
   let(:cards_image_filenames) { Dir.glob('./public/images/cards/*.png') }
   let(:cardback_image_filename) { './public/images/cards/backs_blue.png' }
@@ -8,44 +8,48 @@ describe 'player view page' do
   let(:image_parent_folder) { './public' }
   let(:fish_filename) { '/images/fish_blue.png' }
 
-  NUM_PLAYERS.times do |player_id|
-    feature "displays game correctly for player[#{player_id}] after deal" do
-      before :each do
-        visit ('/player/' + player_id.to_s)
-      end
-
-      it_behaves_like "a Go Fish page with layout"
-
-      it 'has all the player names' do
-        # not sure how to test this
-      end
-
-      it 'has all of the player images' do
-        players_image_filenames.each do |file|
-          file_name = file.sub(/^.\/public/,'')
-          expect(page).to have_selector "img[@src = '#{file_name}']"
+  PLAYER_RANGE.each do |num_players|
+    num_players.times do |player_id|
+      feature "game with #{num_players} players displays correctly for player #{player_id}" do
+        before do
+          visit "/#{num_players}/player/#{player_id}"
         end
-      end
 
-      it 'has the blue announcement fish' do
-        expect(page).to have_selector "img[@src = '#{fish_filename}']"
-      end
+        it_behaves_like "a Go Fish page with layout"
 
-      it 'has the speech bubble for making game announcements' do
-        expect(page).to have_selector "#speech" # only testing for div, need to test for actual bubble css...
-      end
-
-      it 'has only face-up cards in the your_cards div' do
-        find_all('.your_cards').each do |card|
-          expect(face_up_card_filenames).to include (image_parent_folder + "#{card[:src]}")
+        it 'has all the player names' do
+          # not sure how to test this
         end
-      end
 
-      it 'does not have face-up cards next to the other opponents icons' do
-        (NUM_PLAYERS - 1).times do |opponent_index|
-          within "#opponent_#{opponent_index}" do
-            find_all('img').each do |img_element|
-              expect(face_up_card_filenames).to_not include (image_parent_folder + "#{img_element[:src]}")
+        it 'has all of the required player images' do
+          player_image_count = 0
+          players_image_filenames.each do |file|
+            file_name = file.sub(/^.\/public/,'')
+            player_image_count +=1 if page.has_selector? "img[@src = '#{file_name}']"
+          end
+          expect(player_image_count).to eq num_players
+        end
+
+        it 'has the blue announcement fish' do
+          expect(page).to have_selector "img[@src = '#{fish_filename}']"
+        end
+
+        it 'has the speech bubble for making game announcements' do
+          expect(page).to have_selector "#speech" # only testing for div, need to test for actual bubble css...
+        end
+
+        it 'has only face-up cards in the your_cards div' do
+          find_all('.your_cards').each do |card|
+            expect(face_up_card_filenames).to include (image_parent_folder + "#{card[:src]}")
+          end
+        end
+
+        it 'does not have face-up cards next to the opponents icons' do
+          (num_players - 1).times do |opponent_index|
+            within "#opponent_#{opponent_index}" do
+              find_all('img').each do |img_element|
+                expect(face_up_card_filenames).to_not include (image_parent_folder + "#{img_element[:src]}")
+              end
             end
           end
         end

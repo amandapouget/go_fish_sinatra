@@ -4,24 +4,28 @@ require 'sinatra'
 require 'sinatra/reloader'
 also_reload 'lib/*.rb'
 
-NUM_PLAYERS = 5
+MIN_PLAYERS = 2
+MAX_PLAYERS = 5
+PLAYER_RANGE = (MIN_PLAYERS..MAX_PLAYERS)
 
 get '/' do
+  slim :index
 end
 
-get '/player/:player_id' do
-  user1 = User.new(name: "Amanda")
-  user2 = User.new(name: "Vianney")
-  user3 = User.new(name: "Frederique")
-  user4 = User.new(name: "JeanLuc")
-  user5 = User.new(name: "Priscille")
-  @match = Match.new([user1, user2, user3, user4, user5])
+get '/:match_id/player/:player_id' do
+  match_id = params["match_id"].to_i
   player_id = params["player_id"].to_i
-  if player_id < @match.num_players
-    @player = @match.players[player_id]
-    @opponents = @match.opponents(@player)
-    slim :player
-  else
-    slim :no_player
-  end
+  @match = Match.find_by_obj_id(match_id)
+  @match = Match.fake(match_id) if @match == nil
+  @player = @match.players[player_id]
+  @opponents = @match.opponents(@player) if @player
+  slim :player
+end
+
+post '/start_game' do
+  num_players = params['num_players'].to_i
+  users = [User.new(name: params["name"]), User.new(name: "Vianney"), User.new(name: "Frederique"), User.new(name: "JeanLuc"), User.new(name: "Priscille")]
+  match = Match.new(users[0...num_players])
+  match.game.deal
+  redirect "#{match.object_id}/player/0"
 end

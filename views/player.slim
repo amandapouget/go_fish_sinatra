@@ -1,37 +1,38 @@
-div class="top-row"
-  div class="player" id="opponent_1"
-    h4 = @opponents[1].name
-    img src=@opponents[1].icon height="96px" width="71px"
-    img src="/images/cards/backs_blue.png" height="96px" width="71px"
-  div class="player" id="opponent_2"
-    h4 = @opponents[2].name
-    img src=@opponents[2].icon height="96px" width="71px"
-    img src="/images/cards/backs_blue.png" height="96px" width="71px"
-div class="middle-row"
-  div class="player" id="opponent_0"
-    h4 = @opponents[0].name
-    img src=@opponents[0].icon height="96px" width="71px"
-    img src="/images/cards/backs_blue.png" height="96px" width="71px"
-  div class="pond"
-    div id="speech"
-    div class="fish-blue"
-      img src="/images/fish_blue.png" height="200px" width="210px"
-  div class="player" id="opponent_3"
-    h4 = @opponents[3].name
-    img src=@opponents[3].icon height="96px" width="71px"
-    img src="/images/cards/backs_blue.png" height="96px" width="71px"
-div class="bottom-row"
-  div class="score" id="books"
-    h4 Your Books
-    img src="/images/cards/backs_blue.png"
-  div class="player" id="player"
-    h4 = @player.name
-    img src=@player.icon height="96px" width="71px"
-    img class="your_cards" src="/images/cards/ca.png" height="96px" width="71px"
-    img class="your_cards" src="/images/cards/ck.png" height="96px" width="71px"
-    img class="your_cards" src="/images/cards/sk.png" height="96px" width="71px"
-    img class="your_cards" src="/images/cards/h10.png" height="96px" width="71px"
-    img class="your_cards" src="/images/cards/d2.png" height="96px" width="71px"
-  div class="score"
-    h4 Fish Left
-    h2 id="fish_score" = @match.deck_count
+- if !@player
+  == slim :no_player
+- else
+  div class="top-row"
+    - @opponents[1..2].each_with_index do |opponent, index|  
+      div class="player" id="opponent_#{index + 1}"
+        h4 = opponent.name
+        img src=opponent.icon height="96px" width="71px"
+        img src="/images/cards/backs_blue.png" height="96px" width="71px"
+  div class="middle-row"
+    div class="player" id="opponent_0"
+      h4 = @opponents[0].name
+      img src=@opponents[0].icon height="96px" width="71px"
+      img src="/images/cards/backs_blue.png" height="96px" width="71px"
+    div class="pond"
+      div id="speech"
+      div class="fish-blue"
+        img src="/images/fish_blue.png" height="200px" width="210px"
+    - if @opponents[3]
+      div class="player" id="opponent_3"
+        h4 = @opponents[3].name
+        img src=@opponents[3].icon height="96px" width="71px"
+        img src="/images/cards/backs_blue.png" height="96px" width="71px"
+  div class="bottom-row"
+    div class="score" id="books"
+      h4 Your Books
+      img src="/images/cards/backs_blue.png"
+    div class="player" id="player"
+      h4 = @player.name
+      img src=@player.icon height="96px" width="71px"
+      img class="your_cards" src="/images/cards/ca.png" height="96px" width="71px"
+      img class="your_cards" src="/images/cards/ck.png" height="96px" width="71px"
+      img class="your_cards" src="/images/cards/sk.png" height="96px" width="71px"
+      img class="your_cards" src="/images/cards/h10.png" height="96px" width="71px"
+      img class="your_cards" src="/images/cards/d2.png" height="96px" width="71px"
+    div class="score"
+      h4 Fish Left
+      h2 id="fish_score" = @match.deck_count
