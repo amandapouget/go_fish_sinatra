@@ -71,6 +71,10 @@ describe Match do
     end
   end
 
+  it 'can tell you how many cards are left in the game deck' do
+    expect(match.deck_count).to eq match.game.deck.count_cards
+  end
+
   it 'returns nil when searching for a player or user that is not part of this match' do
     expect(match.user(Player.new)).to eq NullUser.new
     expect(match.player(User.new)).to eq NullPlayer.new
@@ -129,6 +133,7 @@ describe NullMatch do
     expect(nullmatch.to_json).to eq nil
     expect(nullmatch.num_players).to eq 0
     expect(nullmatch.opponents(player)).to eq []
+    expect(nullmatch.deck_count).to eq 0
   end
 
   it 'calls equal two nullmatches but not a nullmatch and a regular match' do

@@ -63,6 +63,10 @@ class Match
     ordered_players
   end
 
+  def deck_count
+    game.deck.count_cards
+  end
+
   def player_from_name(name) # currently doesn't account for users with the same name
     @players.each { |player| return player if player.name == name }
     NullPlayer.new
@@ -119,6 +123,10 @@ class NullMatch
 
   def players
     []
+  end
+
+  def deck_count
+    0
   end
 
   def player_from_name(name)
