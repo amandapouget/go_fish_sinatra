@@ -1,4 +1,5 @@
 Dir.glob('lib/**/*.rb') { |file| require_relative file } # Is there a better way to require all the lib files?
+require 'slim'
 require 'sinatra'
 require 'sinatra/reloader'
 also_reload 'lib/*.rb'
@@ -19,8 +20,8 @@ get '/player/:player_id' do
   if player_id < @match.num_players
     @player = @match.players[player_id]
     @opponents = @match.opponents(@player)
-    erb :player
+    slim :player
   else
-    erb :no_player
+    slim :no_player
   end
 end
