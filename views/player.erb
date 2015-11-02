@@ -1,19 +1,19 @@
 <div class="top-row">
-  <div class="top-or-bottom-item" id="opponent_0">
-    <h4><%= @opponents[0].name %></h4>
-    <img src="/images/players/player_dino.png" height="96px" width="71px">
+  <div class="top-or-bottom-item" id="opponent_1">
+    <h4><%= @opponents[1].name %></h4>
+    <img src=<%= @opponents[1].icon %> height="96px" width="71px">
     <img src="/images/cards/backs_blue.png" height="96px" width="71px">
   </div>
-  <div class="top-or-bottom-item"  id="opponent_1">
-    <h4><%= @opponents[1].name %></h4>
-    <img src="/images/players/player_penguin.png" height="96px" width="71px">
+  <div class="top-or-bottom-item"  id="opponent_2">
+    <h4><%= @opponents[2].name %></h4>
+    <img src=<%= @opponents[2].icon %> height="96px" width="71px">
     <img src="/images/cards/backs_blue.png" height="96px" width="71px">
   </div>
 </div>
 <div class="middle-row">
-  <div class="middle-item box-small"  id="opponent_2">
-    <h4><%= @opponents[2].name %></h4>
-    <img src="/images/players/player_bee.png" height="96px" width="71px">
+  <div class="middle-item box-small"  id="opponent_0">
+    <h4><%= @opponents[0].name %></h4>
+    <img src=<%= @opponents[0].icon %> height="96px" width="71px">
     <img src="/images/cards/backs_blue.png" height="96px" width="71px">
   </div>
   <div class="middle-item box-center">
@@ -25,7 +25,7 @@
   </div>
   <div class="middle-item box-small"  id="opponent_3">
     <h4><%= @opponents[3].name %></h4>
-    <img src="/images/players/player_elephant.png" height="96px" width="71px">
+    <img src=<%= @opponents[3].icon %> height="96px" width="71px">
     <img src="/images/cards/backs_blue.png" height="96px" width="71px">
   </div>
 </div>
@@ -36,7 +36,7 @@
   </div>
   <div class="top-or-bottom-item" id="player">
     <h4><%= @player.name %></h4>
-    <img src="/images/players/player_bear.png" height="96px" width="71px">
+    <img src=<%= @player.icon %> height="96px" width="71px">
     <div id="your_cards">
       <img src="/images/cards/ca.png" height="96px" width="71px">
       <img src="/images/cards/ck.png" height="96px" width="71px">

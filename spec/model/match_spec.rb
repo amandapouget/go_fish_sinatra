@@ -2,9 +2,11 @@ require 'spec_helper'
 
 describe Match do
   let(:user1) { User.new(name: "Amanda") }
-  let(:user2) { User.new(name: "Vianney") }
-  let(:user3) { User.new(name: "Frederique") }
-  let(:match) { Match.new([user1, user2, user3]) }
+  let(:user2) { User.new(name: "Bridget") }
+  let(:user3) { User.new(name: "Calvin") }
+  let(:user4) { User.new(name: "Dustin") }
+  let(:user5) { User.new(name: "Edward") }
+  let(:match) { Match.new([user1, user2, user3, user4, user5]) }
   let(:users) { match.users }
   let(:players ) { match.players }
 
@@ -22,7 +24,7 @@ describe Match do
 
   it 'initializes with a game and users, an array of the users, plus players connected to the game with unique go_fish icons' do
     expect(match.game).to be_a Game
-    expect(match.users).to match_array [user1, user2, user3]
+    expect(match.users).to match_array [user1, user2, user3, user4, user5]
     expect(match.game.players).to match_array match.players
     icons = Dir.glob("./public/images/players/*.png")
     players.each { |player| expect(icons).to include "./public#{player.icon}" }
@@ -58,7 +60,15 @@ describe Match do
   end
 
   it 'can tell you a players opponents' do
-    expect(match.opponents(players[0])).to match_array [players[1], players[2]]
+    expect(match.opponents(players[0])).to match_array players[1..4]
+  end
+
+  it 'gives you the players opponents in a rotating order depending on which player is called' do
+    order = match.players.clone
+    players.each do |player|
+      order.push(order.shift)
+      expect(match.opponents(player)).to eq order[0..3]
+    end
   end
 
   it 'returns nil when searching for a player or user that is not part of this match' do
@@ -68,8 +78,6 @@ describe Match do
 
   it 'can find a player when given a name' do
     expect(match.player_from_name("Amanda")).to eq players[0]
-    expect(match.player_from_name("Vianney")).to eq players[1]
-    expect(match.player_from_name("Frederique")).to eq players[2]
   end
 
   it 'returns a nullplayer if it cant find such a player' do

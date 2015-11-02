@@ -56,7 +56,11 @@ class Match
   end
 
   def opponents(player)
-    players.clone.tap { |players| players.delete(player) }
+    ordered_players = players.clone
+    index = ordered_players.index(player)
+    ordered_players.rotate!(index)
+    ordered_players.shift
+    ordered_players
   end
 
   def player_from_name(name) # currently doesn't account for users with the same name
