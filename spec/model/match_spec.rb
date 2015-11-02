@@ -47,6 +47,12 @@ describe Match do
     expect(Match.find_by_obj_id(match.object_id)).to eq match
   end
 
+  it 'can make and save a fake match' do
+    fake_match = Match.fake(5)
+    (2..5).each { |num_players| expect(Match.fake(num_players).users.length).to eq num_players }
+    expect(Match.find_by_obj_id(fake_match.object_id)).to eq fake_match
+  end
+
   it 'returns nil if no such match is found' do
     expect(Match.find_by_obj_id(0)).to eq nil
   end

@@ -43,6 +43,14 @@ class Match
     return nil
   end
 
+  def self.fake(num_players)
+    fake_users = [User.new(name: "Amanda"), User.new(name: "Vianney"), User.new(name: "Frederique"), User.new(name: "JeanLuc"), User.new(name: "Priscille")]
+    users = fake_users[0...num_players]
+    match = Match.new(users)
+    match.save
+    match
+  end
+
   def user(player)
     user_index = @players.index(player)
     return @users[user_index] unless !user_index
