@@ -36,10 +36,8 @@ describe 'player view page' do
       end
 
       it 'has only face-up cards in the your_cards div' do
-        within '#your_cards' do
-          find_all('img').each do |img_element|
-            expect(face_up_card_filenames).to include (image_parent_folder + "#{img_element[:src]}")
-          end
+        find_all('.your_cards').each do |card|
+          expect(face_up_card_filenames).to include (image_parent_folder + "#{card[:src]}")
         end
       end
 

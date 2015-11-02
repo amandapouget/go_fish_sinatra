@@ -63,7 +63,7 @@ h4 {
   margin: auto;
 }
 
-.top-or-bottom-item {
+.top-row .player {
   display: inline-block;
   vertical-align: top;
   margin: 30px;
@@ -73,17 +73,16 @@ h4 {
   width: 100%;
 }
 
-.box-small {
-  width: 25%;
-}
-
-.box-center {
+.middle-row .pond {
+  display: inline-block;
+  vertical-align: middle;
   width: 40%;
 }
 
-.middle-item {
+.middle-row .player {
   display: inline-block;
   vertical-align: middle;
+  width: 25%;
 }
 
 #speech {
@@ -106,6 +105,17 @@ h4 {
 
 .bottom-row {
   margin: 0 auto;
+}
+.bottom-row .score {
+  display: inline-block;
+  vertical-align: top;
+  margin: 30px;
+}
+
+.bottom-row .player {
+  display: inline-block;
+  vertical-align: top;
+  margin: 30px;
 }
 
 #no_player_message {
