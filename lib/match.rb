@@ -13,12 +13,16 @@ class Match
     @users = [User.new, User.new] if @users.length < 2
     @players = []
     @users.each { |user| @players << Player.new(name: user.name) }
-    icons = (Dir.glob("./public/images/players/*.png")).map! { |filename| filename = filename.sub(/^.\/public/,'') }
-    @players.each_with_index { |player, index| player.icon = icons[index] }
-    @game = Game.new(players: @players, hand_size: hand_size)
     @users.each { |user| user.add_match(self) }
+    add_icons(@players)
+    @game = Game.new(players: @players, hand_size: hand_size)
     @over = false
     save
+  end
+
+  def add_icons(players)
+    icons = (Dir.glob("./public/images/players/*.png")).map! { |filename| filename = filename.sub(/^.\/public/,'') }
+    players.each_with_index { |player, index| player.icon = icons[index] }
   end
 
   def save
