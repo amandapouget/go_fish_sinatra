@@ -5,7 +5,7 @@ set(:show_exceptions, false) # "After line 3 in your integration testing spec (C
 
 shared_examples_for "a Go Fish page with layout" do
   describe "the layout" do
-    let(:restart) { 'Restart Game' }
+    let(:restart) { 'Home' }
     let(:game_title) { 'Go Fish' }
 
     it 'has the game title header' do

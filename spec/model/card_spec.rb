@@ -24,6 +24,10 @@ describe Card do
       it 'works for face cards' do
         expect(card_ah.rank_value).to eq 14
       end
+
+      it 'returns zero for cards outside the deck naming scheme' do
+        expect(Card.new(rank: 'coolness', suit: 'marie').rank_value).to eq 0
+      end
     end
 
     describe '#==' do

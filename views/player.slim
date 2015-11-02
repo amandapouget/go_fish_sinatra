@@ -28,11 +28,8 @@
     div class="player" id="player"
       h4 = @player.name
       img src=@player.icon height="96px" width="71px"
-      img class="your_cards" src="/images/cards/ca.png" height="96px" width="71px"
-      img class="your_cards" src="/images/cards/ck.png" height="96px" width="71px"
-      img class="your_cards" src="/images/cards/sk.png" height="96px" width="71px"
-      img class="your_cards" src="/images/cards/h10.png" height="96px" width="71px"
-      img class="your_cards" src="/images/cards/d2.png" height="96px" width="71px"
+      - @player.cards.each do |card|
+        img class="your_cards" src=card.icon height="96px" width="71px"
     div class="score"
       h4 Fish Left
       h2 id="fish_score" = @match.deck_count

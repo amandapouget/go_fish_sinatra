@@ -11,7 +11,8 @@ class Card
 
   def rank_value
     card_values = ["two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "jack", "queen", "king", "ace"]
-    return card_values.index(@rank) + 2
+    return card_values.index(@rank) + 2 if card_values.include?(@rank)
+    return 0
   end
 
   def ==(another_card)

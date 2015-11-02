@@ -1,12 +1,19 @@
-h2 Homepage
-form action='/start_game' method='post'
-  label for='name' Your name
-  input type='text' id='name' name='name'
-  p Players in your game
-  
-  input required=true type='radio' id='2' value='2' name='num_players' 2
-  input required=true type='radio' id='3' value='3' name='num_players' 3
-  input required=true type='radio' id='4' value='4' name='num_players' 4
-  input required=true type='radio' id='5' value='5' name='num_players' 5
-  
-  button type='submit' Start Game
+h2 Create your pond!
+img src="/images/fish_blue.png" height="300px" width="310px"
+div class="form"
+  form action='/start_game' method='post'
+    label for='name' Your Name
+    br
+    input type='text' id='name' name='name'
+    p Players in your game
+    ul class='radio_buttons'
+      li: input required=true type='radio' id='2' value='2' name='num_players'
+        label for="2" 2
+      li: input required=true type='radio' id='3' value='3' name='num_players'
+        label for="3" 3 
+      li: input required=true type='radio' id='4' value='4' name='num_players'
+        label for="4" 4
+      li: input required=true type='radio' id='5' value='5' name='num_players'
+        label for="5" 5
+    button type='submit' class='button' Start Game
+    br

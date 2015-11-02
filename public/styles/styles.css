@@ -15,6 +15,61 @@ footer {
   text-align: center;
 }
 
+.form input[type="text"] {
+  margin: 20px;
+  border:5px solid #FFFDD0;
+  border-radius: 8px;
+  font-size: 1em;
+  color: white;
+  font-family: 'Lato';
+  background: #003366;
+  padding: 5px;
+}
+
+.radio_buttons {
+  list-style-type:none;
+  margin: 25px 0px;
+  padding: 0;
+}
+
+.radio_buttons li {
+  display: inline-block;
+  margin: 0px 10px;
+  width:100px;
+  height: 50px;
+  position: relative;
+}
+
+.radio_buttons label, .radio_buttons input {
+  display:block;
+  position: absolute;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+}
+
+.radio_buttons input[type="radio"] {
+  opacity:0.011;
+  z-index:100;
+}
+
+.radio_buttons input[type="radio"]:checked + label {
+  background: #003366;
+}
+
+.radio_buttons label {
+  padding:5px;
+  border:5px solid #FFFDD0;
+  border-radius: 8px;
+  cursor:pointer;
+  z-index:90;
+}
+
+.radio_buttons label:hover {
+  background: #3f2a14;
+}
+
 h1 {
   -webkit-margin-before: 0.1em;
   -webkit-margin-after: 0.1em;
@@ -37,12 +92,14 @@ h2 {
 .button {
   display: inline-block;
   padding: 5px 10px;
+  border: none;
   border-radius: 8px;
   background-color: #FFFDD0;
   font-size: 1em;
   font-family: 'Lato';
   color: #654321;
   text-decoration: none;
+  cursor: pointer;
 }
 
 h4 {
@@ -53,7 +110,7 @@ h4 {
   border: 5px solid #FFFDD0;
   border-radius: 25px;
   background-color: #654321;
-  padding: 5px;
+  padding: 30px 5px;
   margin: auto;
   width: 80%;
   text-align: center;
