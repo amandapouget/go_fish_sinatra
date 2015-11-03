@@ -17,6 +17,14 @@ footer {
 
 .center_announcement {
   padding: 0% 15%;
+  line-height: 20px;
+}
+
+.center_announcement h3 {
+  color: #3f2a14;
+  text-align: center;
+  font-family: 'Rock Salt', cursive;
+  font-size: .5em;
 }
 
 .form input[type="text"] {

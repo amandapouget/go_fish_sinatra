@@ -1,6 +1,6 @@
-h2 Create your pond!
 div class="center_announcement"
   div id="speech"
+    / h3 Create your pond!
   div class="fish-blue"
     img src="/images/fish_blue.png" height="200px" width="210px"
 div class="form"
@@ -10,13 +10,8 @@ div class="form"
     input type='text' id='name' name='name'
     p Players in your game
     ul class='radio_buttons'
-      li: input required=true type='radio' id='2' value='2' name='num_players'
-        label for="2" 2
-      li: input required=true type='radio' id='3' value='3' name='num_players'
-        label for="3" 3 
-      li: input required=true type='radio' id='4' value='4' name='num_players'
-        label for="4" 4
-      li: input required=true type='radio' id='5' value='5' name='num_players'
-        label for="5" 5
+      - @player_range.each do |num_players|
+        li: input required=true type='radio' id="#{num_players}" value='#{num_players}' name='num_players'
+          label for="#{num_players}" #{num_players}
     button type='submit' class='button' Start Game
     br

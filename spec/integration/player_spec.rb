@@ -17,11 +17,8 @@ feature 'player view page' do
 
         it_behaves_like "a Go Fish page with layout"
 
-        it 'has all the player names' do
-          # not sure how to test this
-        end
-
-        it 'has all of the required player images' do
+        it 'has all the player names and all the required player images' do
+          # not sure how to test the names part
           player_image_count = 0
           players_image_filenames.each do |file|
             file_name = file.sub(/^.\/public/,'')
@@ -30,26 +27,16 @@ feature 'player view page' do
           expect(player_image_count).to eq num_players
         end
 
-        it 'has the blue announcement fish' do
+        it 'has the blue announcement fish and the speech bubble for making game announcements' do
           expect(page).to have_selector "img[@src = '#{fish_filename}']"
-        end
-
-        it 'has the speech bubble for making game announcements' do
           expect(page).to have_selector "#speech" # only testing for div, need to test for actual bubble css...
         end
 
-        it 'has only face-up cards in the your_cards div' do
-          find_all('.your_cards').each do |card|
-            expect(face_up_card_filenames).to include (image_parent_folder + "#{card[:src]}")
-          end
-        end
-
-        it 'does not have face-up cards next to the opponents icons' do
+        it 'had only face_up cards in the your_cards div, and no face_cards next to opponent icons' do
+          find_all('.your_cards').each { |card| expect(face_up_card_filenames).to include (image_parent_folder + "#{card[:src]}") }
           (num_players - 1).times do |opponent_index|
             within "#opponent_#{opponent_index}" do
-              find_all('img').each do |img_element|
-                expect(face_up_card_filenames).to_not include (image_parent_folder + "#{img_element[:src]}")
-              end
+              find_all('img').each { |img_element| expect(face_up_card_filenames).to_not include (image_parent_folder + "#{img_element[:src]}") }
             end
           end
         end
