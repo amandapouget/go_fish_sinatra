@@ -84,6 +84,11 @@ class Match
     NullPlayer.new
   end
 
+  def player_from_object_id(id)
+    @players.each { |player| return player if player.object_id == id }
+    NullPlayer.new
+  end
+
   def player_state(user)
     return {
       type: "player_state",
@@ -142,6 +147,9 @@ class NullMatch
   end
 
   def player_from_name(name)
+  end
+
+  def player_from_object_id(id)
   end
 
   def num_players

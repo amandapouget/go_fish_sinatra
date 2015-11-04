@@ -90,6 +90,10 @@ describe Match do
     expect(match.player_from_name("Amanda")).to eq players[0]
   end
 
+  it 'can find a player when given an object_id' do
+    expect(match.player_from_object_id(match.players[0].object_id)).to eq match.players[0]
+  end
+
   it 'returns a nullplayer if it cant find such a player' do
     expect(match.player_from_name("Bob")).to be_a NullPlayer
   end
@@ -140,6 +144,7 @@ describe NullMatch do
     expect(nullmatch.num_players).to eq 0
     expect(nullmatch.opponents(player)).to eq []
     expect(nullmatch.deck_count).to eq 0
+    expect(nullmatch.player_from_object_id(player.object_id)).to eq nil
   end
 
   it 'calls equal two nullmatches but not a nullmatch and a regular match' do
