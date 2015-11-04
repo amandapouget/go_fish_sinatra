@@ -11,35 +11,42 @@ describe 'homepage' do
     it 'includes a start button' do
       expect(page).to have_content 'Start Game'
     end
-
-    it 'asks the player for their name and the number of players' do
-      expect(page).to have_content /name/i
-      expect(page).to have_content /Players in your game/i
-    end
   end
 
-  PLAYER_RANGE.each do |num_players|
+  [MAX_PLAYERS].each do |num_players|
     feature "funnels to correct game for games with #{num_players}" do
-      def fill_form(name, num_players)
+      after do
+        reset_pending
+        Match.clear
+      end
+
+      def fill_form(player_name, num_players)
         visit '/'
-        fill_in 'name', :with => name
-        find("##{num_players}").click
+        fill_in 'name', :with => player_name
+        choose(num_players)
         click_button 'Start Game'
       end
 
-      it 'upon submit, goes to wait for players page for the first player' do
-        fill_form('Anna', num_players)
+      it 'upon submit, goes to waiting for players page' do
+        fill_form("Anna", num_players)
         expect(current_path).to match /start_game/
       end
 
-      it 'if a game of that number already exists and is waiting for players, joins that game' do
-        names = ['Alpha','Bravo','Charlie','David','Echo']
-        match_ids = []
-        names[0...num_players].each_with_index do |player, index|
-          fill_form(player, num_players)
-          match_ids << current_path.sub("/player/#{index}","")
-          expect(match_ids.uniq.length).to eq 1
+      it 'creates a match when there are enough players to start a game, and, it allows for simultaneous matches' do
+        2.times do |time|
+          (num_players).times { PENDING_USERS[num_players] << User.new }
+          make_game(test: true)
+          expect(PENDING_USERS[num_players]).to be_empty
+          expect(Match.all.length).to eq time + 1
         end
+      end
+
+      it 'redirects to the game when the last player joins', :js => true do
+        (num_players - 1).times { PENDING_USERS[num_players] << User.new }
+        fill_form('Echo', num_players)
+        make_game(test: true)
+        sleep 1.5
+        expect(current_path).to match /.*\/player\/.*/
       end
     end
   end

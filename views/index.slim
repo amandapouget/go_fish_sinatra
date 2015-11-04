@@ -11,7 +11,7 @@ div class="form"
     p Players in your game
     ul class='radio_buttons'
       - @player_range.each do |num_players|
-        li: input required=true type='radio' id="#{num_players}" value='#{num_players}' name='num_players'
+        li: input required=true type='radio' id="#{num_players}" value="#{num_players}" name='num_players'
           label for="#{num_players}" #{num_players}
     button type='submit' class='button' Start Game
     br

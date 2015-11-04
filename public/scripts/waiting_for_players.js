@@ -16,5 +16,4 @@ $(document).ready(function() {
   channel.bind('send_to_game_event', function(data) {
     window.location = "../" + data["message"]
   });
-
 });
