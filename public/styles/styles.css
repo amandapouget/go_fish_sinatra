@@ -1,5 +1,5 @@
 body {
-  background-color: #3f2a14;
+  background-color: #0f2a4c;
   color: white;
   padding: 5px;
   font-size: 1.5em;
@@ -13,18 +13,6 @@ header {
 footer {
   width: 100%;
   text-align: center;
-}
-
-.center_announcement {
-  padding: 0% 15%;
-  line-height: 20px;
-}
-
-.center_announcement h3 {
-  color: #3f2a14;
-  text-align: center;
-  font-family: 'Rock Salt', cursive;
-  font-size: .5em;
 }
 
 .form input[type="text"] {
@@ -122,69 +110,86 @@ h4 {
   border: 5px solid #FFFDD0;
   border-radius: 25px;
   background-color: #654321;
-  padding: 30px 5px;
+  padding: 5px 5px 30px 5px;
   margin: auto;
   width: 80%;
   text-align: center;
 }
 
-.top-row {
+.opponents {
   margin: auto;
 }
 
-.top-row .player {
+.opponents .player {
   display: inline-block;
-  vertical-align: top;
-  margin: 30px;
+  margin: 20px;
+}
+.opponents .player img{
+  width: 71px;
+  height: 96px;
 }
 
-.middle-row {
-  width: 100%;
+.pond {
+  margin: auto;
 }
 
-.middle-row .pond {
-  display: inline-block;
-  vertical-align: middle;
-  width: 40%;
-}
-
-.middle-row .player {
-  display: inline-block;
-  vertical-align: middle;
-  width: 25%;
-}
-
-#speech {
+.pond #speech {
   height: 200px;
-  width: 45%;
+  width: 410px;
   display: inline-block;
+  vertical-align: middle;
   background: url("../images/speech.png") no-repeat;
-  background-size: 100% 80%;
+  background-size: 100% 100%;
   background-position: center;
 }
 
-.fish-blue {
-  width: 45%;
-  display: inline-block;
+.pond #speech #message {
+  width: 337px;
+  float: left;
+  padding: 10px 12px;
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+  text-align: center;
+  color: #3f2a14;
+  font-family: 'Rock Salt', cursive;
+  font-size: 1.5em;
+  line-height: 40px;
+  word-wrap: break-word;
 }
 
-.fish-blue img {
-  max-width: 100%;
+.pond #fish_blue {
+  height: 200px;
+  width: 310px;
+  display: inline-block;
+  vertical-align: middle;
+  background: url("../images/fish_blue.png") no-repeat;
+  background-size: 100% 100%;
+  background-position: center;
 }
 
-.bottom-row {
-  margin: 0 auto;
-}
-.bottom-row .score {
-  display: inline-block;
+.info-for-player {
   vertical-align: top;
-  margin: 30px;
+  margin: auto;
+}
+.info-for-player .score {
+  display: inline-block;
+  margin: 20px;
 }
 
-.bottom-row .player {
+.info-for-player .sore img{
+  width: 71px;
+  height: 96px;
+}
+
+.info-for-player .player {
   display: inline-block;
-  vertical-align: top;
-  margin: 30px;
+  margin: 20px;
+}
+
+.info-for-player .player img{
+  width: 71px;
+  height: 96px;
 }
 
 #no_player_message {
@@ -195,6 +200,6 @@ h4 {
   .middle-item, .box-small {
     float: left;
     width: 100%;
-    margin: 30px 0;
+    margin: 20px 0;
   }
 }

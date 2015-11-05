@@ -27,8 +27,9 @@ describe 'homepage' do
         click_button 'Start Game'
       end
 
-      it 'upon submit, goes to waiting for players page' do
+      it 'upon submit, creates user and goes to waiting for players page' do
         fill_form("Anna", num_players)
+        expect(PENDING_USERS[num_players].length).to eq 1
         expect(current_path).to match /start_game/
       end
 

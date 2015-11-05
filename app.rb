@@ -21,13 +21,13 @@ def make_game(test: false)
       users_for_game = []
       num_players.times { users_for_game << PENDING_USERS[num_players].shift }
       match = Match.new(users_for_game).tap { |match| match.game.deal }
-      sleep 1 unless test
+      sleep 1 unless test # this should wait for a webhook indicating all the players are listening
       match.users.each_with_index { |user, player_id| Pusher.trigger("waiting_for_players_channel_#{user.object_id}", 'send_to_game_event', { message: "#{match.object_id}/player/#{player_id}" }) }
     end
   end
 end
 
-make_game_thread = Thread.new {
+make_games_thread = Thread.new {
   loop do
     sleep 0.1
     make_game
@@ -39,6 +39,12 @@ get '/' do
   slim :index
 end
 
+post '/start_game' do
+  @user = User.new(name: params["name"])
+  PENDING_USERS[params["num_players"].to_i] << @user
+  slim :waiting_for_players
+end
+
 get '/:match_id/player/:player_id' do
   match_id = params["match_id"].to_i
   player_id = params["player_id"].to_i
@@ -48,8 +54,23 @@ get '/:match_id/player/:player_id' do
   slim :player
 end
 
-post '/start_game' do
-  @user = User.new(name: params["name"])
-  PENDING_USERS[params["num_players"].to_i] << @user
-  slim :waiting_for_players
+post '/:match_id/game_notifications' do
+  message = params[:message]
+  match_id = params["match_id"]
+  Pusher.trigger("game_play_channel_#{match_id}", 'game_message_event', { message: message } )
+end
+
+post '/:match_id/card_request' do
+  # take card request and turn it into changes in who has what card
+  # match = Match.find_by_obj_id(params["match_id"].to_i)
+  # opponent = match.player_from_object_id(params["opponent_object_id"].to_i)
+  # player = match.player_from_object_id(params["player_object_id"].to_i)
+  # rank = params["rank"]
+  # winnings = player.request_cards(opponent, rank)
+  # player.GO FISH  if winnings == [] then send push, then collect winnings
+  # push if had to go fish or not
+  # the lines below shoud be a hash message called on line 51 post
+  # match_id = params["match_id"]
+  # Pusher.trigger("game_play_channel_#{match.object_id}", 'game_message_event', { message: message } )
+  # push turn_change_event
 end

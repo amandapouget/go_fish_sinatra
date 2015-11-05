@@ -1,35 +1,28 @@
+script src="/scripts/player.js"
+
 - if !@player
   == slim :no_player
 - else
-  div class="top-row"
-    - @opponents[1..2].each_with_index do |opponent, index|  
-      div class="player" id="opponent_#{index + 1}"
+  div class="opponents"
+    - @opponents.each_with_index do |opponent, index|  
+      div class="player" id="opponent_#{index}" data-value=opponent.object_id name=opponent.name
         h4 = opponent.name
-        img src=opponent.icon height="96px" width="71px"
-        img src="/images/cards/backs_blue.png" height="96px" width="71px"
-  div class="middle-row"
-    div class="player" id="opponent_0"
-      h4 = @opponents[0].name
-      img src=@opponents[0].icon height="96px" width="71px"
-      img src="/images/cards/backs_blue.png" height="96px" width="71px"
-    div class="pond"
-      div id="speech"
-      div class="fish-blue"
-        img src="/images/fish_blue.png" height="200px" width="210px"
-    - if @opponents[3]
-      div class="player" id="opponent_3"
-        h4 = @opponents[3].name
-        img src=@opponents[3].icon height="96px" width="71px"
-        img src="/images/cards/backs_blue.png" height="96px" width="71px"
-  div class="bottom-row"
+        img src=opponent.icon
+        img src="/images/cards/backs_blue.png"
+  div class="pond"
+    div id="speech"
+      div id="message"
+        p #{@match.players[0].name}, click player, card & me to request cards!
+    div id="fish_blue"
+  div class="info-for-player"
     div class="score" id="books"
       h4 Your Books
       img src="/images/cards/backs_blue.png"
-    div class="player" id="player"
+    div class="player" id="player" value=@player.object_id name=@player.name
       h4 = @player.name
-      img src=@player.icon height="96px" width="71px"
-      - @player.cards.each do |card|
-        img class="your_cards" src=card.icon height="96px" width="71px"
+      img src=@player.icon
+      - @player.cards.each_with_index do |card, index|
+        img class="your-cards" src=card.icon id="card_#{index}" value=card.rank_value name=card.rank
     div class="score"
       h4 Fish Left
       h2 id="fish_score" = @match.deck_count
