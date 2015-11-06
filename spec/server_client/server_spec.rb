@@ -108,7 +108,7 @@ describe Server do
           describe '#get_id' do
             it 'asks for a unique id and takes client input' do
               failures = []
-              100.times do |time|
+              2.times do |time|
                 client0.provide_input("123")
                 id = server.get_id(@client0_socket, 0.00001)
                 failures << time if id != 123
@@ -121,7 +121,7 @@ describe Server do
           describe '#get_name' do
             it 'asks the client for the players name and returns it as a string' do
               failures = []
-              100.times do |time|
+              2.times do |time|
                 client0.provide_input("Amanda")
                 name = server.get_name(@client0_socket, 0.00001)
                 failures << time if name != "Amanda"
@@ -247,7 +247,7 @@ describe Server do
                 it 'tells the player he must go fish, waits for input, then makes the player go fish and then tells him what he drew' do
                   count = match.players[2].count_cards
                   client2.provide_input("\n")
-                  server.play_fish(match, user2)
+                  server.play_fish(match, user2, "any rank")
                   expect(match.players[2].count_cards).to eq count + 1
                   expect(client2.output).to include Server::GO_FISH
                   expect(client2.output).to include "You drew"

@@ -18,8 +18,8 @@ class User
     @@users.uniq!
   end
 
-  def self.find(id)
-    @@users.each { |user| return user if user.id == id }
+  def self.find(id, users_to_search = @@users )
+    users_to_search.each { |user| return user if user.id == id }
     return nil
   end
 

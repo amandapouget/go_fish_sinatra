@@ -1,16 +1,23 @@
 require 'integration/integration_spec_helper'
 
+def fill_form(player_name, num_players)
+  visit '/'
+  fill_in 'name', :with => player_name
+  choose(num_players)
+  click_button 'Start Game'
+end
+
+def reset_pending
+  (PLAYER_RANGE).each { |num_players| PENDING_USERS[num_players] = [] }
+end
+
 describe 'homepage' do
-  feature 'has certain content' do
+  feature 'has go_fish layout' do
     before do
       visit '/'
     end
 
     it_behaves_like "a Go Fish page with layout"
-
-    it 'includes a start button' do
-      expect(page).to have_content 'Start Game'
-    end
   end
 
   [MAX_PLAYERS].each do |num_players|
@@ -20,23 +27,17 @@ describe 'homepage' do
         Match.clear
       end
 
-      def fill_form(player_name, num_players)
-        visit '/'
-        fill_in 'name', :with => player_name
-        choose(num_players)
-        click_button 'Start Game'
-      end
-
       it 'upon submit, creates user and goes to waiting for players page' do
         fill_form("Anna", num_players)
         expect(PENDING_USERS[num_players].length).to eq 1
-        expect(current_path).to match /start_game/
+        expect(current_path).to match /wait/
       end
 
       it 'creates a match when there are enough players to start a game, and, it allows for simultaneous matches' do
         2.times do |time|
           (num_players).times { PENDING_USERS[num_players] << User.new }
-          make_game(test: true)
+          last_user_id = PENDING_USERS[num_players].last.object_id
+          make_game(last_user_id, num_players)
           expect(PENDING_USERS[num_players]).to be_empty
           expect(Match.all.length).to eq time + 1
         end
@@ -45,8 +46,8 @@ describe 'homepage' do
       it 'redirects to the game when the last player joins', :js => true do
         (num_players - 1).times { PENDING_USERS[num_players] << User.new }
         fill_form('Echo', num_players)
-        make_game(test: true)
-        sleep 1.5
+        until current_path != "/wait" # my magical way of getting around the sleep problem. Timeout does not work. Putting even just "true" before "until" adds a second
+        end
         expect(current_path).to match /.*\/player\/.*/
       end
     end

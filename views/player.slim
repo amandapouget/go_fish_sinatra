@@ -12,17 +12,31 @@ script src="/scripts/player.js"
   div class="pond"
     div id="speech"
       div id="message"
-        p #{@match.players[0].name}, click player, card & me to request cards!
+        p = @match.message
     div id="fish_blue"
   div class="info-for-player"
     div class="score" id="books"
       h4 Your Books
-      img src="/images/cards/backs_blue.png"
+      - @player.books.length.times do
+        img src="/images/cards/backs_blue.png"
     div class="player" id="player" value=@player.object_id name=@player.name
       h4 = @player.name
       img src=@player.icon
       - @player.cards.each_with_index do |card, index|
         img class="your-cards" src=card.icon id="card_#{index}" value=card.rank_value name=card.rank
     div class="score"
-      h4 Fish Left
-      h2 id="fish_score" = @match.deck_count
+      - if @match.over
+        h4 Final Score
+        - @match.players.each do |each_player|
+          h4 = each_player.name + ": " + each_player.books.length.to_s
+      - else
+        h4 Fish Left
+        h2 id="fish_score" = @match.deck_count unless @match.over
+
+/ Combine the two requests into one. Actually, use only the change-game request and then let the match class include a last request object, add whose turn it is (player class + num of turns taken, game class + def count turns and player queue, match class + def to see game whose turn it is), add "message" instance variable to match, have that displayed in message html on page, have server only cause page refresh no sending messages with text (and no client sending messages with text either).
+/ 
+/ No sleep in tests
+/ 
+/ helper methods pulled out of test
+/ 
+/ clearer test names

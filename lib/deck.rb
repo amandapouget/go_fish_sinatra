@@ -36,4 +36,8 @@ class Deck
   def add_card(card)
     @cards.push(card)
   end
+
+  def to_json(*args)
+    { type: type, cards: cards }.to_json
+  end
 end

@@ -22,9 +22,10 @@ describe Match do
     expect(match.num_players).to eq match.players.length
   end
 
-  it 'initializes with a game and users, an array of the users, plus players connected to the game with unique go_fish icons' do
+  it 'initializes with a game and users, an array of the users, an empty message, plus players connected to the game with unique go_fish icons' do
     expect(match.game).to be_a Game
     expect(match.users).to match_array [user1, user2, user3, user4, user5]
+    expect(match.message).to eq "#{match.players[0].name}, click card, player & me to request cards!"
     expect(match.game.players).to match_array match.players
     icons = Dir.glob("./public/images/players/*.png")
     players.each { |player| expect(icons).to include "./public#{player.icon}" }
@@ -48,8 +49,8 @@ describe Match do
   end
 
   it 'can make and save a fake match' do
-    fake_match = Match.fake(5)
-    (2..5).each { |num_players| expect(Match.fake(num_players).users.length).to eq num_players }
+    (MIN_PLAYERS...MAX_PLAYERS).each { |num_players| expect(Match.fake(num_players).users.length).to eq num_players }
+    fake_match = Match.fake(MAX_PLAYERS)
     expect(Match.find_by_obj_id(fake_match.object_id)).to eq fake_match
   end
 
@@ -99,10 +100,10 @@ describe Match do
   end
 
   it 'gives me player state' do
-    match.player(user1).add_card(Card.new(rank:'A', suit: 'S'))
+    match.player(user1).add_card(Card.new(rank:'ace', suit: 'diamonds'))
     json = match.player_state(user1)
     expect(json[:type]).to eq "player_state"
-    expect(json[:player_cards]).to eq "[{\"rank\":\"A\",\"suit\":\"S\"}]"
+    expect(json[:player_cards]).to eq "[{\"rank\":\"ace\",\"suit\":\"diamonds\"}]"
   end
 
   it 'can give you a json string containing the most critical information about the objects it contains' do
@@ -114,6 +115,53 @@ describe Match do
     json = match.json_ready(users[0])
     expect(json).to be_a Hash
     expect(json[:type]).to eq "player_state"
+  end
+
+  describe 'can run a play' do
+    let(:card_as) { Card.new(rank: "ace", suit: "spades") }
+    let(:card_ah) { Card.new(rank: "ace", suit: "hearts") }
+    let(:card_2h) { Card.new(rank: "two", suit: "hearts") }
+    let(:card_2d) { Card.new(rank: "two", suit: "diamonds") }
+    let(:player0) { match.players[0] }
+    let(:player1) { match.players[1] }
+
+    before { match.players[1..4].each { |player| player.cards = [card_2h] } }
+
+    it 'works when a player wins cards' do
+      player0.add_card(card_as)
+      player1.add_card(card_ah)
+      match.run_play(player0, player1, "ace")
+      expect(player0.cards).to match_array [card_as, card_ah]
+      expect(player1.cards).to match_array [card_2h]
+      expect(match.message).to eq "#{player0.name} asked #{player1.name} for aces & got cards! It's #{player0.name}'s turn!"
+    end
+
+    it 'works when a player does not win cards, goes fish, and gets card he was looking for' do
+      player0.add_card(card_as)
+      match.game.deck.cards.unshift(card_ah)
+      match.run_play(player0, player1, "ace")
+      expect(player0.cards).to match_array [card_as, card_ah]
+      expect(player1.cards).to match_array [card_2h]
+      expect(match.message).to eq "#{player0.name} asked #{player1.name} for aces & went fish & got one! It's #{player0.name}'s turn!"
+    end
+
+    it 'works when a player does not win cards or get the right card in go fish' do
+      player0.add_card(card_as)
+      fish_card = match.game.deck.cards[0]
+      match.run_play(player0, player1, "ace")
+      expect(player0.cards).to match_array [card_as, fish_card]
+      expect(player1.cards).to match_array [card_2h]
+      expect(match.message).to eq "#{player0.name} asked #{player1.name} for aces & went fish! It's #{player1.name}'s turn!"
+    end
+
+    it 'works when the game is over as a result' do
+      player0.add_card(card_2d)
+      match.run_play(player0, player1, "two")
+      expect(player0.cards).to match_array [card_2d, card_2h]
+      expect(player1.cards).to match_array []
+      expect(match.over).to be true
+      expect(match.message).to eq "#{player0.name} asked #{player1.name} for twos & got cards! Game over! Winner: none"
+    end
   end
 
   it 'can end itself' do
@@ -145,6 +193,7 @@ describe NullMatch do
     expect(nullmatch.opponents(player)).to eq []
     expect(nullmatch.deck_count).to eq 0
     expect(nullmatch.player_from_object_id(player.object_id)).to eq nil
+    expect(nullmatch.message).to eq nil
   end
 
   it 'calls equal two nullmatches but not a nullmatch and a regular match' do

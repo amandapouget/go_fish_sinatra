@@ -5,44 +5,41 @@ require 'sinatra/reloader'
 require 'pusher'
 also_reload 'lib/*.rb'
 
-def reset_pending
-  (PLAYER_RANGE).each { |num_players| PENDING_USERS[num_players] = [] }
-end
-
-MIN_PLAYERS = 2
-MAX_PLAYERS = 5
-PLAYER_RANGE = (MIN_PLAYERS..MAX_PLAYERS)
 PENDING_USERS = {}.tap { |pending_users| (PLAYER_RANGE).each { |num_players| pending_users[num_players] = [] } }
 Pusher.url = "https://39cc3ae7664f69e97e12:60bb9ff467a643cc4001@api.pusherapp.com/apps/151900"
 
-def make_game(test: false)
-  (PLAYER_RANGE).each do |num_players|
-    if PENDING_USERS[num_players].length >= num_players
-      users_for_game = []
-      num_players.times { users_for_game << PENDING_USERS[num_players].shift }
-      match = Match.new(users_for_game).tap { |match| match.game.deal }
-      sleep 1 unless test # this should wait for a webhook indicating all the players are listening
-      match.users.each_with_index { |user, player_id| Pusher.trigger("waiting_for_players_channel_#{user.object_id}", 'send_to_game_event', { message: "#{match.object_id}/player/#{player_id}" }) }
-    end
+def make_game(user_id, num_players)
+  if PENDING_USERS[num_players].length >= num_players
+    users_for_game = PENDING_USERS[num_players]
+    PENDING_USERS[num_players] = []
+    return Match.new(users_for_game).tap { |match| match.game.deal }
   end
 end
 
-make_games_thread = Thread.new {
-  loop do
-    sleep 0.1
-    make_game
+def start_game(match)
+  match.users.each_with_index do |user, player_id|
+    Pusher.trigger("waiting_for_players_channel_#{user.object_id}", 'send_to_game_event', { message: "#{match.object_id}/player/#{player_id}" })
   end
-  }
+end
 
 get '/' do
   @player_range = PLAYER_RANGE
   slim :index
 end
 
-post '/start_game' do
+post '/wait' do
   @user = User.new(name: params["name"])
-  PENDING_USERS[params["num_players"].to_i] << @user
+  @num_players = params["num_players"].to_i
+  PENDING_USERS[@num_players] << @user
   slim :waiting_for_players
+end
+
+post '/subscribed' do # this post tells the server when the 'wait' page has loaded!
+  user_id = params["user_id"].to_i
+  num_players = params["num_players"].to_i
+  match = make_game(user_id, num_players)
+  start_game(match) if match
+  return nil # spent a really long time on this bug :-( (and yes did try to submit hidden html form but that caused a page reload... thus defeating the purpose of this post!)
 end
 
 get '/:match_id/player/:player_id' do
@@ -54,23 +51,15 @@ get '/:match_id/player/:player_id' do
   slim :player
 end
 
-post '/:match_id/game_notifications' do
-  message = params[:message]
-  match_id = params["match_id"]
-  Pusher.trigger("game_play_channel_#{match_id}", 'game_message_event', { message: message } )
-end
-
 post '/:match_id/card_request' do
-  # take card request and turn it into changes in who has what card
-  # match = Match.find_by_obj_id(params["match_id"].to_i)
-  # opponent = match.player_from_object_id(params["opponent_object_id"].to_i)
-  # player = match.player_from_object_id(params["player_object_id"].to_i)
-  # rank = params["rank"]
-  # winnings = player.request_cards(opponent, rank)
-  # player.GO FISH  if winnings == [] then send push, then collect winnings
-  # push if had to go fish or not
-  # the lines below shoud be a hash message called on line 51 post
-  # match_id = params["match_id"]
-  # Pusher.trigger("game_play_channel_#{match.object_id}", 'game_message_event', { message: message } )
-  # push turn_change_event
+  match = Match.find_by_obj_id(params["match_id"].to_i) || Match.all[0]
+  unless match.over
+    opponent = match.player_from_object_id(params["opponent_object_id"].to_i)
+    player = match.player_from_object_id(params["player_object_id"].to_i)
+    rank = params["rank"]
+    if match.game.next_turn == player
+      match.run_play(player, opponent, rank)
+      Pusher.trigger("game_play_channel_#{match.object_id}", 'refresh_event', { message: "reload page" } )
+    end
+  end
 end

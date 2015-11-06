@@ -62,7 +62,7 @@ footer {
   padding:5px;
   border:5px solid #FFFDD0;
   border-radius: 8px;
-  cursor:pointer;
+  cursor: pointer;
   z-index:90;
 }
 
@@ -123,6 +123,7 @@ h4 {
 .opponents .player {
   display: inline-block;
   margin: 20px;
+  cursor: pointer;
 }
 .opponents .player img{
   width: 71px;
@@ -135,7 +136,7 @@ h4 {
 
 .pond #speech {
   height: 200px;
-  width: 410px;
+  width: 296px;
   display: inline-block;
   vertical-align: middle;
   background: url("../images/speech.png") no-repeat;
@@ -144,7 +145,7 @@ h4 {
 }
 
 .pond #speech #message {
-  width: 337px;
+  width: 237px;
   float: left;
   padding: 10px 12px;
   position: relative;
@@ -152,9 +153,7 @@ h4 {
   transform: translateY(-50%);
   text-align: center;
   color: #3f2a14;
-  font-family: 'Rock Salt', cursive;
-  font-size: 1.5em;
-  line-height: 40px;
+  font-size: 1em;
   word-wrap: break-word;
 }
 
@@ -166,6 +165,7 @@ h4 {
   background: url("../images/fish_blue.png") no-repeat;
   background-size: 100% 100%;
   background-position: center;
+  cursor: pointer;
 }
 
 .info-for-player {
@@ -173,11 +173,12 @@ h4 {
   margin: auto;
 }
 .info-for-player .score {
+  vertical-align: top;
   display: inline-block;
   margin: 20px;
 }
 
-.info-for-player .sore img{
+.info-for-player .score img{
   width: 71px;
   height: 96px;
 }
@@ -190,6 +191,10 @@ h4 {
 .info-for-player .player img{
   width: 71px;
   height: 96px;
+}
+
+.info-for-player .your-cards {
+  cursor: pointer;
 }
 
 #no_player_message {

@@ -23,12 +23,8 @@ class Card
     "the " + @rank + " of " + @suit
   end
 
-  def as_json
-    { rank: rank, suit: suit }
-  end
-
   def to_json(*args)
-    as_json.to_json
+    { rank: rank, suit: suit }.to_json(*args)
   end
 
   def set_icon

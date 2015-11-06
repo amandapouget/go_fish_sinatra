@@ -28,6 +28,12 @@ describe User do
     expect(User.find(id)).to eq user
   end
 
+  it 'limits its search when given an optional array of users' do
+    id = user.id
+    users = [user2]
+    expect(User.find(user.id, users)).to eq nil
+  end
+
   it 'knows what matches it has played but does not allow duplicates' do
     user.add_match(match)
     user.add_match(match)

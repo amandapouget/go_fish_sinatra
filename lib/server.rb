@@ -144,7 +144,7 @@ class Server
     if winnings && winnings.length > 0
       tell_winnings(match, user, winnings)
     else
-      play_fish(match, user)
+      play_fish(match, user, rank)
       tell_fish(match, user)
     end
   end
@@ -164,11 +164,11 @@ class Server
     return match.user(player)
   end
 
-  def play_fish(match, user)
+  def play_fish(match, user, rank)
     player = match.player(user)
     send_output(user.client, GO_FISH)
     get_input(user.client)
-    card_drawn = match.game.go_fish(match.player(user)).to_s
+    card_drawn = match.game.go_fish(match.player(user), rank).to_s
     send_output(user.client, "You drew #{card_drawn}.")
   end
 

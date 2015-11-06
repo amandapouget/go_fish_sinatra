@@ -10,8 +10,13 @@ $(document).ready(function() {
     encrypted: true
   });
   var channel = pusher.subscribe('game_play_channel_' + match_id);
+
   channel.bind('game_message_event', function(data) {
     document.getElementById("message").innerText = data["message"];
+  });
+
+  channel.bind('refresh_event', function(data) {
+    window.location = window.location
   });
 
   var rank, opponent_object_id, opponent_name;
@@ -34,14 +39,10 @@ $(document).ready(function() {
   });
 
   $("#fish_blue").click(function(){
-    // if it's your turn and you've clicked the right elements to define all these variables
-    $.post('/' + match_id + '/game_notifications', { message: player_name + " asks " + opponent_name + " for " + rank }).success(function()  {
-      console.log('Asking announcement sent!');
-    });
-    $.post('/' + match_id + '/card_request', { player_object_id: player_object_id, opponent_object_id: opponent_object_id, rank: rank }).success(function()  {
-      console.log('Card request info sent!');
-    });
-    // will need to refresh cards
+    if ((typeof rank !=='undefined') && (typeof opponent_object_id !=='undefined')) {
+      $.post('/' + match_id + '/card_request', { player_object_id: player_object_id, opponent_object_id: opponent_object_id, rank: rank }).success(function()  {
+        console.log('Card request info sent!');
+      });
+    }
   });
-
 });

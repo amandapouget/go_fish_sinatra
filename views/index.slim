@@ -1,10 +1,12 @@
+br
 div class="pond"
-  div class="speech"
-    h3 Create your pond!
-  div class="fish-blue"
-    img src="/images/fish_blue.png" height="200px" width="210px"
+  div id="speech"
+    div id="message"
+      p Create your pond!
+  div id="fish_blue"
+br
 div class="form"
-  form action='/start_game' method='post'
+  form action='/wait' method='post'
     label for='name' Your Name
     br
     input type='text' id='name' name='name'

@@ -4,7 +4,7 @@ require_relative './player.rb'
 require_relative './user.rb'
 require 'pry'
 class Match
-  attr_accessor :game, :users, :players, :over
+  attr_accessor :game, :users, :players, :over, :message
 
   @@all = []
 
@@ -17,6 +17,7 @@ class Match
     add_icons(@players)
     @game = Game.new(players: @players, hand_size: hand_size)
     @over = false
+    @message = "#{@players[0].name}, click card, player & me to request cards!"
     save
   end
 
@@ -52,6 +53,7 @@ class Match
     users = fake_users[0...num_players]
     match = Match.new(users)
     match.save
+    match.game.deal
     match
   end
 
@@ -112,6 +114,21 @@ class Match
     }
   end
 
+  def run_play(player, opponent, rank)
+    rank_request = @game.make_request(player, opponent, rank)
+    rank = "sixe" if rank == "six"
+    @message = "#{player.name} asked #{opponent.name} for #{rank}s &"
+    if rank_request.won_cards?
+      @message += " got cards"
+    else
+      fish_card = @game.go_fish(player, rank)
+      @message += " went fish"
+      @message += " & got one" if fish_card.rank == rank
+    end
+    end_match if @game.game_over?
+    over ? @message += "! Game over! Winner: #{@game.winner.name}" : @message += "! It's #{game.next_turn.name}'s turn!"
+  end
+
   def end_match
     @users.each { |user| user.end_current_match }
     @over = true
@@ -119,7 +136,7 @@ class Match
 end
 
 class NullMatch
-  attr_accessor :game
+  attr_accessor :game, :message
 
   def save
   end
