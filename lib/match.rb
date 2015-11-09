@@ -116,8 +116,8 @@ class Match
 
   def run_play(player, opponent, rank)
     rank_request = @game.make_request(player, opponent, rank)
-    rank = "sixe" if rank == "six"
-    @message = "#{player.name} asked #{opponent.name} for #{rank}s &"
+    rank == "six" ? rank_word = "sixe" : rank_word = rank
+    @message = "#{player.name} asked #{opponent.name} for #{rank_word}s &"
     if rank_request.won_cards?
       @message += " got cards"
     else

@@ -46,7 +46,7 @@ describe 'homepage' do
       it 'redirects to the game when the last player joins', :js => true do
         (num_players - 1).times { PENDING_USERS[num_players] << User.new }
         fill_form('Echo', num_players)
-        until current_path != "/wait" # my magical way of getting around the sleep problem. Timeout does not work. Putting even just "true" before "until" adds a second
+        until current_path != "/wait"
         end
         expect(current_path).to match /.*\/player\/.*/
       end

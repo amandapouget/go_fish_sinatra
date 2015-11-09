@@ -32,8 +32,8 @@ feature 'player view page' do
           expect(page).to have_selector "#speech"
         end
 
-        it 'has only face_up cards in the your_cards div, no face_cards next to opponent icons, and tells the first player to request cards' do
-          find_all('.your_cards').each { |card| expect(face_up_card_filenames).to include (image_parent_folder + "#{card[:src]}") }
+        it 'has only face_up cards in the your-cards div, no face_cards next to opponent icons, and tells the first player to request cards' do
+          find_all('.your-cards').each { |card| expect(face_up_card_filenames).to include (image_parent_folder + "#{card[:src]}") }
           (num_players - 1).times do |opponent_index|
             within "#opponent_#{opponent_index}" do
               find_all('img').each { |img_element| expect(face_up_card_filenames).to_not include (image_parent_folder + "#{img_element[:src]}") }
