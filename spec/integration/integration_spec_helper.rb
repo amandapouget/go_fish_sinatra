@@ -1,6 +1,7 @@
 require 'capybara/rspec'
 require './app'
 require 'capybara/poltergeist'
+require 'spec_helper'
 Capybara.javascript_driver = :poltergeist
 Capybara.app = Sinatra::Application
 set(:show_exceptions, false) # "After line 3 in your integration testing spec (Capybara.app = Sinatra::Application), add the line set(:show_exceptions, false) to ensure that when a test is passing there are no errors." What does this mean?
