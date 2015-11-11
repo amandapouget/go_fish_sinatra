@@ -11,10 +11,11 @@ describe Card do
   end
 
   context 'cards are already made' do
-    let(:card_7h) { Card.new(rank: 'seven', suit: 'hearts') }
-    let(:card_7h_dupl) { Card.new(rank: 'seven', suit: 'hearts') }
-    let(:card_7s) { Card.new(rank: 'seven', suit: 'spades') }
-    let(:card_ah) { Card.new(rank: 'ace', suit: 'hearts') }
+    let(:card_7h) { build(:card_7h) }
+    let(:card_7h_dupl) { build(:card_7h) }
+    let(:card_7s) { build(:card_7s) }
+    let(:card_ah) { build(:card_ah) }
+    let(:irregular_card) { build(:card, rank: "fake_rank", suit: "fake_suit") }
 
     describe "#rank_value" do
       it 'returns the numeric value of the rank' do
@@ -26,7 +27,7 @@ describe Card do
       end
 
       it 'returns zero for cards outside the deck naming scheme' do
-        expect(Card.new(rank: 'coolness', suit: 'marie').rank_value).to eq 0
+        expect(irregular_card.rank_value).to eq 0
       end
     end
 
@@ -51,8 +52,6 @@ describe Card do
     describe '#to_s' do
       it 'returns the string value of the rank and suit of a card' do
         expect(card_7s.to_s).to eq "the seven of spades"
-        expect(card_ah.to_s).to eq "the ace of hearts"
-        expect(card_7h.to_s).to eq "the seven of hearts"
       end
     end
 

@@ -14,4 +14,7 @@ require 'server'
 require 'client'
 require 'rank_request'
 
-RSpec.configure { |config| config.include FactoryGirl::Syntax::Methods }
+RSpec.configure do |config|
+  config.include FactoryGirl::Syntax::Methods
+  config.before(:all) { FactoryGirl.reload }
+end

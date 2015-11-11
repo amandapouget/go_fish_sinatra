@@ -52,7 +52,7 @@ module FreshGameCreate
   end
 
   def everyone_has_at_least_one_card(match)
-    match.players.each { |player| player.cards = [Card.new(rank: "two", suit: "diamonds")] }
+    match.players.each { |player| player.cards = [build(:card_2d] }
   end
 end
 
