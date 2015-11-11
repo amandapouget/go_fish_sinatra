@@ -1,149 +1,134 @@
 class Spinach::Features::PlayGame < Spinach::FeatureSteps
   include FreshGameCreate
+  include GamePlay
 
-  step 'the game is on-going' do
-    reset_pending
-    reset_matches
-    @match = start_three_game("Amanda")
-    @me_player = @match.players[0]
-    expect(@me_player.name).to eq "Amanda"
-    visit "/#{@match.object_id}/player/0"
-    @my_cards = find_all('.your-cards')
+  step 'the game has started' do
+    game_with_three_players_one_card_each
   end
 
   step 'it is already my turn' do
-    @match.game.next_turn = @me_player
+    make_it_someones_turn(@me_player)
     @player_whose_turn_it_is = @me_player
   end
 
-  step 'it is already another player\'s turn' do
-    @match.game.next_turn = @opponent_making_play
-    @player_whose_turn_it_is = @opponent_making_play
-  end
-
-  step 'it is still my turn' do
-    expect(@match.game.next_turn).to eq @me_player
-  end
-
-  step 'it is someone else\'s turn' do
-    expect(@match.game.next_turn).not_to eq @player_whose_turn_it_is
-  end
-
-  step 'it is still their turn' do
-    expect(@match.game.next_turn).to eq @opponent_making_play
+  step 'it is already the turn of my first opponent' do
+    make_it_someones_turn(@first_opponent)
+    @player_whose_turn_it_is = @first_opponent
   end
 
   step 'the request is ignored' do
-    expect(find_all('.your-cards')).to match_array @my_cards
+    visit_player_page # I'm sorry, I just CANNOT get it to test if the page reloaded!
+    expected_card_icons = @my_preplay_cards.map { |card| card.icon }
+    expect(current_cards_icons).to match_array expected_card_icons
   end
 
-  step 'I ask an opponent for cards of a given rank' do
-    find('#card_0').click
-    find('#opponent_0').click
-    find('#fish_blue').click
+  step 'I ask my first opponent for cards he has' do
+    have_ace([@me_player, @first_opponent])
+    @my_preplay_cards = my_cards
+    visit_player_page
+    make_my_request
   end
 
-  step 'they have cards of that rank' do
-    pending 'step not implemented'
+  step 'I ask my first opponent for cards he does not have' do
+    have_ace([@me_player])
+    @my_preplay_cards = my_cards
+    visit_player_page
+    make_my_request
   end
 
-  step 'it tells me what I asked for' do
-    pending 'step not implemented'
+  step 'my first opponent asks me for cards I have' do
+    have_ace([@me_player, @first_opponent])
+    @my_preplay_cards = my_cards
+    @aces = my_cards.select { |card| card.rank == "ace" }
+    make_opponent_request(@match, @first_opponent, @me_player, "ace")
   end
 
-  step 'it tells me I got cards' do
-    pending 'step not implemented'
+  step 'my first opponent asks me for cards I do not have' do
+    have_ace([@first_opponent])
+    @my_preplay_cards = my_cards
+    make_opponent_request(@match, @first_opponent, @me_player, "ace")
+  end
+
+  step 'my first opponent asks my second opponent for cards he has' do
+    have_ace([@first_opponent, @second_opponent])
+    make_opponent_request(@match, @first_opponent, @second_opponent, "ace")
+  end
+
+  step 'my first opponent asks my second opponent for cards he does not have' do
+    have_ace([@first_opponent])
+    make_opponent_request(@match, @first_opponent, @second_opponent, "ace")
   end
 
   step 'it gives me the cards' do
-    pending 'step not implemented'
+    visit_player_page
+    expect_page_has_cards(my_cards)
   end
 
-  step 'they ask me for cards of a given rank' do
-    pending 'step not implemented'
+  step 'it takes the cards from me' do
+    visit_player_page
+    expect_page_has_cards(my_cards)
+    expect_page_has_cards(@aces, false)
   end
 
-  step 'I have cards of that rank' do
-    pending 'step not implemented'
+  step 'it makes me go fish' do
+    visit_player_page
+    expect_page_has_cards([@go_fish_card])
   end
 
-  step 'it tells me what they asked for' do
-    pending 'step not implemented'
+  step 'I go fish and draw the rank I asked for' do
+    have_ace([@me_player, @match.game.deck])
+    @match.run_play(@me_player, @first_opponent, "ace")
   end
 
-  step 'it gives them the cards' do
-    pending 'step not implemented'
+  step 'I go fish and draw a different rank' do
+    have_ace([@me_player])
+    have_jack([@match.game.deck])
+    @match.run_play(@me_player, @first_opponent, "ace")
   end
 
-  step 'they ask someone else for cards of a given rank' do
-    pending 'step not implemented'
+  step 'my first opponent goes fish and draws the rank he asked for' do
+    have_ace([@first_opponent, @match.game.deck])
+    @match.run_play(@first_opponent, @me_player, "ace")
   end
 
-  step 'it tells me they got cards' do
-    pending 'step not implemented'
+  step 'my first opponent goes fish and draws a different rank' do
+    have_ace([@first_opponent])
+    have_jack([@match.game.deck])
+    @match.run_play(@first_opponent, @me_player, "ace")
   end
 
-  step 'they do not have cards of that rank' do
-    pending 'step not implemented'
+  step 'it tells me what I asked for' do
+    visit_player_page
+    expect(page).to have_content /#{@me_player.name} asked \S* for aces/
   end
 
-  step 'it makes me go Fish' do
-    pending 'step not implemented'
+  step 'it tells me what my first opponent asked for' do
+    visit_player_page
+    expect(page).to have_content /#{@first_opponent.name} asked \S* for aces/
   end
 
-  step 'it tells me I went fish' do
-    pending 'step not implemented'
+  step 'it tells me cards were won' do
+    visit_player_page
+    expect(page).to have_content "got cards"
   end
 
-  step 'I do not have cards of that rank' do
-    pending 'step not implemented'
+  step 'it tells me fishing happened' do
+    visit_player_page
+    expect(page).to have_content "went fish"
   end
 
-  step 'it makes them go Fish' do
-    pending 'step not implemented'
+  step 'it tells me the right rank was drawn' do
+    visit_player_page
+    expect(page).to have_content "got one"
   end
 
-  step 'it tells me they went Fish' do
-    pending 'step not implemented'
+  step 'turn advances' do
+    visit_player_page
+    expect(page).not_to have_content /#{@player_whose_turn_it_is.name}'s turn/
   end
 
-  step 'I do not get the cards I asked for' do
-    pending 'step not implemented'
-  end
-
-  step 'I go fish' do
-    pending 'step not implemented'
-  end
-
-  step 'I draw the rank I asked for' do
-    pending 'step not implemented'
-  end
-
-  step 'it tells me I drew the right rank' do
-    pending 'step not implemented'
-  end
-
-  step 'Someone else does not get the cards they asked for' do
-    pending 'step not implemented'
-  end
-
-  step 'they go fish' do
-    pending 'step not implemented'
-  end
-
-  step 'they draw the rank they asked for' do
-    pending 'step not implemented'
-  end
-
-  step 'it tells me they drew the right rank' do
-    pending 'step not implemented'
-  end
-
-  step 'I draw a different rank from the one I asked for' do
-    pending 'step not implemented'
-  end
-
-  step 'they draw a different rank from the one they asked for' do
-    pending 'step not implemented'
+  step 'turn does not advance' do
+    visit_player_page
+    expect(page).to have_content /#{@player_whose_turn_it_is.name}'s turn/
   end
 end

@@ -2,11 +2,9 @@ class Spinach::Features::StartGame < Spinach::FeatureSteps
   include FreshGameCreate
 
   step 'I am waiting for my game to start' do
-    reset_pending
-    reset_matches
+    reset
     @num_players = 3 # more sad magic number
     fill_form("Amanda", @num_players)
-    click_button 'Start Game'
     @user = PENDING_USERS[@num_players][0]
   end
 
@@ -28,11 +26,10 @@ class Spinach::Features::StartGame < Spinach::FeatureSteps
   end
 
   step 'it starts our game' do
-    expect(page).to have_content(@user.name, :wait => 5 )
+    expect(page.has_current_path?(/.*\/player\/.*/, :wait => 5)).to be true
+    expect(page).to have_content(@user.name)
     expect(page).to have_content('Go Fish')
     expect(PENDING_USERS[@num_players].length).to eq 0
-    expect(Match.all[0].players.length).to eq @num_players
-    expect(Match.all[0].users).to include @user
-    expect(current_path).to match /.*\/player\/.*/
+    expect(find_all('.player').length).to eq @num_players
   end
 end

@@ -3,20 +3,20 @@ Feature: End Game
   As a player
   I want it to end the game at the right time and give me game stats
 
+  Background:
+    Given the game has started
+
+  @javascript
   Scenario: I am out of cards
-    Given the game is on-going
     When I run out of cards
-    Then it tells me the game is over
-    And it displays everyone's final score
+    Then it tells me the game is over and displays everyone's final score
 
+  @javascript
   Scenario: An opponent is out of cards
-    Given the game is on-going
     When an opponent runs out of cards
-    Then it tells me the game is over
-    And it displays everyone's final score
+    Then it tells me the game is over and displays everyone's final score
 
+  @javascript
   Scenario: The deck is out of cards
-    Given the game is on-going
     When the deck runs out of cards
-    Then it tells me the game is over
-    And it displays everyone's final score
+    Then it tells me the game is over and displays everyone's final score

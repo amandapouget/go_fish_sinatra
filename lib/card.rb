@@ -16,7 +16,16 @@ class Card
   end
 
   def ==(another_card)
-    return @rank == (another_card.rank) && @suit == (another_card.suit)
+    eql?(another_card)
+  end
+
+  # the following two methods need tests
+  def eql?(another_card)
+    @rank == (another_card.rank) && @suit == (another_card.suit)
+  end
+
+  def hash
+    rank.hash ^ suit.hash
   end
 
   def to_s

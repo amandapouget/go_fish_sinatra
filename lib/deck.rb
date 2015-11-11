@@ -1,7 +1,7 @@
 require './lib/card.rb'
 
 class Deck
-  attr_reader :cards, :type
+  attr_accessor :cards, :type
 
   def initialize(type: 'none')
     @type = type

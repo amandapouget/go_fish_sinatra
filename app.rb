@@ -18,7 +18,7 @@ end
 
 def start_game(match)
   match.users.each_with_index do |user, player_id|
-    Pusher.trigger("waiting_for_players_channel_#{user.object_id}", 'send_to_game_event', { message: "#{match.object_id}/player/#{player_id}" })
+    Pusher.trigger("waiting_for_players_channel_#{user.object_id}", 'send_to_game_event', { message: "#{match.object_id}/player/#{player_id}" } )
   end
 end
 
