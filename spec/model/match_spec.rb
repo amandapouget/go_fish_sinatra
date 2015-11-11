@@ -84,7 +84,7 @@ describe Match do
   end
 
   it 'returns nil when searching for a player or user that is not part of this match' do
-    expect(match.user(Player.new)).to eq NullUser.new
+    expect(match.user(build(:player))).to eq NullUser.new
     expect(match.player(User.new)).to eq NullPlayer.new
   end
 

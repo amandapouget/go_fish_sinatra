@@ -4,3 +4,5 @@ FactoryGirl.define do
     initialize_with { new(type: type) }
   end
 end
+
+# a way to not have to duplicate the default above?

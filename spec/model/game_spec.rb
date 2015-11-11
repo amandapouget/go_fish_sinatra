@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Game do
-  let(:players) { Array.new(MAX_PLAYERS + 1) { Player.new } }
+  let(:players) { Array.new(MAX_PLAYERS + 1) { build(:player) } }
 
   describe 'number of players allowed' do
     it "automatically initializes with at least #{MIN_PLAYERS} players" do
@@ -42,8 +42,8 @@ describe Game do
     let(:card_kd) { build(:card_kd) }
     let(:card_kc) { build(:card_kc) }
     let(:book) { [card_ks, card_kh, card_kd, card_kc] }
-    let(:player0) { Player.new }
-    let(:player1) { Player.new }
+    let(:player0) { build(:player) }
+    let(:player1) { build(:player) }
     let(:game) { Game.new(players: [player0, player1]) }
 
     after do

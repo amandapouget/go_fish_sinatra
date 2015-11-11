@@ -18,7 +18,7 @@ FactoryGirl.define do
   end
 
   factory :random_card do
-    initialize_with { new(rank: @ranks[rand(ranks.length)], suit: @suits[rand(suits.length)]) }
+    initialize_with { new(rank: @ranks[rand(@ranks.length)], suit: @suits[rand(@suits.length)]) }
   end
 
   @ranks.each do |rank|

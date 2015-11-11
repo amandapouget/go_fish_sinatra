@@ -4,11 +4,11 @@ class Player
 
   attr_accessor :name, :cards, :books, :icon
 
-  def initialize(name: "Anonymous", icon: "")
+  def initialize(name: "Anonymous")
     @name = name
     @cards = []
     @books = []
-    @icon = icon
+    @icon = nil
   end
 
   def give_cards(rank)

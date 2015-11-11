@@ -1,15 +1,13 @@
 require 'spec_helper'
 
 describe Player do
-  let(:player) { Player.new(name: "John") }
-  let(:opponent) { Player.new(name: "Dragon") }
-
   describe '#initialize' do
     it 'creates a player object with a name, an icon, an array for holding cards, and an array for holding books' do
+      player = Player.new(name: "John")
       expect(player.name).to eq "John"
       expect(player.cards).to eq []
       expect(player.books).to eq []
-      expect(player.icon).to eq ""
+      expect(player.icon).to eq nil
     end
 
     it 'defaults to Anonymous if no name is given' do
@@ -18,23 +16,24 @@ describe Player do
   end
 
   context 'player has cards' do
-    let(:card_2c) { build(:card_2c) }
-    let(:card_2d) { build(:card_2d) }
-    let(:card_2h) { build(:card_2h) }
-    let(:card_2s) { build(:card_2s) }
-    let(:card_3h) { build(:card_3h) }
-    let(:card_10d) { build(:card_10d) }
-    let(:card_js) { build(:card_js) }
-    let(:card_ah) { build(:card_ah) }
-    let(:card_3c) { build(:card_3c) }
-    let(:card_3d) { build(:card_3d) }
-    let(:card_7h) { build(:card_7h) }
+    let(:player) { build(:player) }
+    let(:opponent) { build(:player) }
+    let(:deck) { build(:deck) }
+    cards = [:card_2c, :card_2d, :card_2h, :card_2s, :card_3h, :card_3c, :card_3d, :card_7h]
+    cards.each { |card| let(card) { build(card) } }
 
     before do
-      player.cards = [card_2c, card_3h, card_js, card_ah, card_10d, card_2d]
-      opponent.cards = [card_3c, card_3d, card_7h]
-      @deck = build(:deck, type: 'regular')
-      @deck.shuffle
+      player.cards = [card_3h, card_2c, card_2d]
+      opponent.cards = [card_3d, card_3c, card_7h]
+      deck.cards << build(:card_2h)
+    end
+
+    def check_sorted
+      value = 0
+      player.cards do |card|
+        expect(card.rank_value).to be >= value
+        value = card.rank_value
+      end
     end
 
     describe '#give_cards' do
@@ -48,13 +47,13 @@ describe Player do
 
       it 'removes the cards from the players hand' do
         player.give_cards("two")
-        expect(player.cards).to match_array [card_3h, card_js, card_ah, card_10d]
+        expect(player.cards).to match_array [card_3h]
       end
     end
 
     describe '#request_cards' do
       it 'asks another player to return cards of a given rank' do
-        expect(player.request_cards(opponent, "three")).to eq [card_3c, card_3d]
+        expect(player.request_cards(opponent, "three")).to match_array [card_3c, card_3d]
       end
 
       it 'returns an empty array if not given a proper player in the argument' do
@@ -66,23 +65,20 @@ describe Player do
       end
 
       it 'returns an empty array if the opponent does not have the rank requested' do
-        expect(player.request_cards(opponent, "ace")).to eq []
+        expect(player.request_cards(opponent, "two")).to eq []
       end
     end
 
     describe '#collect_winnings' do
       it 'collects all the winnings from a particular play and adds the cards to the players cards' do
-        player.collect_winnings([card_3c, card_7h])
+        player.collect_winnings([card_3c, card_3d])
         expect(player.cards).to include card_3c
-        expect(player.cards).to include card_7h
+        expect(player.cards).to include card_3d
       end
 
       it 'politely sorts the players cards by rank for easy visualization' do
         player.collect_winnings([])
-        value = 0
-        player.cards { |card|
-          expect(card.rank_value).to be >= value
-          value = card.rank_value }
+        check_sorted
       end
 
       it 'makes any possible books and moves those cards to the players books' do
@@ -92,32 +88,22 @@ describe Player do
     end
 
     describe '#go_fish' do
-      it 'takes a card from the deck and adds it to the players cards' do
-        deck_count = @deck.count_cards
-        player_count = player.count_cards
-        player.go_fish(@deck)
-        expect(player.count_cards).to eq player_count + 1
-        expect(@deck.count_cards).to eq deck_count - 1
+      it 'takes a card from the deck, adds it to the players cards and returns it' do
+        go_fish_card = deck.cards[0]
+        expect(player.go_fish(deck)).to eq go_fish_card
+        expect(player.cards).to include go_fish_card
+        expect(deck.cards).not_to include go_fish_card
       end
 
       it 'politely sorts the players cards' do
-        player.go_fish(@deck)
-        value = 0
-        player.cards { |card|
-          expect(card.rank_value).to be >= value
-          value = card.rank_value }
+        player.go_fish(deck)
+        check_sorted
       end
 
       it 'makes any possible books and moves those cards to the players books' do
-        @deck.cards[0] = card_2h
         player.add_card(card_2s)
-        player.go_fish(@deck)
+        player.go_fish(deck)
         expect(player.books[0]).to match_array [card_2h, card_2c, card_2d, card_2s]
-      end
-
-      it 'returns the card fished' do
-        card_to_fish = @deck.cards[0]
-        expect(player.go_fish(@deck)).to eq card_to_fish
       end
     end
 
@@ -148,6 +134,7 @@ describe Player do
 
   describe NullPlayer do
     let(:nullplayer) { NullPlayer.new }
+    let(:player) { build(:player) }
     let(:card_3c) { build(:card_3c) }
     let(:deck) { build(:deck, type: 'regular') }
 

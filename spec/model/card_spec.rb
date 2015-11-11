@@ -11,10 +11,10 @@ describe Card do
   end
 
   context 'cards are already made' do
-    cards = ['card_7h', 'card_7s', 'card_ah']
-    cards.each { |card| let(card.to_sym) { build(card.to_sym) } }
     let(:card_7h_dupl) { build(:card_7h) }
     let(:irregular_card) { build(:card, rank: "fake_rank", suit: "fake_suit") }
+    cards = [:card_7h, :card_7s, :card_ah]
+    cards.each { |card| let(card) { build(card) } }
 
     describe "#rank_value" do
       it 'returns the numeric value of the rank' do

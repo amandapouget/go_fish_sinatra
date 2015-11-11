@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe '#RankRequest' do
-  let(:player) { Player.new }
-  let(:opponent) { Player.new }
+  let(:player) { build(:player) }
+  let(:opponent) { build(:player) }
   let(:rank) { "ace" }
   let(:rank_request) { RankRequest.new(player, opponent, rank) }
   let(:card_as) { build(:card_as) }
