@@ -282,7 +282,7 @@ describe Server do
 
             describe '#tell_winnings' do
               it 'tells the player what he won' do
-                card = Card.new(rank: "ace", suit: "spades")
+                card = build(:card_as)
                 server.tell_winnings(match, user0, [card])
                 expect(client0.output).to include "You received:"
                 expect(client0.output).to include card.to_s

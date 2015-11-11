@@ -52,7 +52,7 @@ module FreshGameCreate
   end
 
   def everyone_has_at_least_one_card(match)
-    match.players.each { |player| player.cards = [build(:card_2d] }
+    match.players.each { |player| player.cards = [build(:card_2d)] }
   end
 end
 
@@ -68,11 +68,11 @@ module GamePlay
   end
 
   def have_ace(players)
-    players.each { |player| player.cards.unshift(Card.new(rank: "ace", suit: "spades")) }
+    players.each { |player| player.cards.unshift(build(:card_as)) }
   end
 
   def have_jacks(players)
-    players.each { |player| player.cards.unshift(Card.new(rank: "jack", suit: "spades")) }
+    players.each { |player| player.cards.unshift(build(:card_js)) }
   end
 
   def make_my_request

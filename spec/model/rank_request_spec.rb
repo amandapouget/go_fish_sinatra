@@ -5,8 +5,8 @@ describe '#RankRequest' do
   let(:opponent) { Player.new }
   let(:rank) { "ace" }
   let(:rank_request) { RankRequest.new(player, opponent, rank) }
-  let(:card_as) { Card.new(rank: "ace", suit: "spades") }
-  let(:card_ah) { Card.new(rank: "ace", suit: "hearts") }
+  let(:card_as) { build(:card_as) }
+  let(:card_ah) { build(:card_ah) }
 
   before do
     player.add_card(card_as)

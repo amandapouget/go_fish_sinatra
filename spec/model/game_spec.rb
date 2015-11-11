@@ -37,10 +37,10 @@ describe Game do
   end
 
   context 'game is initialized with two players and default hand_size' do
-    let(:card_ks) { Card.new(rank: "king", suit: "spades") }
-    let(:card_kh) { Card.new(rank: "king", suit: "hearts") }
-    let(:card_kd) { Card.new(rank: "king", suit: "diamonds") }
-    let(:card_kc) { Card.new(rank: "king", suit: "clubs") }
+    let(:card_ks) { build(:card_ks) }
+    let(:card_kh) { build(:card_kh) }
+    let(:card_kd) { build(:card_kd) }
+    let(:card_kc) { build(:card_kc) }
     let(:book) { [card_ks, card_kh, card_kd, card_kc] }
     let(:player0) { Player.new }
     let(:player1) { Player.new }

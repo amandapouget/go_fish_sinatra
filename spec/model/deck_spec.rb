@@ -24,7 +24,7 @@ describe Deck do
 
   context 'regular deck type already created' do
     let(:deck) { Deck.new(type: 'regular') }
-    let(:card) { Card.new(rank: "three", suit: "spades") }
+    let(:card) { build(:card_3s) }
 
     describe '#shuffle' do
       it 'reorders the cards in a different way each time' do

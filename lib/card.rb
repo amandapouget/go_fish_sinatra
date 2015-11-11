@@ -15,14 +15,11 @@ class Card
     return 0
   end
 
-  def ==(another_card)
-    eql?(another_card)
-  end
-
-  # the following two methods need tests
   def eql?(another_card)
     @rank == (another_card.rank) && @suit == (another_card.suit)
   end
+
+  alias == eql?
 
   def hash
     rank.hash ^ suit.hash
@@ -37,7 +34,6 @@ class Card
   end
 
   def set_icon
-    suit_letter = suit[0]
-    ICON_SOURCE_PATH + "#{suit_letter}#{rank_value}.png"
+    return ICON_SOURCE_PATH + "#{suit[0]}#{rank_value}.png" if rank_value > 0 && ["hearts", "clubs", "spades", "diamonds"].include?(suit)
   end
 end

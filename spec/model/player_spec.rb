@@ -18,17 +18,17 @@ describe Player do
   end
 
   context 'player has cards' do
-    let(:card_2c) { Card.new(rank: "two", suit: "clubs") }
-    let(:card_2d) { Card.new(rank: "two", suit: "diamonds") }
-    let(:card_2h) { Card.new(rank: "two", suit: "hearts") }
-    let(:card_2s) { Card.new(rank: "two", suit: "spades") }
-    let(:card_3h) { Card.new(rank: "three", suit: "hearts") }
-    let(:card_10d) { Card.new(rank: "ten", suit: "diamonds") }
-    let(:card_js) { Card.new(rank: "jack", suit: "spades") }
-    let(:card_ah) { Card.new(rank: "ace", suit: "hearts") }
-    let(:card_3c) { Card.new(rank: "three", suit: "clubs") }
-    let(:card_3d) { Card.new(rank: "three", suit: "diamonds") }
-    let(:card_7h) { Card.new(rank: "seven", suit: "hearts") }
+    let(:card_2c) { build(:card_2c) }
+    let(:card_2d) { build(:card_2d) }
+    let(:card_2h) { build(:card_2h) }
+    let(:card_2s) { build(:card_2s) }
+    let(:card_3h) { build(:card_3h) }
+    let(:card_10d) { build(:card_10d) }
+    let(:card_js) { build(:card_js) }
+    let(:card_ah) { build(:card_ah) }
+    let(:card_3c) { build(:card_3c) }
+    let(:card_3d) { build(:card_3d) }
+    let(:card_7h) { build(:card_7h) }
 
     before do
       player.cards = [card_2c, card_3h, card_js, card_ah, card_10d, card_2d]
@@ -148,7 +148,7 @@ describe Player do
 
   describe NullPlayer do
     let(:nullplayer) { NullPlayer.new }
-    let(:card_3c) { Card.new(rank: "three", suit: "clubs") }
+    let(:card_3c) { build(:card_3c) }
     let(:deck) { Deck.new(type: 'regular') }
 
     it 'returns none when its name is called' do

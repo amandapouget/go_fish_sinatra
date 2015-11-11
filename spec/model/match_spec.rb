@@ -6,6 +6,7 @@ describe Match do
   let(:user3) { User.new(name: "Calvin") }
   let(:user4) { User.new(name: "Dustin") }
   let(:user5) { User.new(name: "Edward") }
+  let(:card_ad) { build(:card_ad) }
   let(:match) { Match.new([user1, user2, user3, user4, user5]) }
   let(:users) { match.users }
   let(:players ) { match.players }
@@ -100,7 +101,7 @@ describe Match do
   end
 
   it 'gives me player state' do
-    match.player(user1).add_card(Card.new(rank:'ace', suit: 'diamonds'))
+    match.player(user1).add_card(card_ad)
     json = match.player_state(user1)
     expect(json[:type]).to eq "player_state"
     expect(json[:player_cards]).to eq "[{\"rank\":\"ace\",\"suit\":\"diamonds\"}]"
@@ -118,10 +119,10 @@ describe Match do
   end
 
   describe 'can run a play' do
-    let(:card_as) { Card.new(rank: "ace", suit: "spades") }
-    let(:card_ah) { Card.new(rank: "ace", suit: "hearts") }
-    let(:card_2h) { Card.new(rank: "two", suit: "hearts") }
-    let(:card_2d) { Card.new(rank: "two", suit: "diamonds") }
+    let(:card_as) { build(:card_as) }
+    let(:card_ah) { build(:card_ah) }
+    let(:card_2h) { build(:card_2h) }
+    let(:card_2d) { build(:card_2d) }
     let(:player0) { match.players[0] }
     let(:player1) { match.players[1] }
 
