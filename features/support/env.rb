@@ -14,3 +14,4 @@ Spinach.hooks.on_tag("javascript") { ::Capybara.current_driver = ::Capybara.java
 Spinach.config[:failure_exceptions] << RSpec::Expectations::ExpectationNotMetError
 Spinach::FeatureSteps.include RSpec::Matchers
 Spinach::FeatureSteps.include FactoryGirl::Syntax::Methods
+Spinach.hooks.before_run { FactoryGirl.reload }
