@@ -9,6 +9,7 @@ class Deck
     if type == 'regular'
       ranks = ["two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "jack", "queen", "king", "ace"]
       suits = ["clubs", "diamonds", "hearts", "spades"]
+      start = Time.now
       ranks.each do |rank|
         suits.each do |suit|
           @cards << Card.new(rank: rank, suit: suit)
@@ -31,10 +32,6 @@ class Deck
 
   def empty?
     count_cards == 0
-  end
-
-  def add_card(card)
-    @cards.push(card)
   end
 
   def to_json(*args)

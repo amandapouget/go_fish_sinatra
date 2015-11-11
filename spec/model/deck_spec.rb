@@ -23,12 +23,12 @@ describe Deck do
   end
 
   context 'regular deck type already created' do
-    let(:deck) { Deck.new(type: 'regular') }
+    let(:deck) { build(:deck, type: 'regular') }
     let(:card) { build(:card_3s) }
 
     describe '#shuffle' do
       it 'reorders the cards in a different way each time' do
-        my_unshuffled_deck = Deck.new(type: 'regular')
+        my_unshuffled_deck = build(:deck, type: 'regular')
         expect(deck.cards == my_unshuffled_deck.cards).to be true
         deck.shuffle
         expect(deck.cards == my_unshuffled_deck.cards).to be false
@@ -45,8 +45,8 @@ describe Deck do
 
     describe '#deal_next_card' do
       it 'returns the top card in the deck' do
-        card = deck.cards[0]
-        expect(card == deck.deal_next_card).to be true
+        card_to_deal = deck.cards[0]
+        expect(card_to_deal == deck.deal_next_card).to be true
       end
       it 'removes that card from the deck' do
         count = deck.count_cards
@@ -65,24 +65,11 @@ describe Deck do
       end
     end
 
-    describe '#add_card' do
-      it 'adds a card to the bottom of the deck' do
-        count = deck.count_cards
-        deck.add_card(card)
-        expect(deck.cards[count]).to eq card
-      end
-      it 'increases the deck count by 1' do
-        count = deck.count_cards
-        deck.add_card(card)
-        expect(deck.count_cards).to eq count + 1
-      end
-    end
-
     describe '#to_json' do
       it 'returns a json version of the deck, including json versions of the cards within it' do
-        deck_with_1_card = Deck.new
-        deck_with_1_card.add_card(card)
-        expect(deck_with_1_card.to_json).to eq "{\"type\":\"none\",\"cards\":[{\"rank\":\"three\",\"suit\":\"spades\"}]}"
+        deck_with_1_card = build(:deck)
+        deck_with_1_card.cards << card
+        expect(deck_with_1_card.to_json).to eq "{\"type\":\"none\",\"cards\":[{\"rank\":\"#{card.rank}\",\"suit\":\"#{card.suit}\"}]}"
       end
     end
   end

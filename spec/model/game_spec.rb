@@ -31,7 +31,7 @@ describe Game do
     end
 
     it 'raises an error if the number of cards to be dealt is greater than allowable given the number of players' do
-      deck_length = Deck.new(type: 'regular').count_cards
+      deck_length = build(:deck, type: 'regular').count_cards
       expect { Game.new(players: players[0..1], hand_size: deck_length) }.to raise_error(ArgumentError)
     end
   end
@@ -49,7 +49,7 @@ describe Game do
     after do
       player0.cards = []
       player1.cards = []
-      game.deck = Deck.new(type: 'regular')
+      game.deck = build(:deck, type: 'regular')
       game.requests = []
     end
 
@@ -57,7 +57,7 @@ describe Game do
       it 'creates a game with players accessible in the players list, a regular deck full of cards, an array of player requests that have been made' do
         expect(game.players).to match_array [player0, player1]
         expect(game.deck.type).to eq 'regular'
-        full_deck_length = (Deck.new(type: 'regular')).count_cards
+        full_deck_length = build(:deck, type: 'regular').count_cards
         expect(game.deck.count_cards).to eq full_deck_length
         expect(game.requests).to eq []
       end

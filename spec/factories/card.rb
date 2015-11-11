@@ -12,6 +12,8 @@ FactoryGirl.define do
   end
 
   factory :card do
+    rank 'none'
+    suit 'none'
     initialize_with { new(rank: rank, suit: suit) }
   end
 

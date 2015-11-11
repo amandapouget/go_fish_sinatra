@@ -33,7 +33,7 @@ describe Player do
     before do
       player.cards = [card_2c, card_3h, card_js, card_ah, card_10d, card_2d]
       opponent.cards = [card_3c, card_3d, card_7h]
-      @deck = Deck.new(type: 'regular')
+      @deck = build(:deck, type: 'regular')
       @deck.shuffle
     end
 
@@ -149,7 +149,7 @@ describe Player do
   describe NullPlayer do
     let(:nullplayer) { NullPlayer.new }
     let(:card_3c) { build(:card_3c) }
-    let(:deck) { Deck.new(type: 'regular') }
+    let(:deck) { build(:deck, type: 'regular') }
 
     it 'returns none when its name is called' do
       expect(nullplayer.name).to eq "none"
