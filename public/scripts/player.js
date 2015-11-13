@@ -1,5 +1,6 @@
 $(document).ready(function() {
   var match_id = window.location.pathname.split('/')[1];
+  var player_num = window.location.pathname.split('/')[3];
 
   Pusher.log = function(message) {
     if (window.console && window.console.log) {
@@ -16,7 +17,31 @@ $(document).ready(function() {
   });
 
   channel.bind('refresh_event', function(data) {
-    window.location = window.location
+    console.log("GOT REFRESH");
+    $.ajax({
+       url: 'http://localhost:4567/' + match_id + '/player/' + player_num + '.json',
+       dataType: 'json',
+       complete: function(data){
+       },
+       success: function(data){
+         var cards = data;
+         $('.your-cards').remove();
+         var player_div = document.getElementById('player');
+         $.each( cards, function(index, card) {
+           new_card = document.createElement("img");
+           new_card.class = 'your-cards';
+           new_card.src = card.icon;
+           new_card.id = "card_" + index;
+           new_card.value = card.rank_value;
+           new_card.name = card.rank;
+           player_div.appendChild(new_card);
+         });
+         console.log("SUCCESSFUL");
+       },
+       error: function(data, text_status, error_thrown){
+         console.log(data, text_status, error_thrown);
+       },
+    });
   });
 
   var rank, opponent_object_id, opponent_name;

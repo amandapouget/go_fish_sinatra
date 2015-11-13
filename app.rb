@@ -42,13 +42,17 @@ post '/subscribed' do # this post tells the server when the 'wait' page has load
   return nil
 end
 
-get '/:match_id/player/:player_id' do
+get '/:match_id/player/:player_id.?:format?' do
   match_id = params["match_id"].to_i
   player_id = params["player_id"].to_i
   @match = Match.find(match_id)
   @player = @match.players[player_id] if @match
   @opponents = @match.opponents(@player) if @player
-  slim :player
+  if (params['format'] == 'json')
+    @player.cards.to_json
+  else
+    slim :player
+  end
 end
 
 post '/:match_id/card_request' do
