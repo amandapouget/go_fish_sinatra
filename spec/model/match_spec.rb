@@ -1,9 +1,8 @@
 require 'spec_helper'
 
 describe Match do
-  [:user1, :user2, :user3, :user4, :user5].each { |user| let(user) { build(:user) } }
   let(:card_ad) { build(:card_ad) }
-  let(:match) { Match.new([user1, user2, user3, user4, user5]) }
+  let(:match) { build(:match, num_players: 5) }
   let(:users) { match.users }
   let(:players ) { match.players }
 
@@ -15,13 +14,9 @@ describe Match do
     Match.clear
   end
 
-  it 'can tell you how many players it has' do
-    expect(match.num_players).to eq match.players.length
-  end
-
   it 'initializes with a game and users, an array of the users, an empty message, plus players connected to the game with unique go_fish icons' do
     expect(match.game).to be_a Game
-    expect(match.users).to match_array [user1, user2, user3, user4, user5]
+    expect(match.users).to match_array [users[0], users[1], users[2], users[3], users[4]]
     expect(match.message).to eq "#{match.players[0].name}, click card, player & me to request cards!"
     expect(match.game.players).to match_array match.players
     icons = Dir.glob("./public/images/players/*.png")
@@ -43,12 +38,6 @@ describe Match do
 
   it 'can find a match based on object_id' do
     expect(Match.find(match.object_id)).to eq match
-  end
-
-  it 'can make and save a fake match' do
-    (MIN_PLAYERS...MAX_PLAYERS).each { |num_players| expect(Match.fake(num_players).users.length).to eq num_players }
-    fake_match = Match.fake(MAX_PLAYERS)
-    expect(Match.find(fake_match.object_id)).to eq fake_match
   end
 
   it 'returns nil if no such match is found' do
@@ -85,7 +74,7 @@ describe Match do
   end
 
   it 'can find a player when given a name' do
-    expect(match.player_from_name("Amanda")).to eq players[0]
+    expect(match.player_from_name(players[0].name)).to eq players[0]
   end
 
   it 'can find a player when given an object_id' do
@@ -97,8 +86,8 @@ describe Match do
   end
 
   it 'gives me player state' do
-    match.player(user1).add_card(card_ad)
-    json = match.player_state(user1)
+    match.player(users[0]).add_card(card_ad)
+    json = match.player_state(users[0])
     expect(json[:type]).to eq "player_state"
     expect(json[:player_cards]).to eq "[{\"rank\":\"ace\",\"suit\":\"diamonds\"}]"
   end
@@ -170,31 +159,5 @@ describe Match do
     expect(match.over).to be false
     match.end_match
     expect(match.over).to be true
-  end
-end
-
-describe NullMatch do
-  let(:nullmatch) { NullMatch.new }
-  let(:player) { build(:null_player)}
-  let(:user) { build(:user) }
-
-  it 'does nothing in response to match methods' do
-    expect(nullmatch.user(player)).to eq nil
-    expect(nullmatch.player(user)).to eq nil
-    expect(nullmatch.users).to eq []
-    expect(nullmatch.players).to eq []
-    expect(nullmatch.player_from_name("any string")).to eq nil
-    expect { nullmatch.save }.to_not raise_exception
-    expect(nullmatch.to_json).to eq nil
-    expect(nullmatch.num_players).to eq 0
-    expect(nullmatch.opponents(player)).to eq []
-    expect(nullmatch.deck_count).to eq 0
-    expect(nullmatch.player_from_object_id(player.object_id)).to eq nil
-    expect(nullmatch.message).to eq nil
-  end
-
-  it 'calls equal two nullmatches but not a nullmatch and a regular match' do
-    expect(nullmatch == Match.new).to be false
-    expect(nullmatch == NullMatch.new).to be true
   end
 end

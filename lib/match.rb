@@ -1,8 +1,7 @@
-require_relative './game.rb'
-require_relative './player.rb'
+require_relative 'game'
+require_relative 'player'
+require_relative 'user'
 
-require_relative './user.rb'
-require 'pry'
 class Match
   attr_accessor :game, :users, :players, :over, :message
 
@@ -10,10 +9,8 @@ class Match
 
   def initialize(users = [], hand_size: 5)
     @users = users
-    @users = [User.new, User.new] if @users.length < 2
-    @players = []
-    @users.each { |user| @players << Player.new(name: user.name) }
     @users.each { |user| user.add_match(self) }
+    @players = @users.map { |user| Player.new(name: user.name) }
     add_icons(@players)
     @game = Game.new(players: @players, hand_size: hand_size)
     @over = false
@@ -22,17 +19,13 @@ class Match
   end
 
   def add_icons(players)
-    icons = (Dir.glob("./public/images/players/*.png")).map! { |filename| filename = filename.sub(/^.\/public/,'') }
-    players.each_with_index { |player, index| player.icon = icons[index] }
+    icons = Dir.glob("./public/images/players/*.png")
+    players.each_with_index { |player, index| player.icon = icons[index].sub(/^.\/public/,'') }
   end
 
   def save
     @@all << self
     @@all.uniq!
-  end
-
-  def num_players
-    players.length
   end
 
   def self.all
@@ -46,15 +39,6 @@ class Match
   def self.find(id)
     @@all.each { |match| return match if match.object_id == id }
     return nil
-  end
-
-  def self.fake(num_players = 5)
-    fake_users = [User.new(name: "Amanda"), User.new(name: "Vianney"), User.new(name: "Frederique"), User.new(name: "JeanLuc"), User.new(name: "Priscille")]
-    users = fake_users[0...num_players]
-    match = Match.new(users)
-    match.save
-    match.game.deal
-    match
   end
 
   def user(player)
@@ -132,51 +116,5 @@ class Match
   def end_match
     @users.each { |user| user.end_current_match }
     @over = true
-  end
-end
-
-class NullMatch
-  attr_accessor :game, :message
-
-  def save
-  end
-
-  def user(player)
-  end
-
-  def player(user)
-  end
-
-  def users
-    []
-  end
-
-  def opponents(player)
-    []
-  end
-
-  def players
-    []
-  end
-
-  def deck_count
-    0
-  end
-
-  def player_from_name(name)
-  end
-
-  def player_from_object_id(id)
-  end
-
-  def num_players
-    0
-  end
-
-  def to_json
-  end
-
-  def ==(match)
-    match.is_a? NullMatch
   end
 end

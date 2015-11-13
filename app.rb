@@ -39,14 +39,14 @@ post '/subscribed' do # this post tells the server when the 'wait' page has load
   num_players = params["num_players"].to_i
   match = make_game(user_id, num_players)
   start_game(match) if match
-  return nil # spent a really long time on this bug :-( (and yes did try to submit hidden html form but that caused a page reload... thus defeating the purpose of this post!)
+  return nil
 end
 
 get '/:match_id/player/:player_id' do
   match_id = params["match_id"].to_i
   player_id = params["player_id"].to_i
-  @match = Match.find(match_id) || Match.fake(match_id)
-  @player = @match.players[player_id]
+  @match = Match.find(match_id)
+  @player = @match.players[player_id] if @match
   @opponents = @match.opponents(@player) if @player
   slim :player
 end

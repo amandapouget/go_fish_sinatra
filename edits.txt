@@ -1,2 +1,7 @@
 put the loop in javascript and take out the extra visits
-finish changes to card, deck and update factories for both
+finish match factories & refactor
+refactor client class + spec
+refactor server class + spec
+refactor app.rb
+deprecate 'spec/integration' ?
+run command line, browser game and see if working, create "wanted to features list"

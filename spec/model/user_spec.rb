@@ -3,8 +3,8 @@ require 'spec_helper'
 describe User do
   let(:user) { build(:user) }
   let(:user2) { build(:user) }
-  let(:match) { Match.new() }
-  let(:match2) { Match.new() }
+  let(:match) { build(:match) }
+  let(:match2) { build(:match) }
 
   after do
     User.clear

@@ -15,7 +15,8 @@ feature 'player view page' do
       describe "game with #{num_players} players displays correctly for player #{player_id}" do
 
         before do
-          visit "/#{num_players}/player/#{player_id}"
+          match = build(:match, num_players: num_players)
+          visit "/#{match.object_id}/player/#{player_id}"
         end
 
         it_behaves_like "a Go Fish page with layout"
