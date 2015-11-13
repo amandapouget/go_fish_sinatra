@@ -93,9 +93,9 @@ describe Server do
         end
 
         context 'two clients are accepted and users connected to clients exist' do
-          let(:user0) { User.new(name: "Amanda", client: @client0_socket) }
-          let(:user1) { User.new(name: "Vianney", client: @client1_socket) }
-          let(:user2) { User.new(name: "Frederique", client: @client2_socket) }
+          let(:user0) { build(:user, client: @client0_socket) }
+          let(:user1) { build(:user, client: @client1_socket) }
+          let(:user2) { build(:user, client: @client2_socket) }
           let(:users) { [user0, user1, user2] }
           let(:client_sockets) { [@client0_socket, @client1_socket, @client2_socket] }
 
@@ -133,7 +133,7 @@ describe Server do
 
           describe '#match_user' do
             it 'returns a user based on id if a good user id # is given' do
-              expect(server.match_user(@client1_socket, user0.id)).to eq user0
+              expect(server.match_user(@client1_socket, user0.object_id)).to eq user0
             end
 
             it 'returns a new user with name if no good user id # is given and tells the client its user id' do
@@ -145,7 +145,7 @@ describe Server do
             it 'in both cases, sets the user.client to the client0_socket' do
               client0.provide_input("Jane")
               created_user = server.match_user(@client0_socket, 0)
-              found_user = server.match_user(@client1_socket, user1.id)
+              found_user = server.match_user(@client1_socket, user1.object_id)
               expect(created_user.client).to be_a TCPSocket
               expect(found_user.client).to be_a TCPSocket
             end
@@ -155,12 +155,12 @@ describe Server do
             before { only_match_in_progress = Match.new([user0, user1]) }
 
             it 'adds a user to @pending_users if the user does not have a match in progress' do
-              server.add_user(user2.client, user2.id)
+              server.add_user(user2.client, user2.object_id)
               expect(server.pending_users.length).to eq 1
             end
 
             it 'does not add a user to @pending_users if the user does have a match in progress' do
-              server.add_user(user0.client, user0.id)
+              server.add_user(user0.client, user0.object_id)
               expect(server.pending_users.length).to eq 0
             end
           end
@@ -199,7 +199,7 @@ describe Server do
 
             it 'changes the users current_match to this match' do
               match = server.make_match(users)
-              users.each { |user| expect(Match.find_by_obj_id(user.current_match)).to eq match }
+              users.each { |user| expect(Match.find(user.current_match)).to eq match }
             end
           end
 
@@ -259,7 +259,7 @@ describe Server do
                   server.stop_connection(@client1_socket)
                   client1.start
                   new_socket = server.accept
-                  server.match_user(new_socket, user1.id)
+                  server.match_user(new_socket, user1.object_id)
                   server.send_output(match.users[1].client, "Reconnected!")
                   expect(client1.capture_output).to include "Reconnected!"
                 end

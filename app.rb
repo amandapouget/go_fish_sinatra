@@ -45,14 +45,14 @@ end
 get '/:match_id/player/:player_id' do
   match_id = params["match_id"].to_i
   player_id = params["player_id"].to_i
-  @match = Match.find_by_obj_id(match_id) || Match.fake(match_id)
+  @match = Match.find(match_id) || Match.fake(match_id)
   @player = @match.players[player_id]
   @opponents = @match.opponents(@player) if @player
   slim :player
 end
 
 post '/:match_id/card_request' do
-  match = Match.find_by_obj_id(params["match_id"].to_i) || Match.all[0]
+  match = Match.find(params["match_id"].to_i) || Match.all[0]
   unless match.over
     opponent = match.player_from_object_id(params["opponent_object_id"].to_i)
     player = match.player_from_object_id(params["player_object_id"].to_i)

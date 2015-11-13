@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe User do
-  let(:user) { User.new(name: "Amanda") }
-  let(:user2) { User.new() }
+  let(:user) { build(:user) }
+  let(:user2) { build(:user) }
   let(:match) { Match.new() }
   let(:match2) { Match.new() }
 
@@ -10,13 +10,8 @@ describe User do
     User.clear
   end
 
-  it 'has a unique id' do
-    expect(user.id).to eq user.object_id
-    expect(user.id == user2.id).to be false
-  end
-
   it 'has a name' do
-    expect(user.name).to eq "Amanda"
+    expect(user.name).to be > ""
   end
 
   it 'stores the last known client socket connection' do
@@ -24,19 +19,16 @@ describe User do
   end
 
   it 'returns the right user when given just an id' do
-    id = user.id
-    expect(User.find(id)).to eq user
+    expect(User.find(user.object_id)).to eq user
   end
 
   it 'limits its search when given an optional array of users' do
-    id = user.id
     users = [user2]
-    expect(User.find(user.id, users)).to eq nil
+    expect(User.find(user.object_id, users)).to eq nil
   end
 
   it 'knows what matches it has played but does not allow duplicates' do
-    user.add_match(match)
-    user.add_match(match)
+    2.times { user.add_match(match) }
     user.add_match(match2)
     expect(user.matches).to match_array [match.object_id, match2.object_id]
   end
@@ -52,53 +44,33 @@ describe User do
     expect(user.current_match).to be nil
   end
 
-  it 'returns a list of all users' do
-    user.save
-    expect(User.all).to eq [user]
-  end
+  describe NullUser do
+    let(:nulluser) { build(:null_user) }
+    let(:nulluser2) { build(:null_user) }
 
-  it 'erases all users from the program' do
-    user.save
-    user2.save
-    User.clear
-    expect(User.all).to eq []
-  end
+    it 'it has nil or empty array values for all attributes of regular User' do
+      expect(nulluser.matches).to eq []
+      expect(nulluser.name).to be nil
+      expect(nulluser.client).to be nil
+      expect(nulluser.current_match).to be nil
+    end
 
-  it 'tells you if its current match is in progress' do
-    user.current_match = match.object_id
-    expect(user.match_in_progress?).to be true
-    match.game.deal
-    expect(user.match_in_progress?).to be true
-    match.end_match
-    expect(user.match_in_progress?).to be false
-  end
-end
+    it 'does not raise exceptions when regular User methods are called on it' do
+      expect { nulluser.save }.to_not raise_exception
+      expect { nulluser.add_match(match) }.to_not raise_exception
+      expect { nulluser.end_current_match }.to_not raise_exception
+    end
 
-describe NullUser do
-  let(:nulluser) { NullUser.new }
-  let(:match) { Match.new() }
-  let(:user) { User.new(name: "Amanda") }
+    it 'calls equal any two nullusers' do
+      expect(nulluser == nulluser2).to be true
+      expect(nulluser.eql?(nulluser2)).to be true
+      expect(nulluser.hash == nulluser2.hash).to be true
+    end
 
-  it 'it has nil or empty array values for all attributes of regular User' do
-    expect(nulluser.id).to be nil
-    expect(nulluser.matches).to eq []
-    expect(nulluser.name).to be nil
-    expect(nulluser.client).to be nil
-    expect(nulluser.current_match).to be nil
-  end
-
-  it 'does not raise exceptions when regular User methods are called on it' do
-    expect { nulluser.save }.to_not raise_exception
-    expect { nulluser.add_match(match) }.to_not raise_exception
-    expect { nulluser.end_current_match }.to_not raise_exception
-    expect { nulluser.current_match_in_progress? }.to_not raise_exception
-  end
-
-  it 'calls equal any two nullusers' do
-    expect(nulluser == NullUser.new).to be true
-  end
-
-  it 'returns false when testing equality with a regular user' do
-    expect(nulluser == user).to be false
+    it 'returns false when testing equality with a regular user' do
+      expect(nulluser == user).to be false
+      expect(nulluser.eql?(user)).to be false
+      expect(nulluser.hash == user.hash).to be false
+    end
   end
 end

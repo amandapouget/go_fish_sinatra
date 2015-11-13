@@ -20,7 +20,7 @@ class Spinach::Features::CreateOrJoinGame < Spinach::FeatureSteps
   step 'a pending game exists for the number of players I want' do
     reset
     @num_players = 3
-    PENDING_USERS[@num_players] << User.new
+    PENDING_USERS[@num_players] << build(:user)
     expect(PENDING_USERS[@num_players].length).to eq 1
   end
 

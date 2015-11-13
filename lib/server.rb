@@ -59,7 +59,7 @@ class Server
 
   def add_user(client, id = nil) # had to add the optional argument just to make testable
     user = match_user(client, id || get_id(client))
-    @pending_users << user unless user.match_in_progress?
+    @pending_users << user unless user.current_match
   end
 
   def enough_players?

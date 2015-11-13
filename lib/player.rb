@@ -77,7 +77,13 @@ class NullPlayer < Player
   def add_card(card)
   end
 
-  def ==(player)
+  def eql?(player)
     player.is_a? NullPlayer
+  end
+
+  alias == eql?
+
+  def hash
+    name.hash
   end
 end

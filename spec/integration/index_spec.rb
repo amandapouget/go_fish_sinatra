@@ -35,7 +35,7 @@ describe 'homepage' do
 
       it 'creates a match when there are enough players to start a game, and, it allows for simultaneous matches' do
         2.times do |time|
-          (num_players).times { PENDING_USERS[num_players] << User.new }
+          (num_players).times { PENDING_USERS[num_players] << build(:user) }
           last_user_id = PENDING_USERS[num_players].last.object_id
           make_game(last_user_id, num_players)
           expect(PENDING_USERS[num_players]).to be_empty
@@ -44,7 +44,7 @@ describe 'homepage' do
       end
 
       it 'redirects to the game when the last player joins', :js => true do
-        (num_players - 1).times { PENDING_USERS[num_players] << User.new }
+        (num_players - 1).times { PENDING_USERS[num_players] << build(:user) }
         fill_form('Echo', num_players)
         until current_path != "/wait"
         end

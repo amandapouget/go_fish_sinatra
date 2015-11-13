@@ -43,7 +43,7 @@ class Match
     @@all = []
   end
 
-  def self.find_by_obj_id(id)
+  def self.find(id)
     @@all.each { |match| return match if match.object_id == id }
     return nil
   end

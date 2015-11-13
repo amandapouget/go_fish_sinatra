@@ -1,11 +1,7 @@
 require 'spec_helper'
 
 describe Match do
-  let(:user1) { User.new(name: "Amanda") }
-  let(:user2) { User.new(name: "Bridget") }
-  let(:user3) { User.new(name: "Calvin") }
-  let(:user4) { User.new(name: "Dustin") }
-  let(:user5) { User.new(name: "Edward") }
+  [:user1, :user2, :user3, :user4, :user5].each { |user| let(user) { build(:user) } }
   let(:card_ad) { build(:card_ad) }
   let(:match) { Match.new([user1, user2, user3, user4, user5]) }
   let(:users) { match.users }
@@ -46,17 +42,17 @@ describe Match do
   end
 
   it 'can find a match based on object_id' do
-    expect(Match.find_by_obj_id(match.object_id)).to eq match
+    expect(Match.find(match.object_id)).to eq match
   end
 
   it 'can make and save a fake match' do
     (MIN_PLAYERS...MAX_PLAYERS).each { |num_players| expect(Match.fake(num_players).users.length).to eq num_players }
     fake_match = Match.fake(MAX_PLAYERS)
-    expect(Match.find_by_obj_id(fake_match.object_id)).to eq fake_match
+    expect(Match.find(fake_match.object_id)).to eq fake_match
   end
 
   it 'returns nil if no such match is found' do
-    expect(Match.find_by_obj_id(0)).to eq nil
+    expect(Match.find(0)).to eq nil
   end
 
   it 'can tell you which player is matched to one of its users' do
@@ -84,8 +80,8 @@ describe Match do
   end
 
   it 'returns nil when searching for a player or user that is not part of this match' do
-    expect(match.user(build(:player))).to eq NullUser.new
-    expect(match.player(User.new)).to eq build(:null_player)
+    expect(match.user(build(:player))).to eq build(:null_user)
+    expect(match.player(build(:user))).to eq build(:null_player)
   end
 
   it 'can find a player when given a name' do
@@ -97,7 +93,7 @@ describe Match do
   end
 
   it 'returns a nullplayer if it cant find such a player' do
-    expect(match.player_from_name("Bob")).to be_a NullPlayer
+    expect(match.player_from_name("not_a_name")).to be_a NullPlayer
   end
 
   it 'gives me player state' do
@@ -180,7 +176,7 @@ end
 describe NullMatch do
   let(:nullmatch) { NullMatch.new }
   let(:player) { build(:null_player)}
-  let(:user) { User.new }
+  let(:user) { build(:user) }
 
   it 'does nothing in response to match methods' do
     expect(nullmatch.user(player)).to eq nil

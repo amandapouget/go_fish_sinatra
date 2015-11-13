@@ -125,6 +125,8 @@ describe Player do
 
     describe NullPlayer do
       let(:nullplayer) { build(:null_player) }
+      let(:nullplayer2) { build(:null_player) }
+
 
       it 'returns none when its name is called' do
         expect(nullplayer.name).to eq "none"
@@ -152,11 +154,15 @@ describe Player do
       end
 
       it 'calls all nullplayer objects equal if comparing two nullplayers' do
-        expect(NullPlayer.new == NullPlayer.new).to be true
+        expect(nullplayer == nullplayer2).to be true
+        expect(nullplayer.eql?(nullplayer2)).to be true
+        expect(nullplayer.hash == nullplayer2.hash).to be true
       end
 
       it 'returns false if comparing the equality of a nullplayer with a player' do
-        expect(NullPlayer.new == Player.new).to be false
+        expect(nullplayer == player).to be false
+        expect(nullplayer.eql?(player)).to be false
+        expect(nullplayer.hash == player.hash).to be false
       end
     end
   end

@@ -1,8 +1,8 @@
 FactoryGirl.define do
-  player_names = ["Marie", "Amanda", "Bob", "Charlie", "David", "Echo", "Frank", "Gertrude", "Helga", "Iggy", "Jaqueline", "Kevin", "Lillian"]
+  FAKENAMES = ["Marie", "Amanda", "Bob", "Charlie", "David", "Echo", "Frank", "Gertrude", "Helga", "Iggy", "Jaqueline", "Kevin", "Lillian"]
 
   factory :player do
-    name { player_names.rotate![0] }
+    name { FAKENAMES.rotate![0] }
     initialize_with { new(name: name) }
     transient { cards [] }
 
