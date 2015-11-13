@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe Game do
   let(:players) { Array.new(MAX_PLAYERS + 1) { build(:player) } }
+  let(:deck) { build(:deck, :with_cards)}
 
   describe 'number of players allowed' do
     it "automatically initializes with at least #{MIN_PLAYERS} players" do
@@ -9,21 +10,18 @@ describe Game do
       expect(game.players.length).to eq MIN_PLAYERS
     end
 
-    it "can be initialized with up to #{MAX_PLAYERS} players" do
+    it "can only be initialized with up to #{MAX_PLAYERS} players" do
       (MAX_PLAYERS - MIN_PLAYERS).times { |num_players| expect { Game.new(players: players[0..num_players + 1]) }.to_not raise_exception }
-    end
-
-    it "cannot be initialized with more than #{MAX_PLAYERS} players" do
       expect { Game.new(players: players[0..MAX_PLAYERS]) }.to raise_error(ArgumentError)
     end
   end
 
   describe 'hand_size range allowed' do
     it 'defaults to 5 cards dealt per player but can be initialized to deal an alternate number' do
-      game = Game.new(hand_size: 7)
-      expect(game.hand_size).to eq 7
       game = Game.new
       expect(game.hand_size).to eq 5
+      game = Game.new(hand_size: 7)
+      expect(game.hand_size).to eq 7
     end
 
     it 'requires a hand_size of at least 1' do
@@ -31,58 +29,53 @@ describe Game do
     end
 
     it 'raises an error if the number of cards to be dealt is greater than allowable given the number of players' do
-      deck_length = build(:deck, type: 'regular').count_cards
-      expect { Game.new(players: players[0..1], hand_size: deck_length) }.to raise_error(ArgumentError)
+      expect { Game.new(players: players[0..1], hand_size: deck.count_cards) }.to raise_error(ArgumentError)
     end
   end
 
   context 'game is initialized with two players and default hand_size' do
-    let(:card_ks) { build(:card_ks) }
-    let(:card_kh) { build(:card_kh) }
-    let(:card_kd) { build(:card_kd) }
-    let(:card_kc) { build(:card_kc) }
+    kings = [:card_ks, :card_kh, :card_kd, :card_kc]
+    kings.each { |king| let(king) { build(king) } }
     let(:book) { [card_ks, card_kh, card_kd, card_kc] }
-    let(:player0) { build(:player) }
-    let(:player1) { build(:player) }
-    let(:game) { Game.new(players: [player0, player1]) }
+    let(:game) { build(:game, num_players: 2) }
+    let(:player0) { game.players[0] }
+    let(:player1) { game.players[1] }
+    let(:null_player) { build(:null_player) }
 
     after do
       player0.cards = []
       player1.cards = []
-      game.deck = build(:deck, type: 'regular')
+      game.deck = build(:deck, :with_cards)
       game.requests = []
     end
 
     describe '#initialize' do
-      it 'creates a game with players accessible in the players list, a regular deck full of cards, an array of player requests that have been made' do
+      it 'creates a game with players accessible in the players list, a deck full of cards, an array of player requests that have been made' do
         expect(game.players).to match_array [player0, player1]
-        expect(game.deck.type).to eq 'regular'
-        full_deck_length = build(:deck, type: 'regular').count_cards
-        expect(game.deck.count_cards).to eq full_deck_length
+        expect(game.deck.cards).to eq deck.cards
         expect(game.requests).to eq []
       end
     end
 
     describe '#deal' do
       it 'deals hand_size number of cards from the deck to each player' do
-        deck_count = game.deck.count_cards
         game.deal
-        expect(player0.count_cards).to eq game.hand_size
-        expect(player1.count_cards).to eq game.hand_size
+        game.players.each { |player| expect(player.count_cards).to eq game.hand_size }
         num_cards_dealt = game.hand_size * game.players.length
-        expect(game.deck.count_cards).to eq deck_count - num_cards_dealt
+        expect(game.deck.count_cards).to eq deck.count_cards - num_cards_dealt
       end
     end
 
     describe '#winner' do
       it 'returns a nullplayer if the game has not started, is not over, or in the event of a tie' do
-        expect(game.winner).to eq NullPlayer.new
+        expect(game.winner).to eq null_player
         game.deal
-        expect(game.winner).to eq NullPlayer.new
-        game.players.each { |player| player.cards = [] }
-        player0.books << book
-        player1.books << book
-        expect(game.winner).to eq NullPlayer.new
+        expect(game.winner).to eq null_player
+        game.players.each do |player|
+          player.cards = []
+          player.books << book
+        end
+        expect(game.winner).to eq null_player
       end
 
       it 'if game is over and is not a tie, returns the player with the most number of books' do
@@ -118,7 +111,6 @@ describe Game do
         expect(rank_request.player).to eq player0
         expect(rank_request.opponent).to eq player1
         expect(rank_request.won_cards?).to be true
-        expect(rank_request.executed?).to be true
         expect(player0.cards).to match_array [card_ks, card_kd]
         expect(player1.cards).to match_array []
         expect(game.requests).to match_array [rank_request]
@@ -139,7 +131,7 @@ describe Game do
 
       it 'returns true when the deck is out of cards' do
         game.players.each { |player| player.add_card(card_ks) }
-        game.deck = []
+        game.deck.cards = []
         expect(game.game_over?).to be true
       end
     end

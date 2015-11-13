@@ -1,6 +1,6 @@
-require './lib/deck.rb'
-require './lib/player.rb'
-require 'pry'
+require_relative 'player'
+require_relative 'card'
+require_relative 'rank_request'
 
 MIN_PLAYERS = 2
 MAX_PLAYERS = 5
@@ -10,14 +10,13 @@ class Game
   attr_accessor :players, :deck, :hand_size, :winner, :requests, :next_turn
 
   def initialize(players: [], hand_size: 5)
-    raise ArgumentError, "Cannot have more than #{MAX_PLAYERS} players" if players.length > MAX_PLAYERS
-    @players = players
-    @players = Array.new(MIN_PLAYERS) { Player.new } if players.length < MIN_PLAYERS
-    @deck = Deck.new(type: 'regular')
-    raise ArgumentError, "Hand size out of range" if (hand_size * players.length > @deck.count_cards || hand_size < 1)
+    @players = players.length >= MIN_PLAYERS ? players : Array.new(MIN_PLAYERS) { Player.new }
+    @deck = Card.deck
     @hand_size = hand_size
     @requests = []
     @next_turn = @players[0]
+    raise ArgumentError, "Cannot have more than #{MAX_PLAYERS} players" if players.length > MAX_PLAYERS
+    raise ArgumentError, "Hand size out of range" if (hand_size * players.length > @deck.count_cards || hand_size < 1)
   end
 
   def deal
@@ -43,21 +42,16 @@ class Game
   end
 
   def make_request(player, opponent, rank)
-    rank_request = RankRequest.new(player, opponent, rank)
-    rank_request.execute
-    @requests << rank_request
-    rank_request
+    @requests << RankRequest.new(player, opponent, rank).tap { |rank_request| rank_request.execute }
+    @requests.last
   end
 
   def advance_turn
-    last_num = @players.index(@next_turn) + 1
-    @next_turn = @players[last_num % @players.length]
+    next_player_index = @players.index(@next_turn) + 1
+    @next_turn = @players[next_player_index % @players.length]
   end
 
   def game_over?
-    over = false
-    @players.each { |player| over = true if player.out_of_cards? }
-    over = true if @deck.empty?
-    over
+    @deck.empty? || @players.any? { |player| player.out_of_cards? }
   end
 end

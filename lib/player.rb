@@ -1,5 +1,3 @@
-require 'pry'
-
 class Player
 
   attr_accessor :name, :cards, :books, :icon
@@ -12,45 +10,26 @@ class Player
   end
 
   def give_cards(rank)
-    cards_to_give = []
-    @cards.each { |card| cards_to_give << card if card.rank == rank }
-    @cards.reject! { |card| card.rank == rank }
+    cards_to_give, @cards = @cards.partition { |card| card.rank == rank }
     cards_to_give
   end
 
   def request_cards(player, rank)
-    return [] unless player.is_a? Player
-    valid = false
-    @cards.each { |card| valid = true if card.rank == rank }
-    return [] if !valid
-    cards = player.give_cards(rank)
-    cards
+    valid = @cards.any? { |card| card.rank == rank }
+    return [] unless valid && player.is_a?(Player)
+    player.give_cards(rank)
   end
 
   def collect_winnings(winnings)
     winnings.each { |card| add_card(card) }
-    make_books
-    sort_cards
+    make_books_and_sort_cards
   end
 
   def go_fish(deck)
     fish = deck.deal_next_card
     add_card(fish)
-    make_books
-    sort_cards
+    make_books_and_sort_cards
     fish
-  end
-
-  def sort_cards
-    @cards = @cards.sort_by { |card| card.rank_value }
-  end
-
-  def make_books
-    rank_totals = Hash.new(0)
-    @cards.each { |card| rank_totals[card.rank] += 1 }
-    ranks_to_book = []
-    rank_totals.each { |rank_name, rank_total| ranks_to_book << rank_name if rank_total == 4 }
-    ranks_to_book.each { |rank| @books << request_cards(self, rank) }
   end
 
   def add_card(card)
@@ -65,6 +44,14 @@ class Player
     @cards==[]
   end
 end
+
+private
+  def make_books_and_sort_cards
+    rank_totals = Hash.new(0)
+    @cards.each { |card| rank_totals[card.rank] += 1 }
+    rank_totals.each { |rank_name, rank_total|  @books << request_cards(self, rank_name) if rank_total == 4 }
+    @cards = @cards.sort_by { |card| card.rank_value }
+  end
 
 class NullPlayer < Player
   attr_accessor :name, :cards, :books
@@ -88,12 +75,6 @@ class NullPlayer < Player
   end
 
   def add_card(card)
-  end
-
-  def make_books
-  end
-
-  def sort_cards
   end
 
   def ==(player)

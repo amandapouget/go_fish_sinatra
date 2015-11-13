@@ -85,7 +85,7 @@ describe Match do
 
   it 'returns nil when searching for a player or user that is not part of this match' do
     expect(match.user(build(:player))).to eq NullUser.new
-    expect(match.player(User.new)).to eq NullPlayer.new
+    expect(match.player(User.new)).to eq build(:null_player)
   end
 
   it 'can find a player when given a name' do
@@ -179,7 +179,7 @@ end
 
 describe NullMatch do
   let(:nullmatch) { NullMatch.new }
-  let(:player) { NullPlayer.new }
+  let(:player) { build(:null_player)}
   let(:user) { User.new }
 
   it 'does nothing in response to match methods' do

@@ -10,6 +10,21 @@ describe Card do
     end
   end
 
+  describe '.deck' do
+    it 'returns a deck containing four cards of every rank, thirteen cards of every suit, and no two equal cards' do
+      deck = Card.deck
+      rank_totals = Hash.new(0)
+      suit_totals = Hash.new(0)
+      deck.cards.each do |card|
+        rank_totals[card.rank] += 1
+        suit_totals[card.suit] += 1
+      end
+      rank_totals.values.each { |rank_total| expect(rank_total).to eq Card::SUITS.length }
+      suit_totals.values.each { |suit_total| expect(suit_total).to eq Card::RANKS.length }
+      expect(deck.cards.uniq).to eq(deck.cards)
+    end
+  end
+
   context 'cards are already made' do
     let(:card_7h_dupl) { build(:card_7h) }
     let(:irregular_card) { build(:card, rank: "fake_rank", suit: "fake_suit") }
@@ -58,9 +73,7 @@ describe Card do
       end
 
       it 'returns a different hash for two cards of different rank or suit' do
-        expect(card_7h.hash == card_ah.hash).to be false
-        expect(card_7h.hash == card_7s.hash).to be false
-        expect(card_7s.hash == card_ah.hash).to be false
+        [card_7h, card_ah, card_7s].combination(2) { |cards| expect(cards[0].hash == cards[1].hash).to be false }
       end
     end
 

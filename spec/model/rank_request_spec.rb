@@ -1,10 +1,10 @@
 require 'spec_helper'
 
 describe '#RankRequest' do
-  let(:player) { build(:player) }
-  let(:opponent) { build(:player) }
   let(:rank) { "ace" }
-  let(:rank_request) { RankRequest.new(player, opponent, rank) }
+  let(:rank_request) { build(:rank_request, rank: rank) }
+  let(:player) { rank_request.player }
+  let(:opponent) { rank_request.opponent }
   let(:card_as) { build(:card_as) }
   let(:card_ah) { build(:card_ah) }
 
@@ -15,10 +15,9 @@ describe '#RankRequest' do
   after do
     player.cards = []
     opponent.cards = []
-    rank_request = RankRequest.new(player, opponent, rank)
   end
 
-  it 'intializes with a player, opponent, and rank' do
+  it 'can tell you its player, opponent, and rank' do
     expect(rank_request.player).to eq player
     expect(rank_request.opponent).to eq opponent
     expect(rank_request.rank).to eq rank
@@ -49,23 +48,5 @@ describe '#RankRequest' do
     opponent.add_card(card_ah)
     rank_request.execute
     expect(rank_request.won_cards?).to be true
-  end
-
-  it 'can tell you if it has already executed' do
-    expect(rank_request.executed?).to be false
-    rank_request.execute
-    expect(rank_request.executed?).to be true
-  end
-
-  it 'only allows itself to execute once' do
-    rank_request.execute
-    opponent.add_card(card_ah)
-    opponent_cards = opponent.cards
-    player_cards = player.cards
-    rank_request_details = rank_request.instance_variables
-    rank_request.execute
-    expect(opponent.cards).to eq opponent_cards
-    expect(player.cards).to eq player_cards
-    expect(rank_request.instance_variables).to eq rank_request_details
   end
 end

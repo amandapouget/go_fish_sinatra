@@ -1,0 +1,2 @@
+put the loop in javascript and take out the extra visits
+finish changes to card, deck and update factories for both

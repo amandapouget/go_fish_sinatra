@@ -16,21 +16,15 @@ describe Player do
   end
 
   context 'player has cards' do
-    let(:player) { build(:player) }
-    let(:opponent) { build(:player) }
-    let(:deck) { build(:deck) }
-    cards = [:card_2c, :card_2d, :card_2h, :card_2s, :card_3h, :card_3c, :card_3d, :card_7h]
+    cards = [:card_3h, :card_2c, :card_2d, :card_3c, :card_3d, :card_7h, :card_2h, :card_2s]
     cards.each { |card| let(card) { build(card) } }
-
-    before do
-      player.cards = [card_3h, card_2c, card_2d]
-      opponent.cards = [card_3d, card_3c, card_7h]
-      deck.cards << build(:card_2h)
-    end
+    let(:player) { build(:player, cards: cards[0..2]) }
+    let(:opponent) { build(:player, cards: cards[3..5]) }
+    let(:deck) { build(:deck, cards: [cards[6]]) }
 
     def check_sorted
       value = 0
-      player.cards do |card|
+      player.cards.each do |card|
         expect(card.rank_value).to be >= value
         value = card.rank_value
       end
@@ -72,8 +66,7 @@ describe Player do
     describe '#collect_winnings' do
       it 'collects all the winnings from a particular play and adds the cards to the players cards' do
         player.collect_winnings([card_3c, card_3d])
-        expect(player.cards).to include card_3c
-        expect(player.cards).to include card_3d
+        expect(player.cards).to (include card_3c).and include card_3d
       end
 
       it 'politely sorts the players cards by rank for easy visualization' do
@@ -110,8 +103,7 @@ describe Player do
     describe '#add_card' do
       it 'adds a card to the players cards at the bottom' do
         player.add_card(card_7h)
-        added_card = player.cards.last
-        expect(added_card).to eq card_7h
+        expect(player.cards.last).to eq card_7h
       end
     end
 
@@ -130,47 +122,42 @@ describe Player do
         expect(player.out_of_cards?).to be true
       end
     end
-  end
 
-  describe NullPlayer do
-    let(:nullplayer) { NullPlayer.new }
-    let(:player) { build(:player) }
-    let(:card_3c) { build(:card_3c) }
-    let(:deck) { build(:deck, type: 'regular') }
+    describe NullPlayer do
+      let(:nullplayer) { build(:null_player) }
 
-    it 'returns none when its name is called' do
-      expect(nullplayer.name).to eq "none"
-    end
+      it 'returns none when its name is called' do
+        expect(nullplayer.name).to eq "none"
+      end
 
-    it 'returns an empty array when its cards are called' do
-      expect(nullplayer.cards).to eq []
-    end
+      it 'returns an empty array when its cards are called' do
+        expect(nullplayer.cards).to eq []
+      end
 
-    it 'does not raise an exception when the regular player methods are called' do
-      expect { nullplayer.give_cards("two") }.to_not raise_exception
-      expect { nullplayer.request_cards(player, "ten") }.to_not raise_exception
-      expect { nullplayer.collect_winnings([card_3c]) }.to_not raise_exception
-      expect { nullplayer.go_fish(deck) }.to_not raise_exception
-      expect { nullplayer.add_card(card_3c) }.to_not raise_exception
-      expect { nullplayer.make_books }.to_not raise_exception
-      expect { nullplayer.sort_cards }.to_not raise_exception
-      expect { nullplayer.icon }.to_not raise_exception
-    end
+      it 'does not raise an exception when the regular player methods are called' do
+        expect { nullplayer.give_cards("two") }.to_not raise_exception
+        expect { nullplayer.request_cards(player, "ten") }.to_not raise_exception
+        expect { nullplayer.collect_winnings([card_3c]) }.to_not raise_exception
+        expect { nullplayer.go_fish(deck) }.to_not raise_exception
+        expect { nullplayer.add_card(card_3c) }.to_not raise_exception
+        expect { nullplayer.icon }.to_not raise_exception
+      end
 
-    it 'returns 0 when its cards are counted' do
-      expect(nullplayer.count_cards).to eq 0
-    end
+      it 'returns 0 when its cards are counted' do
+        expect(nullplayer.count_cards).to eq 0
+      end
 
-    it 'returns true when asked if it is out of cards' do
-      expect(nullplayer.out_of_cards?).to be true
-    end
+      it 'returns true when asked if it is out of cards' do
+        expect(nullplayer.out_of_cards?).to be true
+      end
 
-    it 'calls all nullplayer objects equal if comparing two nullplayers' do
-      expect(NullPlayer.new == NullPlayer.new).to be true
-    end
+      it 'calls all nullplayer objects equal if comparing two nullplayers' do
+        expect(NullPlayer.new == NullPlayer.new).to be true
+      end
 
-    it 'returns false if comparing the equality of a nullplayer with a player' do
-      expect(NullPlayer.new == Player.new).to be false
+      it 'returns false if comparing the equality of a nullplayer with a player' do
+        expect(NullPlayer.new == Player.new).to be false
+      end
     end
   end
 end
