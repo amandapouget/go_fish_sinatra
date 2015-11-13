@@ -5,3 +5,4 @@ refactor server class + spec
 refactor app.rb
 deprecate 'spec/integration' ?
 run command line, browser game and see if working, create "wanted to features list"
+deprecate json-ready in match
