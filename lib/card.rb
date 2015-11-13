@@ -38,7 +38,7 @@ class Card
   end
 
   def to_json(*args)
-    { rank: rank, suit: suit }.to_json(*args)
+    { rank: rank, suit: suit, icon: icon }.to_json(*args)
   end
 
   def set_icon

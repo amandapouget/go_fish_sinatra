@@ -60,7 +60,7 @@ describe Deck do
     it 'returns a json version of the deck, including json versions of the cards within it' do
       deck_with_1_card = build(:deck, cards: [:card] )
       card = deck_with_1_card.cards[0]
-      expect(deck_with_1_card.to_json).to eq "{\"cards\":[{\"rank\":\"#{card.rank}\",\"suit\":\"#{card.suit}\"}]}"
+      expect(deck_with_1_card.to_json).to eq "{\"cards\":[{\"rank\":\"#{card.rank}\",\"suit\":\"#{card.suit}\",\"icon\":\"#{card.icon}\"}]}"
     end
   end
 end

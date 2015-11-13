@@ -85,7 +85,7 @@ describe Card do
 
     describe '#to_json' do
       it 'returns hash of rank and suit' do
-        expect(card_7s.to_json).to eq('{"rank":"seven","suit":"spades"}')
+        expect(card_7s.to_json).to eq("{\"rank\":\"seven\",\"suit\":\"spades\",\"icon\":\"/images/cards/s7.png\"}")
       end
     end
 
