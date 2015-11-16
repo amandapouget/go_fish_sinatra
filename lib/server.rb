@@ -1,17 +1,14 @@
 require 'socket'
-require 'json'
-require 'pry'
-require_relative './game'
-require_relative './player'
-require_relative './user.rb'
-require_relative './match.rb'
+require_relative 'game'
+require_relative 'player'
+require_relative 'user'
+require_relative 'match'
 
 class Server
   attr_accessor :port, :socket, :pending_users, :clients, :game
   WELCOME = "Welcome to go fish! I will connect you with your partner..."
   ENTER_ID = "Please enter your unique id or hit enter to create a new user."
   ASK_NAME = "What is your name?"
-  START_GAME = "Hit enter to play!"
   RANK_REQUEST = "What rank would you like to ask for? (Enter as a word.)"
   OPPONENT_REQUEST = "What player would you like to ask?"
   GO_FISH = "Hit enter to go fish!"
@@ -50,7 +47,6 @@ class Server
       users_to_play = []
       MAX_PLAYERS.times { users_to_play << @pending_users.shift unless @pending_users.empty? }
       match = make_match(users_to_play)
-      ask_to_start_match(match)
       match.game.deal
       play_match(match)
       match.users.each { |user| stop_connection(user.client) }
@@ -58,7 +54,7 @@ class Server
   end
 
   def add_user(client, id = nil) # had to add the optional argument just to make testable
-    user = match_user(client, id || get_id(client))
+    user = match_user(client, id || get_info(client, ENTER_ID).to_i)
     @pending_users << user unless user.current_match
   end
 
@@ -66,13 +62,8 @@ class Server
     @pending_users.length >= MIN_PLAYERS
   end
 
-  def get_id(client, delay=0.001)
-    send_output(client, ENTER_ID)
-    get_input(client, delay).to_i || die(client)
-  end
-
-  def get_name(client, delay=0.001)
-    send_output(client, ASK_NAME)
+  def get_info(client, message, delay=0.001)
+    send_output(client, message)
     get_input(client, delay) || die(client) # add time-out for unresponsive user?
   end
 
@@ -106,16 +97,11 @@ class Server
     if user
       send_output(client, "Welcome back #{user.name}!")
     else
-      user = User.new(name: get_name(client))
+      user = User.new(name: get_info(client, ASK_NAME))
       send_output(client, "Welcome, #{user.name}! Your unique id is #{user.object_id}. Don't lose it! You'll need it to log in again as you play.")
     end
     user.client = client
     user
-  end
-
-  def ask_to_start_match(match)
-    match.users.each { |user| send_output(user.client, START_GAME) }
-    match.users.each { |user| get_input(user.client) }
   end
 
   def make_match(users)
@@ -131,7 +117,7 @@ class Server
   end
 
   def play_move(match, user) # NOT TESTED
-    tell_player_his_hand(match, user)
+    tell_player_his_view(match, user)
     rank = get_rank(match, user)
     opponent = get_opponent(match, user)
     tell_request(match, rank, user, opponent)
@@ -185,14 +171,13 @@ class Server
     winnings.each { |card| send_output(user.client, card.to_s) }
   end
 
-  def tell_player_his_hand(match, user)
-    player_info = JSON.dump(match.json_ready(user))
+  def tell_player_his_view(match, user)
+    player_info = match.view(match.player(user))
     send_output(user.client, player_info)
   end
 
   def tell_match(match)
-    match_info = JSON.dump(match.json_ready)
-    match.users.each { |user| send_output(user.client, match_info) }
+    match.users.each { |user| tell_player_his_view(match, user) }
   end
 
   def stop_connection(client)
