@@ -34,9 +34,9 @@ describe Game do
   end
 
   context 'game is initialized with two players and default hand_size' do
-    kings = [:card_ks, :card_kh, :card_kd, :card_kc]
-    kings.each { |king| let(king) { build(king) } }
-    let(:book) { [card_ks, card_kh, card_kd, card_kc] }
+    let(:card_ks) { build(:card_ks) }
+    let(:card_kd) { build(:card_kd) }
+    let(:book) { build(:book) }
     let(:game) { build(:game, num_players: 2) }
     let(:player0) { game.players[0] }
     let(:player1) { game.players[1] }

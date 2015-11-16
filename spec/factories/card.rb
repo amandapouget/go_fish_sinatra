@@ -23,3 +23,11 @@ FactoryGirl.define do
     end
   end
 end
+
+FactoryGirl.define do
+  factory :book, class: Array do
+    after(:build) do |book|
+      book = [build(:card_ad), build(:card_as), build(:card_ah), build(:card_ac)]
+    end
+  end
+end

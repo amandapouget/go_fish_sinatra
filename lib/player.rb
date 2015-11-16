@@ -1,12 +1,17 @@
 class Player
-
   attr_accessor :name, :cards, :books, :icon
+
+  @@icons = Dir.glob("./public/images/players/*.png")
 
   def initialize(name: "Anonymous")
     @name = name
     @cards = []
     @books = []
-    @icon = nil
+    @icon = set_icon
+  end
+
+  def set_icon
+    @@icons.rotate![0].sub(/^.\/public/,'')
   end
 
   def give_cards(rank)
@@ -42,6 +47,10 @@ class Player
 
   def out_of_cards?
     @cards==[]
+  end
+
+  def to_json(*args)
+    hash = { name: name, icon: icon }.to_json(*args)
   end
 end
 

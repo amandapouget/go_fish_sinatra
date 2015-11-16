@@ -4,28 +4,21 @@ require_relative 'user'
 
 class Match
   attr_accessor :game, :users, :players, :over, :message
-
+  FIRST_PROMPT = ", click card, player & me to request cards!"
   @@all = []
 
   def initialize(users = [], hand_size: 5)
     @users = users
     @users.each { |user| user.add_match(self) }
     @players = @users.map { |user| Player.new(name: user.name) }
-    add_icons(@players)
     @game = Game.new(players: @players, hand_size: hand_size)
     @over = false
-    @message = "#{@players[0].name}, click card, player & me to request cards!"
+    @message = @players[0].name + FIRST_PROMPT
     save
   end
 
-  def add_icons(players)
-    icons = Dir.glob("./public/images/players/*.png")
-    players.each_with_index { |player, index| player.icon = icons[index].sub(/^.\/public/,'') }
-  end
-
   def save
-    @@all << self
-    @@all.uniq!
+    (@@all << self).uniq!
   end
 
   def self.all
@@ -54,11 +47,7 @@ class Match
   end
 
   def opponents(player)
-    ordered_players = players.clone
-    index = ordered_players.index(player)
-    ordered_players.rotate!(index)
-    ordered_players.shift
-    ordered_players
+    players.clone.tap { |players| players.rotate!(players.index(player)).shift }
   end
 
   def deck_count
@@ -70,44 +59,31 @@ class Match
     NullPlayer.new
   end
 
-  def player_from_object_id(id)
+  def player_from_id(id)
     @players.each { |player| return player if player.object_id == id }
     NullPlayer.new
   end
 
-  def player_state(user)
+  def view(player)
     return {
-      type: "player_state",
-      player_cards: player(user).cards.to_json
-    }
+      type: "player_view",
+      message: @message,
+      player: player,
+      player_cards: player.cards,
+      player_books: player.books,
+      opponents: opponents(player),
+      score: players.map { |player| [player.name, player.books.length] }.push(["Fish Left:", game.deck.count_cards])
+    }.to_json
   end
 
-  def json_ready(user = nil)
-    player = player(user) if user
-    player_cards = []
-    player.cards.each { |card| player_cards << card.to_s } if user
-    return {
-      type: "player_state",
-      player: @players.index(player),
-      player_cards: player_cards,
-      match: self
-    } if player
-    return {
-      type: "match_state",
-      match: self
-    }
-  end
-
-  def run_play(player, opponent, rank)
-    rank_request = @game.make_request(player, opponent, rank)
+  def run_play(player, opponent, rank) # encapsulate the crap
     rank == "six" ? rank_word = "sixe" : rank_word = rank
     @message = "#{player.name} asked #{opponent.name} for #{rank_word}s &"
-    if rank_request.won_cards?
+    if @game.make_request(player, opponent, rank).won_cards?
       @message += " got cards"
     else
-      fish_card = @game.go_fish(player, rank)
       @message += " went fish"
-      @message += " & got one" if fish_card.rank == rank
+      @message += " & got one" if rank == @game.go_fish(player, rank).rank
     end
     end_match if @game.game_over?
     over ? @message += "! Game over! Winner: #{@game.winner.name}" : @message += "! It's #{game.next_turn.name}'s turn!"

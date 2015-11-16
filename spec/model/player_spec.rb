@@ -7,7 +7,8 @@ describe Player do
       expect(player.name).to eq "John"
       expect(player.cards).to eq []
       expect(player.books).to eq []
-      expect(player.icon).to eq nil
+      icons = Dir.glob("./public/images/players/*.png")
+      expect(icons).to include "./public#{player.icon}"
     end
 
     it 'defaults to Anonymous if no name is given' do
@@ -120,6 +121,12 @@ describe Player do
       it 'returns true when the player has no more cards' do
         player.cards = []
         expect(player.out_of_cards?).to be true
+      end
+    end
+
+    describe '#to_json' do
+      it 'returns a hash of the player name, cards, books and icon' do
+        expect(player.to_json).to eq "{\"name\":\"#{player.name}\",\"icon\":\"#{player.icon}\"}"
       end
     end
 

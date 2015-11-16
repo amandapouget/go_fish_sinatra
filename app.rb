@@ -58,8 +58,8 @@ end
 post '/:match_id/card_request' do
   match = Match.find(params["match_id"].to_i) || Match.all[0]
   unless match.over
-    opponent = match.player_from_object_id(params["opponent_object_id"].to_i)
-    player = match.player_from_object_id(params["player_object_id"].to_i)
+    opponent = match.player_from_id(params["opponent_object_id"].to_i)
+    player = match.player_from_id(params["player_object_id"].to_i)
     rank = params["rank"]
     if match.game.next_turn == player
       match.run_play(player, opponent, rank)
