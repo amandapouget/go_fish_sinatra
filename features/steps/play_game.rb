@@ -17,7 +17,6 @@ class Spinach::Features::PlayGame < Spinach::FeatureSteps
   end
 
   step 'the request is ignored' do
-    visit_player_page # I'm sorry, I just CANNOT get it to test if the page reloaded!
     expected_card_icons = @my_preplay_cards.map { |card| card.icon }
     expect(current_cards_icons).to match_array expected_card_icons
   end
@@ -40,38 +39,39 @@ class Spinach::Features::PlayGame < Spinach::FeatureSteps
     have_ace([@me_player, @first_opponent])
     @my_preplay_cards = my_cards
     @aces = my_cards.select { |card| card.rank == "ace" }
+    visit_player_page
     make_opponent_request(@match, @first_opponent, @me_player, "ace")
   end
 
   step 'my first opponent asks me for cards I do not have' do
     have_ace([@first_opponent])
     @my_preplay_cards = my_cards
+    visit_player_page
     make_opponent_request(@match, @first_opponent, @me_player, "ace")
   end
 
   step 'my first opponent asks my second opponent for cards he has' do
     have_ace([@first_opponent, @second_opponent])
+    visit_player_page
     make_opponent_request(@match, @first_opponent, @second_opponent, "ace")
   end
 
   step 'my first opponent asks my second opponent for cards he does not have' do
     have_ace([@first_opponent])
+    visit_player_page
     make_opponent_request(@match, @first_opponent, @second_opponent, "ace")
   end
 
   step 'it gives me the cards' do
-    visit_player_page
     expect_page_has_cards(my_cards)
   end
 
   step 'it takes the cards from me' do
-    visit_player_page
     expect_page_has_cards(my_cards)
     expect_page_has_cards(@aces, false)
   end
 
   step 'it makes me go fish' do
-    visit_player_page
     expect_page_has_cards([@go_fish_card])
   end
 
@@ -98,12 +98,10 @@ class Spinach::Features::PlayGame < Spinach::FeatureSteps
   end
 
   step 'it tells me what I asked for' do
-    visit_player_page
     expect(page).to have_content /#{@me_player.name} asked \S* for aces/
   end
 
   step 'it tells me what my first opponent asked for' do
-    visit_player_page
     expect(page).to have_content /#{@first_opponent.name} asked \S* for aces/
   end
 
@@ -123,12 +121,10 @@ class Spinach::Features::PlayGame < Spinach::FeatureSteps
   end
 
   step 'turn advances' do
-    visit_player_page
     expect(page).not_to have_content /#{@player_whose_turn_it_is.name}'s turn/
   end
 
   step 'turn does not advance' do
-    visit_player_page
     expect(page).to have_content /#{@player_whose_turn_it_is.name}'s turn/
   end
 end

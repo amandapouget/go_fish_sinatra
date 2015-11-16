@@ -28,9 +28,13 @@ PlayerView.prototype.listenForRankRequest = function() {
   }.bind(this));
 }
 
+PlayerView.prototype.setMessage = function(message) {
+  document.getElementById('message').innerText = message;
+}
+
 PlayerView.prototype.setCards = function(cards) {
-  var elements = Array.prototype.slice.call(document.getElementsByClassName('your-cards'));
-  elements.forEach(function(element) {
+  var oldCardElements = Array.prototype.slice.call(document.getElementsByClassName('your-cards'));
+  oldCardElements.forEach(function(element) {
     element.remove();
   });
   var player_div = document.getElementById('player');
@@ -42,8 +46,11 @@ PlayerView.prototype.setCards = function(cards) {
     new_card.value = card.rank_value;
     new_card.name = card.rank;
     player_div.appendChild(new_card);
-    new_card.onclick = function() {
-      this.rank = new_card.name;
+  }.bind(this));
+  var newCardElements = Array.prototype.slice.call(document.getElementsByClassName('your-cards'));
+  newCardElements.forEach( function(cardElement, index) {
+    cardElement.onclick = function() {
+      this.rank = cardElement.name;
       console.log("Rank selected: " + this.rank);
     }.bind(this);
   }.bind(this));
@@ -52,13 +59,14 @@ PlayerView.prototype.setCards = function(cards) {
 PlayerView.prototype.refresh = function() {
   console.log("GOT REFRESH");
   $.ajax({
-     url: 'http://localhost:4567/' + this.match_id + '/player/' + this.player_num + '.json',
+     url: '/' + this.match_id + '/player/' + this.player_num + '.json',
      dataType: 'json',
      complete: function(data){
      },
      success: function(data){
-       var cards = data;
-       this.setCards(cards);
+       var playerInfo = JSON.parse(data);
+       this.setMessage(playerInfo.message);
+       this.setCards(playerInfo.player_cards);
        console.log("SUCCESSFUL");
      }.bind(this),
      error: function(data, text_status, error_thrown){
@@ -73,7 +81,6 @@ $(document).ready(function() {
   var player_object_id = $(".info-for-player .player").attr("value");
   var playerView = new PlayerView(match_id, player_num, player_object_id);
   playerView.refresh(); // Do it the first time
-
 
   Pusher.log = function(message) {
     if (window.console && window.console.log) {

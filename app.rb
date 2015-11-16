@@ -49,7 +49,7 @@ get '/:match_id/player/:player_id.?:format?' do
   @player = @match.players[player_id] if @match
   @opponents = @match.opponents(@player) if @player
   if (params['format'] == 'json')
-    @player.cards.to_json
+    @match.view(@player).to_json
   else
     slim :player
   end

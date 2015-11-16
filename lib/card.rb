@@ -7,7 +7,7 @@ class Card
   RANKS = ["two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "jack", "queen", "king", "ace"]
   SUITS = ["clubs", "diamonds", "hearts", "spades"]
 
-  def initialize(rank:, suit:) # to assign defaults, use this syntax... rank: 'default string'
+  def initialize(rank:, suit:)
     @rank = rank
     @suit = suit
     @icon = set_icon

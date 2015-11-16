@@ -3,8 +3,8 @@ require 'pry'
 require 'socket'
 require 'factory_girl'
 
-def require_all(_dir)
-  Dir[File.expand_path(File.join(File.dirname(File.absolute_path(__FILE__)), _dir)) + "/**/*.rb"].each { |file| require file }
+def require_all(dir)
+  Dir[File.expand_path(File.join(File.dirname(File.absolute_path(__FILE__)), dir)) + "/**/*.rb"].each { |file| require file }
 end
 
 require_all '../lib/'
