@@ -35,6 +35,8 @@ class Client
     @socket.puts(text)
   end
 
+  # the next three methods need rewriting
+
   def interpret(message)
     message_hash = JSON.parse(message)
     return matchify(message_hash) if message_hash.fetch("type") == "match_state"

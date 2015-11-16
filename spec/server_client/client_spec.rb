@@ -100,13 +100,13 @@ describe Client do
     it 'interprets json and prints match state' do
       server.tell_match(@match)
       putted = capture_stdout { client.puts_message }
-      expect(putted).to include "cards left to fish for."
+      # build expect for new style json ouput
     end
 
     it 'interprets json and prints player state correctly' do
-      server.tell_player_his_hand(@match, @match.users[0])
+      server.tell_player_his_view(@match, @match.users[0])
       putted = capture_stdout { client.puts_message }
-      expect(putted).to include "You have"
+      # build expect for new style json ouput
     end
 
     it 'turns an array of card strings into a simple string' do
