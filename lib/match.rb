@@ -72,7 +72,7 @@ class Match
       player_cards: player.cards,
       player_books: player.books,
       opponents: opponents(player),
-      scores: players.map { |player| [player.name, player.books.length] }.push(["Fish Left", game.deck.count_cards])
+      scores: players.map { |player| [player.name, player.books.size] }.push(["Fish Left", game.deck.count_cards])
     }.to_json
   end
 

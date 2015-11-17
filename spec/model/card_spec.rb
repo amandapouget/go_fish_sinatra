@@ -19,8 +19,8 @@ describe Card do
         rank_totals[card.rank] += 1
         suit_totals[card.suit] += 1
       end
-      rank_totals.values.each { |rank_total| expect(rank_total).to eq Card::SUITS.length }
-      suit_totals.values.each { |suit_total| expect(suit_total).to eq Card::RANKS.length }
+      rank_totals.values.each { |rank_total| expect(rank_total).to eq Card::SUITS.size }
+      suit_totals.values.each { |suit_total| expect(suit_total).to eq Card::RANKS.size }
       expect(deck.cards.uniq).to eq(deck.cards)
     end
   end

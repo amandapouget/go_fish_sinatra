@@ -9,8 +9,8 @@ FactoryGirl.define do
   end
 
   factory :card do
-    rank { Card::RANKS[rand(Card::RANKS.length)] }
-    suit { Card::SUITS[rand(Card::SUITS.length)] }
+    rank { Card::RANKS[rand(Card::RANKS.size)] }
+    suit { Card::SUITS[rand(Card::SUITS.size)] }
     initialize_with { new(rank: rank, suit: suit) }
   end
 

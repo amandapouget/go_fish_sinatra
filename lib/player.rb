@@ -42,7 +42,7 @@ class Player
   end
 
   def count_cards
-    @cards.length
+    @cards.size
   end
 
   def out_of_cards?

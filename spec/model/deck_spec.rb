@@ -29,7 +29,7 @@ describe Deck do
 
   describe '#count_cards' do
     it 'returns a count of how many cards are in the deck' do
-      expect(deck.count_cards).to eq deck.cards.length
+      expect(deck.count_cards).to eq deck.cards.size
     end
   end
 
@@ -48,7 +48,7 @@ describe Deck do
 
   describe '#empty?' do
     it 'returns true if all the cards have been dealt' do
-      deck.cards.length.times { deck.deal_next_card }
+      deck.cards.size.times { deck.deal_next_card }
       expect(deck.empty?).to be true
     end
     it 'returns false if it still has cards' do

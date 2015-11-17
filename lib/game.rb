@@ -10,13 +10,13 @@ class Game
   attr_accessor :players, :deck, :hand_size, :winner, :requests, :next_turn
 
   def initialize(players: [], hand_size: 5)
-    @players = players.length >= MIN_PLAYERS ? players : Array.new(MIN_PLAYERS) { Player.new }
+    @players = players.size >= MIN_PLAYERS ? players : Array.new(MIN_PLAYERS) { Player.new }
     @deck = Card.deck
     @hand_size = hand_size
     @requests = []
     @next_turn = @players[0]
-    raise ArgumentError, "Cannot have more than #{MAX_PLAYERS} players" if players.length > MAX_PLAYERS
-    raise ArgumentError, "Hand size out of range" if (hand_size * players.length > @deck.count_cards || hand_size < 1)
+    raise ArgumentError, "Cannot have more than #{MAX_PLAYERS} players" if players.size > MAX_PLAYERS
+    raise ArgumentError, "Hand size out of range" if (hand_size * players.size > @deck.count_cards || hand_size < 1)
   end
 
   def deal
@@ -30,8 +30,8 @@ class Game
   end
 
   def player_with_most_books
-    players_sorted = @players.clone.tap { |new_players| (new_players.sort_by! { |player| player.books.length }).reverse! }
-    return players_sorted[0] if players_sorted[0].books.length > players_sorted[1].books.length
+    players_sorted = @players.clone.tap { |new_players| (new_players.sort_by! { |player| player.books.size }).reverse! }
+    return players_sorted[0] if players_sorted[0].books.size > players_sorted[1].books.size
     return NullPlayer.new
   end
 
@@ -48,7 +48,7 @@ class Game
 
   def advance_turn
     next_player_index = @players.index(@next_turn) + 1
-    @next_turn = @players[next_player_index % @players.length]
+    @next_turn = @players[next_player_index % @players.size]
   end
 
   def game_over?

@@ -17,7 +17,7 @@ class Spinach::Features::StartGame < Spinach::FeatureSteps
   end
 
   step 'it continues to wait for the right player' do
-    expect(PENDING_USERS[@num_players].length).to eq @num_players - 1
+    expect(PENDING_USERS[@num_players].size).to eq @num_players - 1
     expect(current_path).to match /wait/
   end
 
@@ -29,7 +29,11 @@ class Spinach::Features::StartGame < Spinach::FeatureSteps
     expect(page.has_current_path?(/.*\/player\/.*/, :wait => 5)).to be true
     expect(page).to have_content(@user.name)
     expect(page).to have_content('Go Fish')
-    expect(PENDING_USERS[@num_players].length).to eq 0
-    expect(find_all('.player').length).to eq @num_players
+    expect(PENDING_USERS[@num_players].size).to eq 0
+    expect(find_all('.player').size).to eq @num_players
+  end
+
+  step 'no one joins so I ask to play robots' do
+    click_button 'Play With Robots'
   end
 end

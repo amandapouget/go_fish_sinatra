@@ -12,7 +12,7 @@ class Deck
   end
 
   def count_cards
-    @cards.length
+    @cards.size
   end
 
   def deal_next_card

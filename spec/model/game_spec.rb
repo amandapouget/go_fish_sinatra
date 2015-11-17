@@ -7,7 +7,7 @@ describe Game do
   describe 'number of players allowed' do
     it "automatically initializes with at least #{MIN_PLAYERS} players" do
       game = Game.new
-      expect(game.players.length).to eq MIN_PLAYERS
+      expect(game.players.size).to eq MIN_PLAYERS
     end
 
     it "can only be initialized with up to #{MAX_PLAYERS} players" do
@@ -61,7 +61,7 @@ describe Game do
       it 'deals hand_size number of cards from the deck to each player' do
         game.deal
         game.players.each { |player| expect(player.count_cards).to eq game.hand_size }
-        num_cards_dealt = game.hand_size * game.players.length
+        num_cards_dealt = game.hand_size * game.players.size
         expect(game.deck.count_cards).to eq deck.count_cards - num_cards_dealt
       end
     end
@@ -97,7 +97,7 @@ describe Game do
         player = game.next_turn
         game.go_fish(player, rank_wanted)
         expect(game.next_turn).to eq player
-        next_player = game.players[(game.players.index(player) + 1) % game.players.length]
+        next_player = game.players[(game.players.index(player) + 1) % game.players.size]
         game.go_fish(player, "rank_not_found")
         expect(game.next_turn).to eq next_player
       end

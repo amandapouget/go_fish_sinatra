@@ -47,7 +47,7 @@ PlayerView.prototype.setScores = function(scores) {
 
 PlayerView.prototype.setBooks = function(books) {
   var booksDiv = document.getElementById('books');
-  var num_books_to_add = books.length - booksDiv.children.length + 1;
+  var num_books_to_add = books.size - booksDiv.children.size + 1;
   var book = document.createElement("img");
   book.src = "/images/cards/backs_blue.png";
   for (i = 0; i < num_books_to_add; i++) {

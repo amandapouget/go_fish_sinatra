@@ -59,7 +59,7 @@ class Server
   end
 
   def enough_players?
-    @pending_users.length >= MIN_PLAYERS
+    @pending_users.size >= MIN_PLAYERS
   end
 
   def get_info(client, message, delay=0.001)
@@ -127,7 +127,7 @@ class Server
       get_input(opponent.client)
       winnings = match.player(user).request_cards(match.player(opponent), rank)
     end
-    if winnings && winnings.length > 0
+    if winnings && winnings.size > 0
       tell_winnings(match, user, winnings)
     else
       play_fish(match, user, rank)

@@ -42,14 +42,14 @@ describe Match do
   end
 
   it 'can tell you a players opponents' do
-    expect(match.opponents(players[0])).to match_array players[1...players.length]
+    expect(match.opponents(players[0])).to match_array players[1...players.size]
   end
 
   it 'gives you the players opponents in a rotating order depending on which player is called' do
     order = players.clone
     players.each do |player|
       order.push(order.shift)
-      expect(match.opponents(player)).to eq order[0...players.length - 1]
+      expect(match.opponents(player)).to eq order[0...players.size - 1]
     end
   end
 
@@ -83,12 +83,12 @@ describe Match do
     expect(view_parsed["message"]).to eq match.message
     expect(view_parsed["player"] == JSON.parse(players[0].to_json)).to be true
     expect(view_parsed["opponents"] == match.opponents(players[0]).map{ |opponent| JSON.parse(opponent.to_json) }).to be true
-    expect(view_parsed["scores"]).to match_array players.map { |player| [player.name, player.books.length] }.push(["Fish Left", match.game.deck.count_cards])
+    expect(view_parsed["scores"]).to match_array players.map { |player| [player.name, player.books.size] }.push(["Fish Left", match.game.deck.count_cards])
   end
 
   describe 'can run a play' do
     [:card_as, :card_ah, :card_2h, :card_2d].each { |card| let(card) { build(card) } }
-    before { players[1...players.length].each { |player| player.cards = [card_2h] } }
+    before { players[1...players.size].each { |player| player.cards = [card_2h] } }
 
     it 'works when a player wins cards' do
       players[0].add_card(card_as)

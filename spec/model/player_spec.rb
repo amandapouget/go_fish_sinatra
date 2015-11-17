@@ -110,7 +110,7 @@ describe Player do
 
     describe '#count_cards' do
       it 'returns the number of cards a player has' do
-        expect(player.count_cards).to eq player.cards.length
+        expect(player.count_cards).to eq player.cards.size
       end
     end
 

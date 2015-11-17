@@ -16,3 +16,8 @@ Feature: Start Game
   Scenario: The right player joins
     When the right kind of player joins
     Then it starts our game
+
+  @javascript
+  Scenario: No one joins; I play a robot
+    When no one joins so I ask to play robots
+    Then it starts our game

@@ -1,8 +1,13 @@
-put the loop in javascript and take out the extra visits
-finish match factories & refactor
 refactor client class + spec
 refactor server class + spec
 refactor app.rb
-deprecate 'spec/integration' ?
 run command line, browser game and see if working, create "wanted to features list"
-deprecate json-ready in match
+Ask Roy about how to get the image files on the client side without shipping them over
+
+Fix the icons thing (pull out to front end)
+player_from_name(info == nullplayer)
+lots of other places you could use “find”
+
+add robot players
+extra credit: turn players who have left into robots
+finish json!!!!!!

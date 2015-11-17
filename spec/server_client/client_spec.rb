@@ -59,11 +59,11 @@ describe Client do
         output = capture_stdout do
           expect { client.puts_message }.to_not raise_exception
         end
-        expect(output.length).to be > 0
+        expect(output.size).to be > 0
         output = capture_stdout do
           expect { client.puts_message }.to_not raise_exception
         end
-        expect(output.length).to be 0
+        expect(output.size).to be 0
       end
 
       it 'provides input' do

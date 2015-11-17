@@ -53,7 +53,7 @@ class Client
     # player_names = seriesify(player_names)
     #
     # output = "Players: #{player_names}."
-    # players.each { |player| output += " #{player.name} has #{player.books.length} books and #{player.count_cards} cards." }
+    # players.each { |player| output += " #{player.name} has #{player.books.size} books and #{player.count_cards} cards." }
     # output += " The deck has #{match.game.deck.count_cards} cards left to fish for."
     # output += " The game is over. Winner: #{winner}." if match.over
     # return output
@@ -65,19 +65,19 @@ class Client
     # player = match.players[player_index]
     # player_cards = []
     # player.cards.each { |card| player_cards << card.to_s }
-    # output = "#{player.name}, you have #{player.count_cards} cards, including #{seriesify(player_cards)}. You have #{player.books.length} books."
+    # output = "#{player.name}, you have #{player.count_cards} cards, including #{seriesify(player_cards)}. You have #{player.books.size} books."
     player_cards = message_hash.fetch("player_cards")
     output = "You have: #{seriesify(player_cards)}."
     return output
   end
 
   def seriesify(string_array)
-    return "nothing" if string_array.length == 0
-    return string_array[0] if string_array.length == 1
-    if string_array.length == 2
-      return string_array[0] + " and " + seriesify(string_array[1, string_array.length-1])
-    elsif string_array.length > 2
-      return string_array[0] + ", " + seriesify(string_array[1, string_array.length-1])
+    return "nothing" if string_array.size == 0
+    return string_array[0] if string_array.size == 1
+    if string_array.size == 2
+      return string_array[0] + " and " + seriesify(string_array[1, string_array.size-1])
+    elsif string_array.size > 2
+      return string_array[0] + ", " + seriesify(string_array[1, string_array.size-1])
     end
   end
 end
