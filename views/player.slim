@@ -17,16 +17,10 @@ script src="/scripts/player.js"
   div class="info-for-player"
     div class="score" id="books"
       h4 Your Books
-      - @player.books.length.times do
-        img src="/images/cards/backs_blue.png"
     div class="player" id="player" value=@player.object_id name=@player.name
       h4 = @player.name
       img src=@player.icon
-    div class="score"
-      - if @match.over
-        h4 Final Score
-        - @match.players.each do |each_player|
-          h4 = each_player.name + ": " + each_player.books.length.to_s
-      - else
-        h4 Fish Left
-        h2 id="fish_score" = @match.deck_count unless @match.over
+    div class="score" id="score_header"
+      h4 Score
+      div class="score" id="scores"
+      

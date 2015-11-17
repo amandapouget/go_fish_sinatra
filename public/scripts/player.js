@@ -32,20 +32,43 @@ PlayerView.prototype.setMessage = function(message) {
   document.getElementById('message').innerText = message;
 }
 
+PlayerView.prototype.setScores = function(scores) {
+  var scoreDiv = document.getElementById('scores');
+  while (scoreDiv.firstChild) {
+      scoreDiv.removeChild(scoreDiv.firstChild);
+  }
+  scores.forEach( function(score) {
+    var h4 = document.createElement("h4");
+    var node = document.createTextNode(score[0] + ": " + score[1]);
+    h4.appendChild(node);
+    scoreDiv.appendChild(h4);
+  });
+}
+
+PlayerView.prototype.setBooks = function(books) {
+  var booksDiv = document.getElementById('books');
+  var num_books_to_add = books.length - booksDiv.children.length + 1;
+  var book = document.createElement("img");
+  book.src = "/images/cards/backs_blue.png";
+  for (i = 0; i < num_books_to_add; i++) {
+    booksDiv.appendChild(book);
+  }
+}
+
 PlayerView.prototype.setCards = function(cards) {
   var oldCardElements = Array.prototype.slice.call(document.getElementsByClassName('your-cards'));
   oldCardElements.forEach(function(element) {
     element.remove();
   });
-  var player_div = document.getElementById('player');
+  var playerDiv = document.getElementById('player');
   cards.forEach( function(card, index) {
-    new_card = document.createElement("img");
-    new_card.className = 'your-cards';
-    new_card.src = card.icon;
-    new_card.id = "card_" + index;
-    new_card.value = card.rank_value;
-    new_card.name = card.rank;
-    player_div.appendChild(new_card);
+    var newCard = document.createElement("img");
+    newCard.className = 'your-cards';
+    newCard.src = card.icon;
+    newCard.id = "card_" + index;
+    newCard.value = card.rank_value;
+    newCard.name = card.rank;
+    playerDiv.appendChild(newCard);
   }.bind(this));
   var newCardElements = Array.prototype.slice.call(document.getElementsByClassName('your-cards'));
   newCardElements.forEach( function(cardElement, index) {
@@ -65,6 +88,8 @@ PlayerView.prototype.refresh = function() {
      },
      success: function(data){
        var playerInfo = JSON.parse(data);
+       this.setBooks(playerInfo.player_books);
+       this.setScores(playerInfo.scores);
        this.setMessage(playerInfo.message);
        this.setCards(playerInfo.player_cards);
        console.log("SUCCESSFUL");
@@ -80,26 +105,8 @@ $(document).ready(function() {
   var player_num = window.location.pathname.split('/')[3];
   var player_object_id = $(".info-for-player .player").attr("value");
   var playerView = new PlayerView(match_id, player_num, player_object_id);
-  playerView.refresh(); // Do it the first time
-
-  Pusher.log = function(message) {
-    if (window.console && window.console.log) {
-      window.console.log(message);
-    }
-  };
-
   var pusher = new Pusher('39cc3ae7664f69e97e12', { encrypted: true });
   var channel = pusher.subscribe('game_play_channel_' + playerView.match_id);
+  channel.bind('pusher:subscription_succeeded', playerView.refresh.bind(playerView));
   channel.bind('refresh_event', playerView.refresh.bind(playerView));
-
-  var waitForPusher = true;
-  channel.bind('pusher:subscription_succeeded', function() {
-    waitForPusher = false;
-  });
-  var wait = function() {
-    if (waitForPusher) {
-      setTimeout(wait,100);
-    }
-  };
-  wait();
 });

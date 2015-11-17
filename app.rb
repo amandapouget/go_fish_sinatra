@@ -64,7 +64,6 @@ post '/:match_id/card_request' do
     if match.game.next_turn == player
       match.run_play(player, opponent, rank)
       Pusher.trigger("game_play_channel_#{match.object_id}", 'refresh_event', { message: "reload page" } )
-      puts "SENT PUSH!"
     end
   end
 end

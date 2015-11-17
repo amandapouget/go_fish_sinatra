@@ -15,3 +15,8 @@ Feature: See Game
   Scenario: what I can't see
     When I look at the game
     Then I cannot see: the cards of my opponents
+
+  @javascript
+  Scenario: wrong page
+    When I visit the wrong page
+    Then I get a funny error message

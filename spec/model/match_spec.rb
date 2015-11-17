@@ -83,7 +83,7 @@ describe Match do
     expect(view_parsed["message"]).to eq match.message
     expect(view_parsed["player"] == JSON.parse(players[0].to_json)).to be true
     expect(view_parsed["opponents"] == match.opponents(players[0]).map{ |opponent| JSON.parse(opponent.to_json) }).to be true
-    expect(view_parsed["score"]).to match_array players.map { |player| [player.name, player.books.length] }.push(["Fish Left:", match.game.deck.count_cards])
+    expect(view_parsed["scores"]).to match_array players.map { |player| [player.name, player.books.length] }.push(["Fish Left", match.game.deck.count_cards])
   end
 
   describe 'can run a play' do

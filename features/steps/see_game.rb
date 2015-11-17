@@ -32,4 +32,12 @@ class Spinach::Features::SeeGame < Spinach::FeatureSteps
       end
     end
   end
+
+  step 'I visit the wrong page' do
+    visit "/#{@match.object_id}/player/#{@match.players.length}"
+  end
+
+  step 'I get a funny error message' do
+    expect(page).to have_selector('div#no_player_message')
+  end
 end

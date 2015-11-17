@@ -45,6 +45,7 @@ module FreshGameCreate
 
   def visit_player_page
     visit "/#{@match.object_id}/player/0"
+    expect(page.has_selector?('#card_0', :wait => 5)).to be true
   end
 
   def game_with_three_players_one_card_each

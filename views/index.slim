@@ -2,7 +2,7 @@ br
 div class="pond"
   div id="speech"
     div id="message"
-      p Create your pond!
+      h2 id="create_pond" Create your pond!
   div id="fish_blue"
 br
 div class="form"
@@ -10,10 +10,11 @@ div class="form"
     label for='name' Your Name
     br
     input type='text' id='name' name='name'
-    p Players in your game
-    ul class='radio_buttons'
+    br
+    label for='radio buttons' Players in your game
+    ul class='radio-buttons' id='radio_buttons'
       - @player_range.each do |num_players|
         li: input required=true type='radio' id="#{num_players}" value="#{num_players}" name='num_players'
           label for="#{num_players}" #{num_players}
     button type='submit' class='button' Start Game
-    br
+br

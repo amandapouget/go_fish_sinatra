@@ -10,13 +10,13 @@ Capybara.app = Sinatra::Application
 set(:show_exceptions, false)
 
 # disables poltergeist logging
-# Capybara.register_driver :poltergeist do |app|
-#   Capybara::Poltergeist::Driver.new(
-#     app,
-#     extensions: [ 'features/support/logs.js' ],
-#     js_errors:   true
-#   )
-# end
+Capybara.register_driver :poltergeist do |app|
+  Capybara::Poltergeist::Driver.new(
+    app,
+    extensions: [ 'features/support/logs.js' ],
+    js_errors:   true
+  )
+end
 
 Capybara.javascript_driver = :poltergeist
 
