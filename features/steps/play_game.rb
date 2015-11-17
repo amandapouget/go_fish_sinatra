@@ -106,7 +106,6 @@ class Spinach::Features::PlayGame < Spinach::FeatureSteps
   end
 
   step 'it tells me cards were won' do
-    visit_player_page
     expect(page).to have_content "got cards"
   end
 

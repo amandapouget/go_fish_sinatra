@@ -6,10 +6,12 @@ Feature: See Game
   Background:
     Given the game has started
 
+  @javascript
   Scenario: what I can see
     When I look at the game
     Then I can see: my cards, my score, the height of the stack of cards in the deck, my opponents, and what's happening in the game.
 
+  @javascript
   Scenario: what I can't see
     When I look at the game
     Then I cannot see: the cards of my opponents

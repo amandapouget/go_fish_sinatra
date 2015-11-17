@@ -87,8 +87,11 @@ $(document).ready(function() {
       window.console.log(message);
     }
   };
+  // var waitForPusher = true;
   var pusher = new Pusher('39cc3ae7664f69e97e12', { encrypted: true });
   var channel = pusher.subscribe('game_play_channel_' + playerView.match_id);
-
+  // channel.bind('pusher:subscription_succeeded', function() {
+  //   waitForPusher = false;
+  // });
   channel.bind('refresh_event', playerView.refresh.bind(playerView));
 });

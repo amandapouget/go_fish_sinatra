@@ -16,7 +16,7 @@ class Spinach::Features::SeeGame < Spinach::FeatureSteps
     expect(page).to have_selector '#books'
     expect(page).to have_content @match.game.deck.count_cards
     @match.players.each do |player|
-      expect(page).to have_selector "img[@src = '#{player.icon}']"
+      expect(page).to have_selector "img[src = '#{player.icon}']"
       expect(page).to have_content player.name
     end
     expect(page).to have_selector "#fish_blue"
