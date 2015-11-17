@@ -3,7 +3,7 @@ h2 Waiting for players...
 div id="game_info" data-user_id=@user.object_id data-num_players= @num_players
 div class="form"
   form action='/start_with_robots' method='post'
-    input type='hidden' id='user' data-user_id=@user.object_id
-    input type='hidden' id='num_players' data-num_players=@num_players
+    input type='hidden' name='user_id' value=@user.object_id
+    input type='hidden' name='num_players' value=@num_players
     button type='submit' class='button' Play With Robots
 br

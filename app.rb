@@ -3,6 +3,7 @@ require 'slim'
 require 'sinatra'
 require 'sinatra/reloader'
 require 'pusher'
+require 'pry'
 also_reload 'lib/**/*.rb'
 
 PENDING_USERS = {}.tap { |pending_users| (PLAYER_RANGE).each { |num_players| pending_users[num_players] = [] } }
@@ -40,8 +41,11 @@ post '/subscribed' do # this post tells the server the 'wait' page has loaded!
 end
 
 post '/start_with_robots' do
-  # get the user
-  # remove the user from PENDING_USERS
+binding.pry
+  num_players = params["num_players"].to_i
+  user = User.find(params["user_id"].to_i, PENDING_USERS[num_players])
+  PENDING_USERS[num_players].delete(user)
+  binding.pry
   # start a game with robots
 end
 
