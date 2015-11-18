@@ -19,9 +19,10 @@ module FreshGameCreate
     fill_form("Anonymous", num_players)
   end
 
-  def start_three_game(robot: false)
+  def start_three_game(robot: false) # for factory
     @num_players = 3
     @match = Match.new([User.new(name: 'Bob'), User.new(name: 'Charlie', robot: robot), User.new(name: 'David', robot: robot)])
+    # @match = robot ? build(:match, num_players: 3) : build(:match, :one_user_plus_robots, num_players: 3)
     @me_player = @match.players[0]
     @first_opponent = @match.opponents(@me_player)[0]
     @second_opponent = @match.opponents(@me_player)[1]
