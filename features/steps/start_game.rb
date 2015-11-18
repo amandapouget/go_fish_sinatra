@@ -26,14 +26,15 @@ class Spinach::Features::StartGame < Spinach::FeatureSteps
   end
 
   step 'it starts our game' do
-    expect(page.has_current_path?(/.*\/player\/.*/, :wait => 5)).to be true
+    expect(page.has_current_path?(/.*\/player\/.*/)).to be true
     expect(page).to have_content(@user.name)
     expect(page).to have_content('Go Fish')
-    expect(PENDING_USERS[@num_players].size).to eq 0
+    expect(PENDING_USERS[@num_players]).not_to include @user
     expect(find_all('.player').size).to eq @num_players
   end
 
-  step 'no one joins so I ask to play robots' do
+  step 'I ask to play robots because no one has joined' do
+    expect_page_ready
     click_button 'Play With Robots'
   end
 end

@@ -9,6 +9,7 @@ describe Player do
       expect(player.books).to eq []
       icons = Dir.glob("./public/images/players/*.png")
       expect(icons).to include "./public#{player.icon}"
+      expect(player.robot).to eq false
     end
 
     it 'defaults to Anonymous if no name is given' do
@@ -28,6 +29,20 @@ describe Player do
       player.cards.each do |card|
         expect(card.rank_value).to be >= value
         value = card.rank_value
+      end
+    end
+
+    it 'knows if it is a robot' do
+      non_robot = build(:player)
+      true_robot = build(:player, robot: true)
+      expect(true_robot.robot).to be true
+      expect(non_robot.robot).to be false
+    end
+
+    describe '#make_robot' do
+      it 'can become a robot' do
+        player.make_robot
+        expect(player.robot).to be true
       end
     end
 
@@ -133,7 +148,6 @@ describe Player do
     describe NullPlayer do
       let(:nullplayer) { build(:null_player) }
       let(:nullplayer2) { build(:null_player) }
-
 
       it 'returns none when its name is called' do
         expect(nullplayer.name).to eq "none"

@@ -21,7 +21,7 @@ module FreshGameCreate
 
   def start_three_game # for factory
     @num_players = 3
-    @match = Match.new([User.new(name: "Bob"), User.new(name: "Charlie"), User.new(name: "David")])
+    @match = Match.new([User.new(name: 'Bob'), User.new(name: 'Charlie'), User.new(name: 'David')])
     @me_player = @match.players[0]
     @first_opponent = @match.opponents(@me_player)[0]
     @second_opponent = @match.opponents(@me_player)[1]
@@ -30,9 +30,8 @@ module FreshGameCreate
   end
 
   def expect_page_has_cards(cards, expect_true = true)
-    visit "/#{@match.object_id}/player/0"
-    cards.each { |card| expect(page.has_selector?("img[src = '#{card.icon}']", :wait => 5)).to be true } if expect_true
-    cards.each { |card| expect(page.has_no_selector?("img[src = '#{card.icon}']", :wait => 5)).to be true } unless expect_true
+    cards.each { |card| expect(page.has_selector?("img[src = '#{card.icon}']")) } if expect_true
+    cards.each { |card| expect(page.has_no_selector?("img[src = '#{card.icon}']")) } unless expect_true
   end
 
   def my_cards
@@ -43,19 +42,19 @@ module FreshGameCreate
     find_all('.your-cards').to_a.map! { |card| card = card['src'] }
   end
 
-  def visit_player_page
-    visit "/#{@match.object_id}/player/0"
-    expect(page.has_selector?('#card_0', :wait => 5)).to be true
-  end
-
-  def game_with_three_players_one_card_each
+  def game_with_three_players_each_has_one_ace
     reset
     start_three_game
-    everyone_has_at_least_one_card(@match)
+    @match.players.each { |player| player.cards = [build(:card_as)] }
   end
 
-  def everyone_has_at_least_one_card(match)
-    match.players.each { |player| player.cards = [build(:card_2d)] }
+  def visit_player_page
+    visit "/#{@match.object_id}/player/0"
+    expect_page_ready
+  end
+
+  def expect_page_ready
+    expect(page).to have_selector '#ready'
   end
 end
 
@@ -70,11 +69,11 @@ module GamePlay
     @match.game.next_turn = player
   end
 
-  def have_ace(players)
-    players.each { |player| player.cards.unshift(build(:card_as)) }
+  def have_king(players)
+    players.each { |player| player.cards.unshift(build(:card_ks)) }
   end
 
-  def have_jacks(players)
+  def have_jack(players)
     players.each { |player| player.cards.unshift(build(:card_js)) }
   end
 

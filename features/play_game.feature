@@ -62,22 +62,26 @@ Feature: Play game
 
   @javascript
   Scenario: I fish the right rank
+    Given it is already my turn
     When I go fish and draw the rank I asked for
     Then it tells me the right rank was drawn
     And turn does not advance
 
   @javascript
   Scenario: Someone else fishes the right rank
+    Given it is already the turn of my first opponent
     When my first opponent goes fish and draws the rank he asked for
     Then it tells me the right rank was drawn
     And turn does not advance
 
   @javascript
   Scenario: I fish a different rank
+    Given it is already my turn
     When I go fish and draw a different rank
     Then turn advances
 
   @javascript
   Scenario: Someone else fishes a different rank
+    Given it is already the turn of my first opponent
     When my first opponent goes fish and draws a different rank
     Then turn advances

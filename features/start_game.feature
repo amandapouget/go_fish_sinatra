@@ -19,5 +19,5 @@ Feature: Start Game
 
   @javascript
   Scenario: No one joins; I play a robot
-    When no one joins so I ask to play robots
+    When I ask to play robots because no one has joined
     Then it starts our game

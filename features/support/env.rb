@@ -17,8 +17,8 @@ Capybara.register_driver :poltergeist do |app|
     js_errors:   true
   )
 end
-
 Capybara.javascript_driver = :poltergeist
+Capybara.default_max_wait_time = 10
 
 Spinach.hooks.on_tag("javascript") { ::Capybara.current_driver = ::Capybara.javascript_driver }
 Spinach.config[:failure_exceptions] << RSpec::Expectations::ExpectationNotMetError

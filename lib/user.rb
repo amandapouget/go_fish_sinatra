@@ -1,12 +1,13 @@
 class User
   @@all = []
-  attr_accessor :matches, :current_match, :name, :client
+  attr_accessor :matches, :current_match, :name, :client, :robot
 
-  def initialize(name: "Anonymous", client: nil)
+  def initialize(name: "Anonymous", client: nil, robot: false)
     @client = client
     @name = name
     @matches = []
     @current_match = nil
+    @robot = robot
     save
   end
 
