@@ -1,8 +1,8 @@
-class Spinach::Features::PlayGame < Spinach::FeatureSteps
+class Spinach::Features::PlayGameWithPeople < Spinach::FeatureSteps
   include FreshGameCreate
   include GamePlay
 
-  step 'the game has started' do
+  step 'the game has started with players' do
     game_with_three_players_each_has_one_ace
   end
 

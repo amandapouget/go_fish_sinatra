@@ -1,10 +1,10 @@
-Feature: Play game
+Feature: Play game with people
   In order to play Go fish
   As a player
   I want it to let me participate in every turn in the right way and prevent players from playing out of turn
 
   Background:
-    Given the game has started
+    Given the game has started with players
 
   @javascript
   Scenario: It's another player's turn so I can't play

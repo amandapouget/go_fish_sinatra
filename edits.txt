@@ -13,5 +13,3 @@ extra credit: turn players who have left into robots
 finish json!!!!!!
 
 change it so the robots aren't always Anonymous
-
-make waiting for players insert the form button when subscribed

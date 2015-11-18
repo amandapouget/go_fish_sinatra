@@ -19,9 +19,9 @@ module FreshGameCreate
     fill_form("Anonymous", num_players)
   end
 
-  def start_three_game # for factory
+  def start_three_game(robot: false)
     @num_players = 3
-    @match = Match.new([User.new(name: 'Bob'), User.new(name: 'Charlie'), User.new(name: 'David')])
+    @match = Match.new([User.new(name: 'Bob'), User.new(name: 'Charlie', robot: robot), User.new(name: 'David', robot: robot)])
     @me_player = @match.players[0]
     @first_opponent = @match.opponents(@me_player)[0]
     @second_opponent = @match.opponents(@me_player)[1]
@@ -46,6 +46,13 @@ module FreshGameCreate
     reset
     start_three_game
     @match.players.each { |player| player.cards = [build(:card_as)] }
+  end
+
+  def game_with_three_robots_each_has_one_different_card
+    reset
+    start_three_game(robot: true)
+    cards = [build(:card_as), build(:card_ks), build(:card_qs)]
+    @match.players.each_with_index { |player, index| player.cards = [cards[index]] }
   end
 
   def visit_player_page

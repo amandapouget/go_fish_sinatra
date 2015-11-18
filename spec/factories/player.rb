@@ -1,6 +1,4 @@
 FactoryGirl.define do
-  FAKENAMES = ["Marie", "Amanda", "Bob", "Charlie", "David", "Echo", "Frank", "Gertrude", "Helga", "Iggy", "Jaqueline", "Kevin", "Lillian"]
-
   factory :player do
     name { FAKENAMES.rotate![0] }
     robot false

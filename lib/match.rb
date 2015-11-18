@@ -10,7 +10,7 @@ class Match
   def initialize(users = [], hand_size: 5)
     @users = users
     @users.each { |user| user.add_match(self) }
-    @players = @users.map { |user| Player.new(name: user.name) }
+    @players = @users.map { |user| Player.new(name: user.name, robot: user.robot) }
     @game = Game.new(players: @players, hand_size: hand_size)
     @over = false
     @message = @players[0].name + FIRST_PROMPT

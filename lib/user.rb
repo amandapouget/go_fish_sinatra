@@ -1,3 +1,5 @@
+FAKENAMES = ["Marie", "Amanda", "Bob", "Charlie", "David", "Echo", "Frank", "Gertrude", "Helga", "Iggy", "Jaqueline", "Kevin", "Lillian"]
+
 class User
   @@all = []
   attr_accessor :matches, :current_match, :name, :client, :robot

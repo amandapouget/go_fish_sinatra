@@ -32,7 +32,7 @@ def run_plays(match, player, opponent, rank)
   match.run_play(player, opponent, rank)
   Pusher.trigger("game_play_channel_#{match.object_id}", 'refresh_event', { message: "reload page" } )
   next_player = match.game.next_turn
-  next_player.robot ? sleep(2) : return
+  next_player.robot ? sleep(2.5) : return
   run_plays(match, next_player, match.opponents(next_player).sample, next_player.cards.sample.rank)
 end
 
