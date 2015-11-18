@@ -8,6 +8,7 @@ also_reload 'lib/**/*.rb'
 
 PENDING_USERS = {}.tap { |pending_users| (PLAYER_RANGE).each { |num_players| pending_users[num_players] = [] } }
 Pusher.url = "https://39cc3ae7664f69e97e12:60bb9ff467a643cc4001@api.pusherapp.com/apps/151900"
+@@match_maker = MatchMaker.new
 
 def make_game(num_players, user_wants_robots: nil)
   users = user_wants_robots ? user_and_robots(user_wants_robots, num_players) : real_players(num_players)
