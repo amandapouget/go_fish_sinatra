@@ -13,6 +13,15 @@ class MatchClientNotifier
   end
 
   def push(channel, event)
+    until clients_ready? do
+      sleep(1)
+    end
     Pusher.trigger(channel, event, { message: "reload page" } )
+  end
+
+  protected
+
+  def clients_ready?
+    @clients_ready ||= match.users.all? { |user| !user.respond_to?(:ready_to_play) or user.ready_to_play }
   end
 end

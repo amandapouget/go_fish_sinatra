@@ -2,7 +2,6 @@ require 'spec_helper'
 
 describe Match do
   let(:match) { build(:match, num_players: MAX_PLAYERS) }
-  let(:match_with_robots) { build(:match, :one_user_plus_robots) }
   let(:users) { match.users }
   let(:players ) { match.players }
 
@@ -19,11 +18,6 @@ describe Match do
 
   it 'upon initialization, saves self to the matches class array' do
     expect(Match.all).to include match
-  end
-
-  it 'can initialize a match with robot users and players' do
-    expect(match_with_robots.users[1].robot).to be true
-    expect(match_with_robots.players[1].robot).to be true
   end
 
   it 'can clear all saved matches' do

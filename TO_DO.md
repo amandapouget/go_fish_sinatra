@@ -1,5 +1,6 @@
 -[ ] Show this in GitHub
 -[ ] Probably do not need `robot` in User or Player
+-[ ] Clean up factories with robots
 -[ ] Examine whether Player really has to have a name that comes from the user
 -[ ] Examine end_current_match for RobotUser and if we really need it
 -[ ] Think about putting contemplate_before in a more generic place

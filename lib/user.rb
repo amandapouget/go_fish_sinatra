@@ -2,14 +2,13 @@ FAKENAMES = ["Marie", "Amanda", "Bob", "Charlie", "David", "Echo", "Frank", "Ger
 
 class User
   @@all = []
-  attr_accessor :matches, :current_match, :name, :client, :robot
+  attr_accessor :matches, :current_match, :name, :client, :ready_to_play
 
-  def initialize(name: "Anonymous", client: nil, robot: false)
+  def initialize(name: "Anonymous", client: nil)
     @client = client
     @name = name
     @matches = []
     @current_match = nil
-    @robot = robot
     save
   end
 
