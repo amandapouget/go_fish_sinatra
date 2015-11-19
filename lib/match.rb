@@ -3,6 +3,8 @@ require_relative 'player'
 require_relative 'user'
 
 class Match
+  include Observable
+
   attr_accessor :game, :users, :players, :over, :message
   FIRST_PROMPT = ", click card, player & me to request cards!"
   @@all = []
@@ -10,7 +12,7 @@ class Match
   def initialize(users = [], hand_size: 5)
     @users = users
     @users.each { |user| user.add_match(self) }
-    @players = @users.map { |user| Player.new(name: user.name, robot: user.robot) }
+    @players = @users.map { |user| Player.new(name: user.name) }
     @game = Game.new(players: @players, hand_size: hand_size)
     @over = false
     @message = @players[0].name + FIRST_PROMPT
@@ -87,6 +89,7 @@ class Match
     end
     end_match if @game.game_over?
     over ? @message += "! Game over! Winner: #{@game.winner.name}" : @message += "! It's #{game.next_turn.name}'s turn!"
+    changed; notify_observers
   end
 
   def end_match

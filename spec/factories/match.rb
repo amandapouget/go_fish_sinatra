@@ -15,5 +15,9 @@ FactoryGirl.define do
         }
       end
     end
+
+    trait :dealt do
+      after(:build) { |match| match.game.deal }
+    end
   end
 end

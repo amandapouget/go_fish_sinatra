@@ -131,6 +131,13 @@ describe Match do
       expect(match.message).to eq "#{players[0].name} asked #{players[1].name} for twos & got cards! Game over! Winner: none"
       expect(match.over).to be true
     end
+
+    it 'informs observers when a play is complete' do
+      my_observer = double(update: nil)
+      expect(my_observer).to receive(:update)
+      match.add_observer(my_observer)
+      match.run_play(players[0], players[1], 'two')
+    end
   end
 
   it 'can end itself' do
