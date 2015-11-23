@@ -1,3 +1,7 @@
+# class List < ActiveRecord::Base
+#   has_many :tasks
+# end
+
 require_relative 'game'
 require_relative 'player'
 require_relative 'user'

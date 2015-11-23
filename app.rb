@@ -1,10 +1,11 @@
-Dir.glob('lib/**/*.rb') { |file| require_relative file }
 require 'slim'
 require 'sinatra'
 require 'sinatra/reloader'
+require 'sinatra/activerecord'
 require 'pusher'
-require 'pry'
 also_reload 'lib/**/*.rb'
+Dir.glob('lib/**/*.rb') { |file| require_relative file }
+
 Pusher.url = "https://39cc3ae7664f69e97e12:60bb9ff467a643cc4001@api.pusherapp.com/apps/151900"
 
 def match_maker

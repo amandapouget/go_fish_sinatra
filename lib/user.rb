@@ -1,3 +1,17 @@
+# class Task < ActiveRecord::Base
+#   belongs_to :list
+#   validates :description, {presence: true, length: { maximum: 50 }}
+#   before_save(:downcase_description)
+#
+#   scope(:not_done, -> { where({:done => false}) })
+#
+# private
+#
+#   def downcase_description
+#     self.description.downcase!
+#   end
+# end
+
 FAKENAMES = ["Marie", "Amanda", "Bob", "Charlie", "David", "Echo", "Frank", "Gertrude", "Helga", "Iggy", "Jaqueline", "Kevin", "Lillian"]
 
 class User
@@ -16,8 +30,8 @@ class User
     @@all
   end
 
-  def self.find(id, users_to_search = @@all )
-    users_to_search.find { |user| user.object_id == id }
+  def self.find(id)
+    User.all.find { |user| user.object_id == id }
   end
 
   def add_match(match)

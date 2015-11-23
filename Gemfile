@@ -2,9 +2,12 @@ source 'https://rubygems.org'
 
 gem 'pry'
 gem 'sinatra'
-gem 'sinatra-contrib'
+gem 'sinatra-contrib', :require => 'sinatra/reloader'
+gem 'sinatra-activerecord'
 gem 'slim'
 gem 'pusher'
+gem 'pg'
+gem 'rake'
 
 group :test do
   gem 'selenium-webdriver'

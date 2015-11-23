@@ -1,0 +1,7 @@
+development:
+  adapter: postgresql
+  database: go_fish_development
+
+test:
+  adapter: postgresql
+  database: go_fish_test

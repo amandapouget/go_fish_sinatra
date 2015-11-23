@@ -43,7 +43,6 @@ protected
   end
 
   def contemplate_before
-    puts match.message
     if think_time > 0
       Thread.start do
         sleep(think_time)

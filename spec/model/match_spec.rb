@@ -1,3 +1,15 @@
+# require 'spec_helper'
+#
+# describe(List) do
+#   it('tells which tasks are in it') do
+#     list = List.create({name: "list"})
+#     task1 = Task.create({description: "my task", list_id: list.id})
+#     task2 = Task.create({description: "my other task", list_id: list.id})
+#     expect(list.tasks).to match_array([task1,task2])
+#   end
+#
+# end
+
 require 'spec_helper'
 
 describe Match do
