@@ -24,10 +24,7 @@ class RobotUser
   def player
     match.player(self)
   end
-
-  def end_current_match
-  end
-
+  
 protected
 
   def opponents

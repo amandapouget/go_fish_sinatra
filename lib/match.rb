@@ -96,7 +96,6 @@ class Match
   end
 
   def end_match
-    @users.each { |user| user.end_current_match }
     @over = true
   end
 end

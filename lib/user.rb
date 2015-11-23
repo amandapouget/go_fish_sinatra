@@ -14,54 +14,25 @@
 
 FAKENAMES = ["Marie", "Amanda", "Bob", "Charlie", "David", "Echo", "Frank", "Gertrude", "Helga", "Iggy", "Jaqueline", "Kevin", "Lillian"]
 
-class User
-  @@all = []
-  attr_accessor :matches, :current_match, :name, :client
-
-  def initialize(name: nil, client: nil)
-    @client = client
-    @name = name || FAKENAMES.rotate![0]
-    @matches = []
-    @current_match = nil
-    save
-  end
-
-  def self.all
-    @@all
-  end
-
-  def self.find(id)
-    User.all.find { |user| user.object_id == id }
-  end
+class User < ActiveRecord::Base
+  attr_accessor :matches, :client
+  #
+  # def initialize(name: nil, client: nil)
+  #   @client = client
+  #   @name = name || FAKENAMES.rotate![0]
+  #   @matches = []
+  # end
 
   def add_match(match)
-    @current_match = match.object_id
     (@matches << match.object_id).uniq!
-  end
-
-  def end_current_match
-    @current_match = nil
-  end
-
-  def self.clear
-    @@all = []
-  end
-
-private
-  def save
-    @@all << self
-    @@all.uniq!
   end
 end
 
 class NullUser
-  attr_accessor :matches, :current_match, :name, :client
+  attr_accessor :matches, :name, :client
 
   def initialize
     @matches = []
-  end
-
-  def end_current_match
   end
 
   def save

@@ -24,10 +24,6 @@ describe Match do
     expect(match.message).to eq players[0].name + Match::FIRST_PROMPT
   end
 
-  it 'upon initialization, makes the user acknowledge it as the current_match' do
-    users.each { |user| expect(user.current_match).to eq match.object_id }
-  end
-
   it 'upon initialization, saves self to the matches class array' do
     expect(Match.all).to include match
   end
@@ -148,7 +144,7 @@ describe Match do
 
   it 'can end itself' do
     match.end_match
-    users.each { |user| expect(user.current_match).to be nil }
+    expect(match.over).to be true
   end
 
   it 'can tell you if it has been ended' do

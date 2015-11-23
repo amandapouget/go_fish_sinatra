@@ -38,13 +38,13 @@
 require 'spec_helper'
 
 describe User do
-  let(:user) { build(:user) }
-  let(:user2) { build(:user) }
+  let(:user) { create(:user) }
+  let(:user2) { create(:user) }
   let(:match) { build(:match) }
   let(:match2) { build(:match) }
 
   after do
-    User.clear
+    User.delete_all
   end
 
   it 'has a name' do
@@ -56,24 +56,13 @@ describe User do
   end
 
   it 'returns the right user when given just an id' do
-    expect(User.find(user.object_id)).to eq user
+    expect(User.find(user.id)).to eq user
   end
 
   it 'knows what matches it has played but does not allow duplicates' do
     2.times { user.add_match(match) }
     user.add_match(match2)
     expect(user.matches).to match_array [match.object_id, match2.object_id]
-  end
-
-  it 'knows if a match is currently in session and which one' do
-    user.add_match(match)
-    expect(user.current_match).to eq match.object_id
-  end
-
-  it 'ends a match by removing the current_match' do
-    user.add_match(match)
-    user.end_current_match
-    expect(user.current_match).to be nil
   end
 
   describe NullUser do
@@ -84,13 +73,11 @@ describe User do
       expect(nulluser.matches).to eq []
       expect(nulluser.name).to be nil
       expect(nulluser.client).to be nil
-      expect(nulluser.current_match).to be nil
     end
 
     it 'does not raise exceptions when regular User methods are called on it' do
       expect { nulluser.save }.to_not raise_exception
       expect { nulluser.add_match(match) }.to_not raise_exception
-      expect { nulluser.end_current_match }.to_not raise_exception
     end
 
     it 'calls equal any two nullusers' do
