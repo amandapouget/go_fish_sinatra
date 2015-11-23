@@ -1,8 +1,7 @@
 FactoryGirl.define do
   factory :player do
     name { FAKENAMES.rotate![0] }
-    robot false
-    initialize_with { new(name: name, robot: robot) }
+    initialize_with { new(name: name) }
     transient { cards [] }
 
     after(:build) do |player, evaluator|

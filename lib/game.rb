@@ -25,8 +25,7 @@ class Game
   end
 
   def winner
-    return NullPlayer.new unless game_over?
-    return player_with_most_books
+    game_over? ? player_with_most_books : NullPlayer.new
   end
 
   def player_with_most_books

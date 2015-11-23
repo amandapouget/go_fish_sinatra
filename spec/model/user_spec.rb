@@ -3,7 +3,6 @@ require 'spec_helper'
 describe User do
   let(:user) { build(:user) }
   let(:user2) { build(:user) }
-  let(:user_robot) { build(:user, robot: true) }
   let(:match) { build(:match) }
   let(:match2) { build(:match) }
 
@@ -13,11 +12,6 @@ describe User do
 
   it 'has a name' do
     expect(user.name).to be > ""
-  end
-
-  it 'knows if it is a robot' do
-    expect(user.robot).to be false
-    expect(user_robot.robot).to be true
   end
 
   it 'stores the last known client socket connection' do

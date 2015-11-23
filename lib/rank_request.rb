@@ -13,8 +13,7 @@ class RankRequest
 
   def execute
     winnings = @player.request_cards(@opponent, @rank)
-    winnings.empty? ? @won_cards = false : @won_cards = true
     player.collect_winnings(winnings)
-    @won_cards
+    @won_cards = winnings.any?
   end
 end

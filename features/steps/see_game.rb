@@ -3,7 +3,7 @@ class Spinach::Features::SeeGame < Spinach::FeatureSteps
 
   step 'the game has started' do
     reset
-    start_three_game
+    start_three_game(users: 3, robots: 0)
     @match.game.deal
   end
 

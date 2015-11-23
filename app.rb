@@ -1,23 +1,14 @@
-Dir.glob('lib/**/*.rb') { |file| require_relative file } # Is there a better way to require all the lib files?
-#a
+Dir.glob('lib/**/*.rb') { |file| require_relative file }
 require 'slim'
 require 'sinatra'
 require 'sinatra/reloader'
 require 'pusher'
 require 'pry'
 also_reload 'lib/**/*.rb'
-
 Pusher.url = "https://39cc3ae7664f69e97e12:60bb9ff467a643cc4001@api.pusherapp.com/apps/151900"
-@@match_maker = MatchMaker.new
 
-def start_game(match)
-  match.users.each_with_index { |user, player_number| Pusher.trigger("waiting_for_players_channel_#{user.object_id}", 'send_to_game_event', { message: "#{match.object_id}/player/#{player_number}" }) }
-  match.game.deal
-  MatchClientNotifier.new(match)
-end
-
-def user
-  @user ||= User.find(params["user_id"].to_i)
+def match_maker
+  @@match_maker ||= MatchMaker.new
 end
 
 get '/' do
@@ -28,31 +19,26 @@ end
 post '/wait' do
   @user = User.new(name: params["name"])
   @num_players = params["num_players"].to_i
-  @match = @@match_maker.match(@user, @num_players)
-  if @match
-    start_game(@match)
-    @user.ready_to_play = true
-    @player = @match.player(@user)
-    @opponents = @match.opponents(@player)
-    redirect "/#{@match.object_id}/player/#{@match.players.length - 1}"
-  else
-    slim :waiting_for_players
-  end
+  match = match_maker.match(@user, @num_players)
+  match.game.deal if match
+  slim :waiting_for_players
 end
 
 post '/subscribed' do
-  user.ready_to_play = true
+  user = User.find(params["user_id"].to_i)
+  match = Match.all.find { |match| match.users.include? user }
+  Pusher.trigger("waiting_for_players_channel_#{user.object_id}", 'send_to_game_event', { message: "#{match.object_id}/player/#{match.users.index(user)}" }) if match
   return nil
 end
 
-post '/start_with_robots' do
+post '/start_with_robots' do # broken because need to put the pusher back in matchclient or else it tries to play with robots before being subscribed AGAIN with the pusher issue :-(!!
+  user = User.find(params["user_id"].to_i)
   num_players = params["num_players"].to_i
-  user = user
-  until @match do
-    robot = RobotUser.new(2.5)
-    @match = @@match_maker.match(robot, num_players)
+  until @match
+    @match = match_maker.match(RobotUser.new, num_players)
   end
-  start_game(@match)
+  @match.game.deal
+  Pusher.trigger("waiting_for_players_channel_#{user.object_id}", 'send_to_game_event', { message: "#{@match.object_id}/player/#{@match.users.index(user)}" })
   return nil
 end
 

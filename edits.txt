@@ -8,8 +8,8 @@ Fix the icons thing (pull out to front end)
 player_from_name(info == nullplayer)
 lots of other places you could use “find”
 
-add robot players
-extra credit: turn players who have left into robots
 finish json!!!!!!
 
 change it so the robots aren't always Anonymous
+
+yank out the "current_match" stuff for simultaneous games

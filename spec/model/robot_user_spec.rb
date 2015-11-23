@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe RobotUser do
-  let(:user) { RobotUser.new }
-  let(:other_user) { RobotUser.new }
+  let(:user) { build(:robot_user) }
+  let(:other_user) { build(:robot_user) }
   let(:match) { build(:match, :dealt, users: [user, other_user]) }
 
   it 'makes a play if it is his turn' do

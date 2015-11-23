@@ -1,10 +1,10 @@
-require 'pry'
-sleep 4
+require './app.rb'
+
 module FreshGameCreate
   include Spinach::DSL
 
   def reset
-    PENDING_USERS.each_key { |num_players| PENDING_USERS[num_players] = [] }
+    match_maker.pending_users.each_key { |num_players| match_maker.pending_users[num_players] = [] }
     Match.clear
   end
 
@@ -16,14 +16,17 @@ module FreshGameCreate
   end
 
   def add_player(num_players)
-    fill_form("Anonymous", num_players)
+    fill_form("New Player Who Joined", num_players)
   end
 
-  def start_three_game(robot: false) # for factory
+  def start_three_game(users:, robots:)
     @num_players = 3
-    @match = Match.new([User.new(name: 'Bob'), User.new(name: 'Charlie', robot: robot), User.new(name: 'David', robot: robot)])
-    # @match = robot ? build(:match, num_players: 3) : build(:match, :one_user_plus_robots, num_players: 3)
-    @me_player = @match.players[0]
+    until @match do
+      users.times { @match = match_maker.match(build(:user), 3) }
+      robots.times { @match = match_maker.match(build(:robot_user), 3) }
+    end
+    MatchClientNotifier.new(@match)
+    @me_player = @match.players.find { |player| player.is_a? Player }
     @first_opponent = @match.opponents(@me_player)[0]
     @second_opponent = @match.opponents(@me_player)[1]
     @go_fish_card = @match.game.deck.cards[0]
@@ -45,13 +48,13 @@ module FreshGameCreate
 
   def game_with_three_players_each_has_one_ace
     reset
-    start_three_game
+    start_three_game(users: 3, robots: 0)
     @match.players.each { |player| player.cards = [build(:card_as)] }
   end
 
-  def game_with_three_robots_each_has_one_different_card
+  def game_with_one_user_two_robots_each_has_one_different_card
     reset
-    start_three_game(robot: true)
+    start_three_game(users: 1, robots: 2)
     cards = [build(:card_as), build(:card_ks), build(:card_qs)]
     @match.players.each_with_index { |player, index| player.cards = [cards[index]] }
   end

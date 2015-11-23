@@ -4,12 +4,12 @@ class Spinach::Features::StartGame < Spinach::FeatureSteps
   step 'I am waiting for my game to start' do
     reset
     @num_players = 3 # more sad magic number
-    fill_form("Amanda", @num_players)
-    @user = PENDING_USERS[@num_players][0]
+    fill_form("Appleseed", @num_players)
+    @user = match_maker.pending_users[@num_players][0]
   end
 
   step 'the game is short one player' do
-    (@num_players - 2).times { PENDING_USERS[@num_players] << build(:user) }
+    (@num_players - 2).times { match_maker.pending_users[@num_players] << build(:user) }
   end
 
   step 'the wrong kind of player joins' do
@@ -17,7 +17,7 @@ class Spinach::Features::StartGame < Spinach::FeatureSteps
   end
 
   step 'it continues to wait for the right player' do
-    expect(PENDING_USERS[@num_players].size).to eq @num_players - 1
+    expect(match_maker.pending_users[@num_players].size).to eq @num_players - 1
     expect(current_path).to match /wait/
   end
 
@@ -29,7 +29,7 @@ class Spinach::Features::StartGame < Spinach::FeatureSteps
     expect(page.has_current_path?(/.*\/player\/.*/)).to be true
     expect(page).to have_content(@user.name)
     expect(page).to have_content('Go Fish')
-    expect(PENDING_USERS[@num_players]).not_to include @user
+    expect(match_maker.pending_users[@num_players]).not_to include @user
     expect(find_all('.player').size).to eq @num_players
   end
 

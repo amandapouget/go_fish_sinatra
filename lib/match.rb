@@ -58,13 +58,11 @@ class Match
   end
 
   def player_from_name(name) # currently doesn't account for users with the same name
-    @players.each { |player| return player if player.name == name }
-    NullPlayer.new
+    return @players.find { |player| player.name == name } || NullPlayer.new
   end
 
   def player_from_id(id)
-    @players.each { |player| return player if player.object_id == id }
-    NullPlayer.new
+    return @players.find { |player| player.object_id == id } || NullPlayer.new
   end
 
   def view(player)

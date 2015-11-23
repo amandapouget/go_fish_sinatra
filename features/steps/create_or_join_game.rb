@@ -12,21 +12,21 @@ class Spinach::Features::CreateOrJoinGame < Spinach::FeatureSteps
   end
 
   step 'it creates the kind of pending game I want and waits for players to join' do
-    expect(PENDING_USERS[@num_players].size).to eq 1
-    expect(PENDING_USERS[@num_players][0].name).to eq @my_name
+    expect(match_maker.pending_users[@num_players].size).to eq 1
+    expect(match_maker.pending_users[@num_players][0].name).to eq @my_name
     expect(current_path).to match /\/wait/
   end
 
   step 'a pending game exists for the number of players I want' do
     reset
     @num_players = 3
-    PENDING_USERS[@num_players] << build(:user)
-    expect(PENDING_USERS[@num_players].size).to eq 1
+    match_maker.pending_users[@num_players] << build(:user)
+    expect(match_maker.pending_users[@num_players].size).to eq 1
   end
 
   step 'it joins me to the kind of pending game I want and waits for players to join' do
-    expect(PENDING_USERS[@num_players].size).to eq 2
-    expect(PENDING_USERS[@num_players][1].name).to eq @my_name
+    expect(match_maker.pending_users[@num_players].size).to eq 2
+    expect(match_maker.pending_users[@num_players][1].name).to eq @my_name
     expect(current_path).to match /\/wait/
   end
 end

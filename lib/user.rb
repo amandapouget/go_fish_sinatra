@@ -2,19 +2,22 @@ FAKENAMES = ["Marie", "Amanda", "Bob", "Charlie", "David", "Echo", "Frank", "Ger
 
 class User
   @@all = []
-  attr_accessor :matches, :current_match, :name, :client, :ready_to_play
+  attr_accessor :matches, :current_match, :name, :client
 
-  def initialize(name: "Anonymous", client: nil)
+  def initialize(name: nil, client: nil)
     @client = client
-    @name = name
+    @name = name || FAKENAMES.rotate![0]
     @matches = []
     @current_match = nil
     save
   end
 
+  def self.all
+    @@all
+  end
+
   def self.find(id, users_to_search = @@all )
-    users_to_search.each { |user| return user if user.object_id == id }
-    return nil
+    users_to_search.find { |user| user.object_id == id }
   end
 
   def add_match(match)

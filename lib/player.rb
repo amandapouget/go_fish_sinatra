@@ -1,18 +1,13 @@
 class Player
-  attr_accessor :name, :cards, :books, :icon, :robot
+  attr_accessor :name, :cards, :books, :icon
 
   @@icons = Dir.glob("./public/images/players/*.png")
 
-  def initialize(name: "Anonymous", robot: false)
+  def initialize(name: "Anonymous")
     @name = name
     @cards = []
     @books = []
     @icon = set_icon
-    @robot = robot
-  end
-
-  def make_robot
-    @robot = true
   end
 
   def set_icon

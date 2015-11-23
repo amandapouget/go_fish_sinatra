@@ -1,8 +1,9 @@
 class RobotUser
-  attr_reader :match, :think_time
+  attr_reader :match, :think_time, :name
 
-  def initialize(think_time = 0)
+  def initialize(think_time = 2.5)
     @think_time = think_time
+    @name = FAKENAMES.rotate![0]
   end
 
   def add_match(match)
@@ -10,12 +11,8 @@ class RobotUser
     match.add_observer(self)
   end
 
-  def name
-    'robot'
-  end
-
   def update(*args)
-    if (match.game.next_turn == player)
+    if (match.game.next_turn == player && !match.over)
       make_request
     end
   end
@@ -28,7 +25,10 @@ class RobotUser
     match.player(self)
   end
 
-  protected
+  def end_current_match
+  end
+
+protected
 
   def opponents
     match.opponents(player)
@@ -43,6 +43,7 @@ class RobotUser
   end
 
   def contemplate_before
+    puts match.message
     if think_time > 0
       Thread.start do
         sleep(think_time)
