@@ -89,8 +89,8 @@ describe Match do
     view_parsed = JSON.parse(view_in_json)
     expect(view_parsed["type"]).to eq "player_view"
     expect(view_parsed["message"]).to eq match.message
-    expect(view_parsed["player"] == JSON.parse(players[0].to_json)).to be true
-    expect(view_parsed["opponents"] == match.opponents(players[0]).map{ |opponent| JSON.parse(opponent.to_json) }).to be true
+    expect(view_parsed["player"]).to eq JSON.parse(players[0].to_json)
+    expect(view_parsed["opponents"]).to eq(match.opponents(players[0]).map{ |opponent| JSON.parse(opponent.to_json) })
     expect(view_parsed["scores"]).to match_array players.map { |player| [player.name, player.books.size] }.push(["Fish Left", match.game.deck.count_cards])
   end
 

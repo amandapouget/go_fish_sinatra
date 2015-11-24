@@ -93,11 +93,11 @@ class Server
   end
 
   def match_user(client, id)
-    user = User.find(id)
+    user = User.find_by(id: id)
     if user
       send_output(client, "Welcome back #{user.name}!")
     else
-      user = User.new(name: get_info(client, ASK_NAME))
+      user = User.create(name: get_info(client, ASK_NAME))
       send_output(client, "Welcome, #{user.name}! Your unique id is #{user.object_id}. Don't lose it! You'll need it to log in again as you play.")
     end
     user.client = client

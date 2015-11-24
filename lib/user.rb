@@ -15,16 +15,50 @@
 FAKENAMES = ["Marie", "Amanda", "Bob", "Charlie", "David", "Echo", "Frank", "Gertrude", "Helga", "Iggy", "Jaqueline", "Kevin", "Lillian"]
 
 class User < ActiveRecord::Base
-  attr_accessor :matches, :client
+  attr_accessor :matches, :current_match
   #
   # def initialize(name: nil, client: nil)
   #   @client = client
   #   @name = name || FAKENAMES.rotate![0]
   #   @matches = []
   # end
+  after_save :cache_client
+
+  def matches
+    @matches ||= []
+  end
 
   def add_match(match)
-    (@matches << match.object_id).uniq!
+    @current_match = match.object_id
+    (matches << @current_match).uniq!
+  end
+
+  def write_attribute(attribute, value)
+    self.client = value if (attribute == 'client')
+    super
+  end
+
+  def client=(client)
+    @client = client
+    cache_client
+  end
+
+  def client
+    if new_record?
+      @client
+    else
+      clients[id]
+    end
+  end
+
+  def cache_client
+    clients[id] = @client unless new_record?
+  end
+
+  private
+
+  def clients
+    @@clients ||= {}
   end
 end
 

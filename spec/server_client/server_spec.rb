@@ -13,7 +13,7 @@ def start_server_with_clients_and_users
   @server = Server.new.tap { |server| server.start }
   @clients = Array.new(3) { MockClient.new.tap { |client| client.start } }
   @client_sockets = Array.new(3) { @server.accept }
-  @users = Array.new(3) { |index| build(:user, client: @client_sockets[index]) }
+  @users = Array.new(3) { |index| create(:user, client: @client_sockets[index]) }
   @clients.each { |client| client.erase_output }
 end
 
@@ -91,7 +91,7 @@ describe Server do
 
     describe '#match_user' do
       it 'returns a user based on id if a good user id # is given, and sets the user.client to the clients[0]_socket' do
-        found_user = @server.match_user(@client_sockets[1], @users[0].object_id)
+        found_user = @server.match_user(@client_sockets[1], @users[0].id)
         expect(found_user).to eq @users[0]
         expect(found_user.client).to be_a TCPSocket
       end
@@ -107,13 +107,13 @@ describe Server do
 
     describe '#add_user' do
       it 'adds a user to @pending_users if the user does not have a match in progress' do
-        @server.add_user(@users[2].client, @users[2].object_id)
+        @server.add_user(@users[2].client, @users[2].id)
         expect(@server.pending_users).to include @users[2]
       end
 
       it 'does not add a user to @pending_users if the user does have a match in progress' do
         only_match_in_progress = Match.new([@users[0], @users[1]])
-        @server.add_user(@users[0].client, @users[0].object_id)
+        @server.add_user(@users[0].client, @users[0].id)
         expect(@server.pending_users).not_to include(@users[0]) && include(@users[1])
       end
     end
@@ -156,7 +156,7 @@ describe Server do
         @server.stop_connection(@client_sockets[1])
         @clients[1].start
         @client_sockets[1] = @server.accept
-        @server.match_user(@client_sockets[1], @users[1].object_id)
+        @server.match_user(@client_sockets[1], @users[1].id)
         @server.send_output(@match.users[1].client, "Reconnected!")
         expect(@clients[1].capture_output).to include "Reconnected!"
       end
