@@ -126,7 +126,7 @@ describe Player do
 
     describe '#to_json' do
       it 'returns a hash of the player name, cards, books and icon' do
-        expect(player.to_json).to eq "{\"name\":\"#{player.name}\",\"icon\":\"#{player.icon}\"}"
+        expect(player.to_json).to eq "{\"name\":\"#{player.name}\",\"cards\":#{player.cards.to_json},\"books\":#{player.books.to_json},\"icon\":#{player.icon.to_json}}"
       end
     end
 

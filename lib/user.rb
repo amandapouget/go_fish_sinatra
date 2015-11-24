@@ -16,12 +16,7 @@ FAKENAMES = ["Marie", "Amanda", "Bob", "Charlie", "David", "Echo", "Frank", "Ger
 
 class User < ActiveRecord::Base
   attr_accessor :matches, :current_match
-  #
-  # def initialize(name: nil, client: nil)
-  #   @client = client
-  #   @name = name || FAKENAMES.rotate![0]
-  #   @matches = []
-  # end
+
   after_save :cache_client
 
   def matches

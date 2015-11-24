@@ -48,10 +48,6 @@ class Player
   def out_of_cards?
     @cards==[]
   end
-
-  def to_json(*args)
-    hash = { name: name, icon: icon }.to_json(*args)
-  end
 end
 
 private

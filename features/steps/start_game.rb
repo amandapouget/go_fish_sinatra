@@ -9,7 +9,7 @@ class Spinach::Features::StartGame < Spinach::FeatureSteps
   end
 
   step 'the game is short one player' do
-    (@num_players - 2).times { match_maker.pending_users[@num_players] << build(:user) }
+    (@num_players - 2).times { match_maker.pending_users[@num_players] << create(:user) }
   end
 
   step 'the wrong kind of player joins' do

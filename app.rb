@@ -3,13 +3,20 @@ require 'sinatra'
 require 'sinatra/reloader'
 require 'sinatra/activerecord'
 require 'pusher'
+require 'pry'
 also_reload 'lib/**/*.rb'
 Dir.glob('lib/**/*.rb') { |file| require_relative file }
 
 Pusher.url = "https://39cc3ae7664f69e97e12:60bb9ff467a643cc4001@api.pusherapp.com/apps/151900"
+MyMatchMaker = MatchMaker.new
 
 def match_maker
-  @@match_maker ||= MatchMaker.new
+  MyMatchMaker
+end
+
+def start(match)
+  match.game.deal
+  MatchClientNotifier.new(match)
 end
 
 get '/' do
@@ -18,28 +25,28 @@ get '/' do
 end
 
 post '/wait' do
-  @user = User.new(name: params["name"])
+  @user = User.create(name: params["name"])
   @num_players = params["num_players"].to_i
   match = match_maker.match(@user, @num_players)
-  match.game.deal if match
+  start(match) if match
   slim :waiting_for_players
 end
 
 post '/subscribed' do
-  user = User.find(params["user_id"].to_i)
-  match = Match.all.find { |match| match.users.include? user }
-  Pusher.trigger("waiting_for_players_channel_#{user.object_id}", 'send_to_game_event', { message: "#{match.object_id}/player/#{match.users.index(user)}" }) if match
+  this_user = User.find(params["user_id"].to_i)
+  match = Match.all.find { |match| match.users.include? this_user }
+  match.users.each { |user| Pusher.trigger("waiting_for_players_channel_#{user.id}", 'send_to_game_event', { message: "#{match.object_id}/player/#{match.users.index(user)}" }) } if match
   return nil
 end
 
-post '/start_with_robots' do # broken because need to put the pusher back in matchclient or else it tries to play with robots before being subscribed AGAIN with the pusher issue :-(!!
+post '/start_with_robots' do
   user = User.find(params["user_id"].to_i)
   num_players = params["num_players"].to_i
   until @match
     @match = match_maker.match(RobotUser.new, num_players)
   end
-  @match.game.deal
-  Pusher.trigger("waiting_for_players_channel_#{user.object_id}", 'send_to_game_event', { message: "#{@match.object_id}/player/#{@match.users.index(user)}" })
+  start(@match)
+  Pusher.trigger("waiting_for_players_channel_#{user.id}", 'send_to_game_event', { message: "#{@match.object_id}/player/#{@match.users.index(user)}" })
   return nil
 end
 

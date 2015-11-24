@@ -37,10 +37,6 @@ class Card
     "the " + @rank + " of " + @suit
   end
 
-  def to_json(*args)
-    { rank: rank, suit: suit, icon: icon }.to_json(*args)
-  end
-
   def set_icon
     "#{ICON_SOURCE_PATH}#{suit[0]}#{rank_value}.png" if rank_value > 1 && SUITS.include?(suit)
   end

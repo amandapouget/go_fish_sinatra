@@ -71,12 +71,9 @@ class Match
 
   def view(player)
     return {
-      type: "player_view",
       message: @message,
       player: player,
-      player_cards: player.cards,
-      player_books: player.books,
-      opponents: opponents(player),
+      opponents: opponents(player).map { |opponent| {name: opponent.name, icon: opponent.icon} },
       scores: players.map { |player| [player.name, player.books.size] }.push(["Fish Left", game.deck.count_cards])
     }.to_json
   end

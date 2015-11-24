@@ -87,10 +87,10 @@ PlayerView.prototype.refresh = function() {
      },
      success: function(data){
        var playerInfo = JSON.parse(data);
-       this.setBooks(playerInfo.player_books);
+       this.setBooks(playerInfo.player.books);
        this.setScores(playerInfo.scores);
        this.setMessage(playerInfo.message);
-       this.setCards(playerInfo.player_cards);
+       this.setCards(playerInfo.player.cards);
      }.bind(this),
      error: function(data, text_status, error_thrown){
        console.log(data, text_status, error_thrown);

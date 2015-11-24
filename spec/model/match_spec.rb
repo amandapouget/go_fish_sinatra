@@ -65,9 +65,9 @@ describe Match do
     expect(match.deck_count).to eq match.game.deck.count_cards
   end
 
-  it 'returns nil when searching for a player or user that is not part of this match' do
+  it 'returns a nullobject when searching for a player or user that is not part of this match' do
     expect(match.user(build(:player))).to eq build(:null_user)
-    expect(match.player(build(:user))).to eq build(:null_player)
+    expect(match.player(create(:user))).to eq build(:null_player)
   end
 
   it 'can find a player when given a name' do
@@ -85,13 +85,11 @@ describe Match do
   it 'gives me the game from one player point of view' do
     players[0].add_card(build(:card))
     players[0].books = build(:book)
-    view_in_json = match.view(players[0])
-    view_parsed = JSON.parse(view_in_json)
-    expect(view_parsed["type"]).to eq "player_view"
-    expect(view_parsed["message"]).to eq match.message
-    expect(view_parsed["player"]).to eq JSON.parse(players[0].to_json)
-    expect(view_parsed["opponents"]).to eq(match.opponents(players[0]).map{ |opponent| JSON.parse(opponent.to_json) })
-    expect(view_parsed["scores"]).to match_array players.map { |player| [player.name, player.books.size] }.push(["Fish Left", match.game.deck.count_cards])
+    view = JSON.parse(match.view(players[0]))
+    expect(view["message"]).to eq match.message
+    expect(view["player"]).to eq JSON.parse(players[0].to_json)
+    expect(view["opponents"]).to eq match.opponents(players[0]).map { |opponent| {"name" => opponent.name, "icon" => opponent.icon} }
+    expect(view["scores"]).to eq players.map { |player| [player.name, player.books.size] }.push(["Fish Left", match.game.deck.count_cards])
   end
 
   describe 'can run a play' do
