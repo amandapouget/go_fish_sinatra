@@ -39,7 +39,7 @@ post '/subscribed' do
   return nil
 end
 
-post '/start_with_robots' do
+post '/start_with_robots' do # intermittent pusher failure here, hits the button before subscribed
   user = User.find(params["user_id"].to_i)
   num_players = params["num_players"].to_i
   until @match

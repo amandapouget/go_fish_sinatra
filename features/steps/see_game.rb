@@ -11,7 +11,7 @@ class Spinach::Features::SeeGame < Spinach::FeatureSteps
     visit_player_page
   end
 
-  step 'I can see: my cards, my score, the height of the stack of cards in the deck, my opponents, and what\'s happening in the game.' do
+  step 'I can see: my cards, the score, the height of the stack of cards in the deck, the players (name, icon), and what\'s happening in the game.' do
     expect_page_has_cards(my_cards)
     expect(page).to have_selector '#books'
     expect(page).to have_content @match.game.deck.count_cards

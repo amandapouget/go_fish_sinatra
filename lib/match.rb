@@ -73,7 +73,8 @@ class Match
     return {
       message: @message,
       player: player,
-      opponents: opponents(player).map { |opponent| {name: opponent.name, icon: opponent.icon} },
+      player_index: players.index(player),
+      opponents: opponents(player).map { |opponent| {index: players.index(opponent), name: opponent.name, icon: opponent.icon} },
       scores: players.map { |player| [player.name, player.books.size] }.push(["Fish Left", game.deck.count_cards])
     }.to_json
   end

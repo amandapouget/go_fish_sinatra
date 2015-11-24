@@ -45,6 +45,35 @@ PlayerView.prototype.setScores = function(scores) {
   });
 }
 
+PlayerView.prototype.setOpponents = function(opponents) {
+  var opponentsDiv = document.getElementById('opponents');
+  opponents.forEach( function(opponent, index) {
+    var opponentDiv = document.createElement('div');
+    opponentDiv.class = "player";
+    opponentDiv.id = "opponent_" + index;
+    // need to add in data-value for opponent.object_id, opponent.name
+    opponentsDiv.appendChild(opponentDiv);
+    this.insertPlayer(opponentDiv, opponent.name, opponent.icon);
+  }.bind(this));
+}
+
+PlayerView.prototype.setPlayer = function(player, index) {
+  var playerDiv = document.getElementById('player');
+  this.insertPlayer(playerDiv, player.name, player.icon);
+  this.setBooks(player.books);
+  this.setCards(player.cards);
+}
+
+PlayerView.prototype.insertPlayer = function(div, playerName, playerIcon) {
+  var h4 = document.createElement('h4');
+  var node = document.createTextNode(playerName);
+  h4.appendChild(node);
+  div.appendChild(h4);
+  var icon = document.createElement('img');
+  icon.src = playerIcon;
+  div.appendChild(icon);
+}
+
 PlayerView.prototype.setBooks = function(books) {
   var booksDiv = document.getElementById('books');
   var num_books_to_add = books.size - booksDiv.children.size + 1;
@@ -86,11 +115,12 @@ PlayerView.prototype.refresh = function() {
      complete: function(data){
      },
      success: function(data){
-       var playerInfo = JSON.parse(data);
-       this.setBooks(playerInfo.player.books);
-       this.setScores(playerInfo.scores);
-       this.setMessage(playerInfo.message);
-       this.setCards(playerInfo.player.cards);
+       debugger;
+       var gameInfo = JSON.parse(data);
+       this.setMessage(gameInfo.message);
+       this.setScores(gameInfo.scores);
+      //  this.setOpponents(gameInfo.opponents);
+       this.setPlayer(gameInfo.player, gameInfo.player_index);
      }.bind(this),
      error: function(data, text_status, error_thrown){
        console.log(data, text_status, error_thrown);

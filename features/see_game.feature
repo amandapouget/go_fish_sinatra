@@ -9,7 +9,7 @@ Feature: See Game
   @javascript
   Scenario: what I can see
     When I look at the game
-    Then I can see: my cards, my score, the height of the stack of cards in the deck, my opponents, and what's happening in the game.
+    Then I can see: my cards, the score, the height of the stack of cards in the deck, the players (name, icon), and what's happening in the game.
 
   @javascript
   Scenario: what I can't see

@@ -6,21 +6,18 @@ script src="/scripts/player.js"
 - else
   div class="opponents"
     - @opponents.each_with_index do |opponent, index|
-      div class="player" id="opponent_#{index}" data-value=opponent.object_id name=opponent.name
+      div class="player" id="opponent_#{index}" data-value=opponent.object_id
         h4 = opponent.name
         img src=opponent.icon
         img src="/images/cards/backs_blue.png"
   div class="pond"
     div id="speech"
       div id="message"
-        p = @match.message
     div id="fish_blue"
   div class="info-for-player"
     div class="score" id="books"
       h4 Your Books
-    div class="player" id="player" value=@player.object_id name=@player.name
-      h4 = @player.name
-      img src=@player.icon
+    div class="player" id="player" value=@player.object_id
     div class="score" id="score_header"
       h4 Score
       div class="score" id="scores"
