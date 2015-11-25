@@ -47,8 +47,9 @@ describe User do
     User.delete_all
   end
 
-  it 'has a name' do
+  it 'must have a name' do
     expect(user.name).to be > ""
+    expect(User.new.save).to be false
   end
 
   it 'stores the last known client socket connection' do

@@ -17,6 +17,8 @@ FAKENAMES = ["Marie", "Amanda", "Bob", "Charlie", "David", "Echo", "Frank", "Ger
 class User < ActiveRecord::Base
   attr_accessor :matches, :current_match
 
+  validates :name, presence: true
+
   after_save :cache_client
 
   def matches

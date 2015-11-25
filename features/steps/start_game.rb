@@ -3,7 +3,7 @@ class Spinach::Features::StartGame < Spinach::FeatureSteps
 
   step 'I am waiting for my game to start' do
     reset
-    @num_players = 3 # more sad magic number
+    @num_players = 3
     fill_form("Appleseed", @num_players)
     @user = match_maker.pending_users[@num_players][0]
   end
