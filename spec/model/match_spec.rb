@@ -8,11 +8,14 @@ describe Match do
   let(:users) { [User.create(name:"Bob"), User.create(name:"Fred"), User.create(name:"Amanda")] }
 
   it 'writes a match to database and reads it out with the right attributes' do
+    match.game.deal
+    match.save
     my_match_from_database = Match.find_by_id(match.id)
     expect(my_match_from_database.users).to eq users
     expect(my_match_from_database.users[0]).to be_a User
     expect(my_match_from_database.players.length).to eq users.length
     expect(my_match_from_database.players[0]).to be_a Player
+    expect(my_match_from_database.players[0].out_of_cards?).to be false
     expect(my_match_from_database.players[0].name).to eq my_match_from_database.users[0].name
     expect(my_match_from_database.game).to be_a Game
     expect(my_match_from_database.message).to eq my_match_from_database.players[0].name + Match::FIRST_PROMPT
@@ -76,9 +79,7 @@ describe Match do
       players[0].add_card(card_as)
       players[1].add_card(card_ah)
       match.run_play(players[0], players[1], "ace")
-      binding.pry
       match.reload
-      binding.pry
       expect(players[0].cards).to match_array [card_as, card_ah]
       expect(players[1].cards).to match_array [card_2h]
       expect(match.message).to eq "#{players[0].name} asked #{players[1].name} for aces & got cards! It's #{players[0].name}'s turn!"

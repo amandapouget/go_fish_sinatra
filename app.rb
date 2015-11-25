@@ -61,6 +61,9 @@ post '/:match_id/card_request' do
   match = Match.find_by_id(params["match_id"].to_i)
   opponent = match.players[params["opponent_index"].to_i]
   player = match.players[params["player_index"].to_i]
-  match.run_play(player, opponent, params["rank"]) if match.game.next_turn == player
+  if match.game.next_turn == player
+    match.run_play(player, opponent, params["rank"])
+    match.save
+  end
   return nil
 end

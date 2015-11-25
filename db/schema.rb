@@ -11,18 +11,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151125144538) do
+ActiveRecord::Schema.define(version: 20151125175950) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "matches", force: :cascade do |t|
-    t.boolean  "over", default: false, null: false
+    t.boolean  "over",       default: false, null: false
     t.text     "message"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "hand_size"
-    t.text     "game_info"
+    t.text     "game"
   end
 
   create_table "matches_users", id: false, force: :cascade do |t|
