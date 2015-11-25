@@ -65,10 +65,6 @@ class Match
     return @players.find { |player| player.name == name } || NullPlayer.new
   end
 
-  def player_from_id(id)
-    return @players.find { |player| player.object_id == id } || NullPlayer.new
-  end
-
   def view(player)
     return {
       message: @message,

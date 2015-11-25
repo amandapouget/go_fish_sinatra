@@ -74,10 +74,6 @@ describe Match do
     expect(match.player_from_name(players[0].name)).to eq players[0]
   end
 
-  it 'can find a player when given an object_id' do
-    expect(match.player_from_id(players[0].object_id)).to eq players[0]
-  end
-
   it 'returns a nullplayer if it cant find such a player' do
     expect(match.player_from_name("not_a_name")).to be_a NullPlayer
   end

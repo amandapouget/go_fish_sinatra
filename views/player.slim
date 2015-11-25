@@ -4,12 +4,7 @@ script src="/scripts/player.js"
 - if !@player
   == slim :no_player
 - else
-  div class="opponents"
-    - @opponents.each_with_index do |opponent, index|
-      div class="player" id="opponent_#{index}" data-value=opponent.object_id
-        h4 = opponent.name
-        img src=opponent.icon
-        img src="/images/cards/backs_blue.png"
+  div class="opponents" id="opponents"
   div class="pond"
     div id="speech"
       div id="message"
@@ -17,7 +12,7 @@ script src="/scripts/player.js"
   div class="info-for-player"
     div class="score" id="books"
       h4 Your Books
-    div class="player" id="player" value=@player.object_id
+    div class="player" id="player"
     div class="score" id="score_header"
       h4 Score
       div class="score" id="scores"

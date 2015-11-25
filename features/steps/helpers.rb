@@ -96,8 +96,8 @@ module GamePlay
   def make_opponent_request(match, player, opponent, rank)
     params = {
       'match_id' => match.object_id,
-      'player_object_id' => player.object_id,
-      'opponent_object_id' => opponent.object_id,
+      'player_index' => match.players.index(player),
+      'opponent_index' => match.players.index(opponent),
       'rank' => rank
     }
     post("/#{match.object_id}/card_request", params)
