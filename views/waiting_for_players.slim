@@ -4,8 +4,7 @@ script src="/scripts/waiting_for_players.js"
 h2 Waiting for players...
 div id="game_info" data-user_id=@user.id data-num_players= @num_players
 div class="form"
-  form action='/start_with_robots' method='post'
+  form action='/start_with_robots' method='post' id='robot_form'
     input type='hidden' name='user_id' value=@user.id
     input type='hidden' name='num_players' value=@num_players
-    button type='submit' class='button' Play With Robots
 br

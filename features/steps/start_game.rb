@@ -26,7 +26,7 @@ class Spinach::Features::StartGame < Spinach::FeatureSteps
   end
 
   step 'it starts our game' do
-    expect(page.has_current_path?(/.*\/player\/.*/)).to be true
+    expect(page).to have_current_path /.*\/player\/.*/
     expect(page).to have_content(@user.name)
     expect(page).to have_content('Go Fish')
     expect(match_maker.pending_users[@num_players]).not_to include @user
