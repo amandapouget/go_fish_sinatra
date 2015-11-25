@@ -1,56 +1,36 @@
-# class List < ActiveRecord::Base
-#   has_many :tasks
-# end
-
 require_relative 'game'
 require_relative 'player'
 require_relative 'user'
 require 'observer'
 
-class Match
-  include Observable
+class Match < ActiveRecord::Base
+  # include Observable
 
-  attr_accessor :game, :users, :players, :over, :message
+  has_and_belongs_to_many :users
+  serialize :game_info
+  after_initialize :set_first_message
+
   FIRST_PROMPT = ", click card, player & me to request cards!"
-  @@all = []
 
-  def initialize(users = [], hand_size: 5)
-    @users = users
-    @users.each { |user| user.add_match(self) }
-    @players = @users.map { |user| Player.new(name: user.name) }
-    @game = Game.new(players: @players, hand_size: hand_size)
-    @over = false
-    @message = @players[0].name + FIRST_PROMPT
+  def set_first_message
+    self.message = players[0].name + FIRST_PROMPT
     save
   end
 
-  def save
-    (@@all << self).uniq!
+  def players
+    game.players
   end
 
-  def self.all
-    @@all
-  end
-
-  def self.clear
-    @@all = []
-  end
-
-  def self.find(id)
-    @@all.each { |match| return match if match.object_id == id }
-    return nil
+  def game
+    @game ||= self.game_info = Game.new(players: players = self.users.map { |user| Player.new(name: user.name) }, hand_size: self.hand_size)
   end
 
   def user(player)
-    user_index = @players.index(player)
-    return @users[user_index] unless !user_index
-    return NullUser.new
+    players.include?(player) ? users[players.index(player)] : NullUser.new
   end
 
   def player(user)
-    player_index = @users.index(user)
-    return @players[player_index] unless !player_index
-    return NullPlayer.new
+    users.include?(user) ? players[users.index(user)] : NullPlayer.new
   end
 
   def opponents(player)
@@ -62,12 +42,12 @@ class Match
   end
 
   def player_from_name(name) # currently doesn't account for users with the same name
-    return @players.find { |player| player.name == name } || NullPlayer.new
+    return players.find { |player| player.name == name } || NullPlayer.new
   end
 
   def view(player)
     return {
-      message: @message,
+      message: self.message,
       player: player,
       player_index: players.index(player),
       opponents: opponents(player).map { |opponent| {index: players.index(opponent), name: opponent.name, icon: opponent.icon} },
@@ -77,19 +57,21 @@ class Match
 
   def run_play(player, opponent, rank) # encapsulate the crap
     rank == "six" ? rank_word = "sixe" : rank_word = rank
-    @message = "#{player.name} asked #{opponent.name} for #{rank_word}s &"
+    self.message = "#{player.name} asked #{opponent.name} for #{rank_word}s &"
     if @game.make_request(player, opponent, rank).won_cards?
-      @message += " got cards"
+      self.message += " got cards"
     else
-      @message += " went fish"
-      @message += " & got one" if rank == @game.go_fish(player, rank).rank
+      self.message += " went fish"
+      self.message += " & got one" if rank == @game.go_fish(player, rank).rank
     end
     end_match if @game.game_over?
-    over ? @message += "! Game over! Winner: #{@game.winner.name}" : @message += "! It's #{game.next_turn.name}'s turn!"
-    changed; notify_observers
+    over ? self.message += "! Game over! Winner: #{@game.winner.name}" : self.message += "! It's #{game.next_turn.name}'s turn!"
+    save
+    # changed; notify_observers
   end
 
+
   def end_match
-    @over = true
+    update_attributes(over: true)
   end
 end

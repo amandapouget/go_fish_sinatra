@@ -11,8 +11,6 @@ end
 require_all '../lib/'
 require_all '../spec/factories'
 
-ActiveRecord::Migration.maintain_test_schema!
-
 RSpec.configure do |config|
   config.include FactoryGirl::Syntax::Methods
   config.after(:each) do

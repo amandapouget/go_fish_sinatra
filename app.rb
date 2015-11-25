@@ -35,7 +35,7 @@ end
 post '/subscribed' do
   this_user = User.find(params["user_id"].to_i)
   match = Match.all.find { |match| match.users.include? this_user }
-  match.users.each { |user| Pusher.trigger("waiting_for_players_channel_#{user.id}", 'send_to_game_event', { message: "#{match.object_id}/player/#{match.users.index(user)}" }) } if match
+  match.users.each { |user| Pusher.trigger("waiting_for_players_channel_#{user.id}", 'send_to_game_event', { message: "#{match.id}/player/#{match.users.index(user)}" }) } if match
   return nil
 end
 
@@ -46,19 +46,19 @@ post '/start_with_robots' do
     @match = match_maker.match(RobotUser.new, num_players)
   end
   start(@match)
-  Pusher.trigger("waiting_for_players_channel_#{user.id}", 'send_to_game_event', { message: "#{@match.object_id}/player/#{@match.users.index(user)}" })
+  Pusher.trigger("waiting_for_players_channel_#{user.id}", 'send_to_game_event', { message: "#{@match.id}/player/#{@match.users.index(user)}" })
   return nil
 end
 
 get '/:match_id/player/:player_index.?:format?' do
-  @match = Match.find(params["match_id"].to_i)
+  @match = Match.find_by_id(params["match_id"].to_i)
   @player = @match.players[params["player_index"].to_i] if @match
   @opponents = @match.opponents(@player) if @player
   params['format'] == 'json' ? @match.view(@player).to_json : slim(:player)
 end
 
 post '/:match_id/card_request' do
-  match = Match.find(params["match_id"].to_i)
+  match = Match.find_by_id(params["match_id"].to_i)
   opponent = match.players[params["opponent_index"].to_i]
   player = match.players[params["player_index"].to_i]
   match.run_play(player, opponent, params["rank"]) if match.game.next_turn == player

@@ -63,7 +63,7 @@ describe User do
   it 'knows what matches it has played but does not allow duplicates' do
     2.times { user.add_match(match) }
     user.add_match(match2)
-    expect(user.matches).to match_array [match.object_id, match2.object_id]
+    expect(user.matches).to match_array [match.id, match2.id]
   end
 
   describe NullUser do

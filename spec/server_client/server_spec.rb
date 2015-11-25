@@ -139,7 +139,7 @@ describe Server do
         expect(match).to be_a Match
         @users.each do |user|
           expect(match.users).to include user
-          expect(Match.find(user.current_match)).to eq match
+          expect(Match.find_by_id(user.current_match)).to eq match
         end
       end
     end

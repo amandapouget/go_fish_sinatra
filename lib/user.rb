@@ -18,7 +18,7 @@ class User < ActiveRecord::Base
   attr_accessor :matches, :current_match
 
   validates :name, presence: true
-
+  has_and_belongs_to_many :matches
   after_save :cache_client
 
   def matches
@@ -26,7 +26,7 @@ class User < ActiveRecord::Base
   end
 
   def add_match(match)
-    @current_match = match.object_id
+    @current_match = match.id
     (matches << @current_match).uniq!
   end
 

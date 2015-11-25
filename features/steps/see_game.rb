@@ -34,7 +34,7 @@ class Spinach::Features::SeeGame < Spinach::FeatureSteps
   end
 
   step 'I visit the wrong page' do
-    visit "/#{@match.object_id}/player/#{@match.players.size}"
+    visit "/#{@match.id}/player/#{@match.players.size}"
   end
 
   step 'I get a funny error message' do

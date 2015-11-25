@@ -9,7 +9,7 @@ class MatchClientNotifier
   end
 
   def update(*args)
-    push("game_play_channel_#{@match.object_id}", 'refresh_event')
+    push("game_play_channel_#{@match.id}", 'refresh_event')
   end
 
   def push(channel, event, message = "reload page")

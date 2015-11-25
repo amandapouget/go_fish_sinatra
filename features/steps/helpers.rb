@@ -6,7 +6,7 @@ module FreshGameCreate
 
   def reset
     match_maker.pending_users.each_key { |num_players| match_maker.pending_users[num_players] = [] }
-    Match.clear
+    Match.destroy_all
   end
 
   def fill_form(name, num_players)
@@ -61,7 +61,7 @@ module FreshGameCreate
   end
 
   def visit_player_page
-    visit "/#{@match.object_id}/player/0"
+    visit "/#{@match.id}/player/0"
     expect_page_ready
   end
 
@@ -95,11 +95,11 @@ module GamePlay
 
   def make_opponent_request(match, player, opponent, rank)
     params = {
-      'match_id' => match.object_id,
+      'match_id' => match.id,
       'player_index' => match.players.index(player),
       'opponent_index' => match.players.index(opponent),
       'rank' => rank
     }
-    post("/#{match.object_id}/card_request", params)
+    post("/#{match.id}/card_request", params)
   end
 end
