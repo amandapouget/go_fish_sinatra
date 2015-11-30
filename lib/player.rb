@@ -1,9 +1,10 @@
 class Player
-  attr_accessor :name, :cards, :books, :icon
+  attr_accessor :name, :cards, :books, :icon, :user_id
 
   @@icons = Dir.glob("./public/images/players/*.png")
 
-  def initialize(name: "Anonymous")
+  def initialize(name: "Anonymous", user_id: nil)
+    @user_id = user_id
     @name = name
     @cards = []
     @books = []
@@ -48,7 +49,6 @@ class Player
   def out_of_cards?
     @cards==[]
   end
-end
 
 private
   def make_books_and_sort_cards
@@ -57,9 +57,10 @@ private
     rank_totals.each { |rank_name, rank_total|  @books << request_cards(self, rank_name) if rank_total == 4 }
     @cards = @cards.sort_by { |card| card.rank_value }
   end
+end
 
 class NullPlayer < Player
-  attr_accessor :name, :cards, :books
+  attr_accessor :name, :cards, :books, :user_id
 
   def initialize
     @name = "none"

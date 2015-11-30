@@ -8,8 +8,44 @@ Fix the icons thing (pull out to front end)
 player_from_name(info == nullplayer)
 lots of other places you could use “find”
 
-finish json!!!!!!
-
 change it so the robots aren't always Anonymous
 
 yank out the "current_match" stuff for simultaneous games
+
+-[ ] Show this in GitHub
+-[ ] Probably do not need `robot` in User or Player
+-[ ] Clean up factories with robots
+-[ ] Examine whether Player really has to have a name that comes from the user
+-[ ] Examine end_current_match for RobotUser and if we really need it
+-[ ] Think about putting contemplate_before in a more generic place
+
+remove all jQuery
+post is redirecting 1/25 times, why?
+auto-update test database
+user: def current_match pulls from database by timestamp end
+ActiveRecord & Inheritance STI (User, RealUser, RobotUser (type will be done automatically))
+remove players[0] == users[0] assumption throughout code (encapsulate in match.user(player))
+
+refactor to tests pass + all of the above
+tests for robot user matches
+factories
+search every method; remove the uncalled :-)
+etc
+
+make a player be able to leave the game and be replaced by robot (with timeout)
+
+player_index should really use user.id!
+
+
+ROUTES in Rails
+config/routes.rb some set of requests (route them to a specific controller)
+RESTful interfaces (REpresentational State Transfer)
+look at the Rails Guide to Controllers
+your app.rb will be turned into a controller and you'll have a config/routes.rb, might have multiple controllers
+
+TASK PRIORITIES
+make tests pass
+upgrade to Rails
+make user_history/view_user/create_user pages, just needs to have an identifier (not username/password), "rankings" page [see slack directions]
+
+IN TWO WEEKS YOU NEED TO HAVE THE BASICS OF RAILS DOWN

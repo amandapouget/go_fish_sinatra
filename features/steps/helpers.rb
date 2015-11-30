@@ -23,8 +23,8 @@ module FreshGameCreate
   def start_three_game(users:, robots:)
     @num_players = 3
     until @match do
-      users.times { @match = match_maker.match(create(:user), 3) }
-      robots.times { @match = match_maker.match(build(:robot_user), 3) }
+      users.times { @match = match_maker.match(create(:real_user), 3) }
+      robots.times { @match = match_maker.match(create(:robot_user), 3) }
     end
     MatchClientNotifier.new(@match)
     @me_player = @match.players.find { |player| player.is_a? Player }

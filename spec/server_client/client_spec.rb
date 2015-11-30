@@ -81,14 +81,17 @@ describe Client do
   end
 
   context 'second user is connected and game is in progress' do
+    let!(:match) { create(:match) }
+
     before do
       server.start
       client.start
       client2.start
       @client_socket = server.socket.accept
       @client2_socket = server.socket.accept
-      @match = Match.new([User.new(name: "Amanda", client: @client_socket), User.new(name: "Vianney", client: @client2_socket)])
-      @match.game.deal
+      match.users[0].client = @client_socket
+      match.users[1].client = @client2_socket
+      match.game.deal
     end
 
     after do
@@ -98,13 +101,13 @@ describe Client do
     end
 
     it 'interprets json and prints match state' do
-      server.tell_match(@match)
+      server.tell_match(match)
       putted = capture_stdout { client.puts_message }
       # build expect for new style json ouput
     end
 
     it 'interprets json and prints player state correctly' do
-      server.tell_player_his_view(@match, @match.users[0])
+      server.tell_player_his_view(match, match.users[0])
       putted = capture_stdout { client.puts_message }
       # build expect for new style json ouput
     end

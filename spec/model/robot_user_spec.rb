@@ -1,15 +1,27 @@
 require 'spec_helper'
 
 describe RobotUser do
-  let(:user) { build(:robot_user) }
-  let(:other_user) { build(:robot_user) }
-  let(:match) { build(:match, :dealt, users: [user, other_user]) }
+  let!(:user) { create(:robot_user) }
+  let!(:other_user) { create(:robot_user) }
+  let!(:match) { create(:match, :dealt, users: [user, other_user]) }
 
-  it 'makes a play if it is his turn' do
+  it 'makes a play when it is his turn' do
+    start_cards = user.player.cards
     match.game.next_turn = user.player
-    match.changed
-    allow(match).to receive(:run_play).and_return(nil)
-    match.notify_observers
-    expect(match).to have_received(:run_play).with(user.player, any_args)
+    match.save
+    user.make_play(match)
+    expect(user.player.cards).not_to match_array start_cards
+  end
+
+  it 'does nothing if it is not his turn' do
+    start_cards = user.player.cards
+    match.game.next_turn = other_user.player
+    match.save
+    user.make_play(match)
+    expect(user.player.cards).to match_array start_cards
+  end
+
+  it 'has a name that matches its player name' do
+    expect(user.name).to eq match.player(user).name
   end
 end

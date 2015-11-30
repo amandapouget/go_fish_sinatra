@@ -1,20 +1,26 @@
 require_relative 'game'
 require_relative 'player'
 require_relative 'user'
-require 'observer'
 
 class Match < ActiveRecord::Base
-  # include Observable
-
   has_and_belongs_to_many :users
   serialize :game
-  after_initialize :set_defaults
+  after_create :set_defaults, :save
+  after_save :notify_observers
 
   FIRST_PROMPT = ", click card, player & me to request cards!"
 
   def set_defaults
-    self.game ||= Game.new(players: self.users.map { |user| Player.new(name: user.name) }, hand_size: self.hand_size)
+    self.game ||= Game.new(players: self.users.map { |user| Player.new(name: user.name, user_id: user.id) }, hand_size: self.hand_size)
     self.message ||= game.next_turn.name + FIRST_PROMPT
+  end
+
+  def notify_observers
+    match_client_notifier.after_save(self)
+  end
+
+  def match_client_notifier
+    @match_client_notifier ||= MatchClientNotifier.new
   end
 
   def players
@@ -22,22 +28,18 @@ class Match < ActiveRecord::Base
   end
 
   def user(player)
-    players.include?(player) ? users[players.index(player)] : NullUser.new
+    User.find_by_id(player.user_id) || NullUser.new
   end
 
   def player(user)
-    users.include?(user) ? players[users.index(user)] : NullPlayer.new
+    players.find { |player| player.user_id == user.id } || NullPlayer.new
   end
 
   def opponents(player)
     players.clone.tap { |players| players.rotate!(players.index(player)).shift }
   end
 
-  def deck_count
-    game.deck.count_cards
-  end
-
-  def player_from_name(name) # currently doesn't account for users with the same name
+  def player_from_name(name)
     return players.find { |player| player.name == name } || NullPlayer.new
   end
 
@@ -63,9 +65,8 @@ class Match < ActiveRecord::Base
     end_match if game.game_over?
     over ? self.message += "! Game over! Winner: #{game.winner.name}" : self.message += "! It's #{game.next_turn.name}'s turn!"
     save
-    # changed; notify_observers
+    game.next_turn.make_play(self) if game.next_turn.is_a?(RobotUser)
   end
-
 
   def end_match
     update_attributes(over: true)

@@ -1,7 +1,7 @@
 FactoryGirl.define do
   factory :player do
     name { FAKENAMES.rotate![0] }
-    initialize_with { new(name: name) }
+    user_id nil
     transient { cards [] }
 
     after(:build) do |player, evaluator|

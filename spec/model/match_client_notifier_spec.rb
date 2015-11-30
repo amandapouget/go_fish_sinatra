@@ -1,13 +1,12 @@
 require 'spec_helper'
 
 describe MatchClientNotifier do
-  let(:match) { build(:match) }
-  let(:notifier) { MatchClientNotifier.new(match) }
+  let(:match) { create(:match) }
+  let(:notifier) { match.match_client_notifier }
 
   it 'pushes notification to subscribers when match updates' do
-    allow(notifier).to receive(:push)
-    expect(notifier).to receive(:push).with("game_play_channel_#{match.id}", 'refresh_event')
-    match.changed
-    match.notify_observers
+    allow(notifier).to receive(:after_save)
+    expect(notifier).to receive(:after_save)
+    match.save
   end
 end

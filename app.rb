@@ -7,6 +7,8 @@ require 'pry'
 also_reload 'lib/**/*.rb'
 Dir.glob('lib/**/*.rb') { |file| require_relative file }
 
+# ActiveRecord::Base.add_observer MatchClientNotifier.instance
+
 Pusher.url = "https://39cc3ae7664f69e97e12:60bb9ff467a643cc4001@api.pusherapp.com/apps/151900"
 MyMatchMaker = MatchMaker.new
 
@@ -25,7 +27,7 @@ get '/' do
 end
 
 post '/wait' do
-  @user = User.create(name: params["name"])
+  @user = RealUser.create(name: params["name"])
   @num_players = params["num_players"].to_i
   match = match_maker.match(@user, @num_players)
   start(match) if match

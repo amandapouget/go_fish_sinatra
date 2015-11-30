@@ -2,8 +2,9 @@ require 'spec_helper'
 
 describe Player do
   describe '#initialize' do
-    it 'creates a player object with a name, an icon, an array for holding cards, and an array for holding books' do
+    it 'creates a player object with a user_id, a name, an icon, an array for holding cards, and an array for holding books' do
       player = Player.new(name: "John")
+      expect(player.user_id).to eq nil
       expect(player.name).to eq "John"
       expect(player.cards).to eq []
       expect(player.books).to eq []
@@ -126,7 +127,7 @@ describe Player do
 
     describe '#to_json' do
       it 'returns a hash of the player name, cards, books and icon' do
-        expect(player.to_json).to eq "{\"name\":\"#{player.name}\",\"cards\":#{player.cards.to_json},\"books\":#{player.books.to_json},\"icon\":#{player.icon.to_json}}"
+        expect(player.to_json).to eq "{\"user_id\":null,\"name\":\"#{player.name}\",\"cards\":#{player.cards.to_json},\"books\":#{player.books.to_json},\"icon\":#{player.icon.to_json}}"
       end
     end
 

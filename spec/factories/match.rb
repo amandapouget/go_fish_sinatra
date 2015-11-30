@@ -2,12 +2,14 @@ FactoryGirl.define do
   factory :match do
     transient do
       num_players MIN_PLAYERS
-      users { build_list(:user, num_players) }
     end
-    initialize_with { new(users) }
+    users { create_list(:real_user, num_players) }
 
     trait :dealt do
-      after(:build) { |match| match.game.deal }
+      after(:create) do |match|
+        match.game.deal
+        match.save
+      end
     end
   end
 end

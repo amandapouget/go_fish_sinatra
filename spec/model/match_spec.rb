@@ -1,40 +1,43 @@
 require 'spec_helper'
 
 describe Match do
-  # let(:match) { build(:match, num_players: MAX_PLAYERS) }
-  # let(:users) { match.users }
+  let(:match) { create(:match, num_players: MAX_PLAYERS) }
+  let(:match_from_database) { Match.find_by_id(match.id) }
   let(:players ) { match.players }
-  let(:match) { Match.create(users: users, hand_size: 5) }
-  let(:users) { [User.create(name:"Bob"), User.create(name:"Fred"), User.create(name:"Amanda")] }
+  let(:users) { match.users }
 
   it 'writes a match to database and reads it out with the right attributes' do
-    match.game.deal
-    match.save
-    my_match_from_database = Match.find_by_id(match.id)
-    expect(my_match_from_database.users).to eq users
-    expect(my_match_from_database.users[0]).to be_a User
-    expect(my_match_from_database.players.length).to eq users.length
-    expect(my_match_from_database.players[0]).to be_a Player
-    expect(my_match_from_database.players[0].out_of_cards?).to be false
-    expect(my_match_from_database.players[0].name).to eq my_match_from_database.users[0].name
-    expect(my_match_from_database.game).to be_a Game
-    expect(my_match_from_database.message).to eq my_match_from_database.players[0].name + Match::FIRST_PROMPT
-    expect(my_match_from_database.over).to eq false
-    expect(my_match_from_database.hand_size).to eq 5
+    expect(match_from_database.users[0]).to be_a User
+    expect(match_from_database.players[0]).to be_a Player
+    expect(match_from_database.game).to be_a Game
+    expect(match_from_database.users).to match_array users
+    expect(players.map { |player| player.name }).to match_array users.map { |user| user.name }
+    expect(match_from_database.message).to eq match_from_database.players[0].name + Match::FIRST_PROMPT
+    expect(match_from_database.over).to eq false
+    expect(match_from_database.hand_size).to eq match.hand_size
+  end
+
+  it 'creates the game correctly upon creation (as opposed to after database retrieval)' do
+    expect(match.game).to be_a Game
+    expect(players.map { |player| player.name }).to match_array users.map { |user| user.name }
   end
 
   it 'can tell you which player is matched to one of its users' do
-    expect(match.player(users[0])).to eq players[0]
+    user = users[0]
+    found_player = match.player(user)
+    expect(found_player.name).to eq user.name
   end
 
   it 'can tell you which user is matched to one of its players' do
-    expect(match.user(players[0])).to eq users[0]
+    player = match.players[0]
+    found_user = match.user(player)
+    expect(found_user.name).to eq player.name
   end
 
-  # it 'returns a nullobject when searching for a player or user that is not part of this match' do
-  #   expect(match.user(build(:player))).to eq build(:null_user)
-  #   expect(match.player(create(:user))).to eq build(:null_player)
-  # end
+  it 'returns a nullobject when searching for a player or user that is not part of this match' do
+    expect(match.user(build(:player))).to eq build(:null_user)
+    expect(match.player(create(:real_user))).to eq build(:null_player)
+  end
 
   it 'can tell you a players opponents' do
     expect(match.opponents(players[0])).to match_array players[1...players.size]
@@ -49,7 +52,7 @@ describe Match do
   end
 
   it 'can tell you how many cards are left in the game deck' do
-    expect(match.deck_count).to eq match.game.deck.count_cards
+    expect(match.game.deck.count_cards).to eq match.game.deck.count_cards
   end
 
   it 'can find a player when given a name' do
@@ -85,10 +88,11 @@ describe Match do
       expect(match.message).to eq "#{players[0].name} asked #{players[1].name} for aces & got cards! It's #{players[0].name}'s turn!"
     end
 
-    it 'works when a player does not win cards, goes fish, and gets card he was looking for' do
+    it 'works when a player does not win cards, goes fish, and gets the card he was looking for' do
       players[0].add_card(card_as)
       match.game.deck.cards.unshift(card_ah)
       match.run_play(players[0], players[1], "ace")
+      match.reload
       expect(players[0].cards).to match_array [card_as, card_ah]
       expect(players[1].cards).to match_array [card_2h]
       expect(match.message).to eq "#{players[0].name} asked #{players[1].name} for aces & went fish & got one! It's #{players[0].name}'s turn!"
@@ -98,6 +102,7 @@ describe Match do
       players[0].add_card(card_as)
       match.game.deck.cards.unshift(card_2d)
       match.run_play(players[0], players[1], "ace")
+      match.reload
       expect(players[0].cards).to match_array [card_as, card_2d]
       expect(players[1].cards).to match_array [card_2h]
       expect(match.message).to eq "#{players[0].name} asked #{players[1].name} for aces & went fish! It's #{players[1].name}'s turn!"
@@ -106,6 +111,7 @@ describe Match do
     it 'works when the game is over as a result' do
       players[0].add_card(card_2d)
       match.run_play(players[0], players[1], "two")
+      match.reload
       expect(players[0].cards).to match_array [card_2d, card_2h]
       expect(players[1].cards).to match_array []
       expect(match.message).to eq "#{players[0].name} asked #{players[1].name} for twos & got cards! Game over! Winner: none"
@@ -122,12 +128,14 @@ describe Match do
 
   it 'can end itself' do
     match.end_match
+    match.reload
     expect(match.over).to be true
   end
 
   it 'can tell you if it has been ended' do
     expect(match.over).to be false
     match.end_match
+    match.reload
     expect(match.over).to be true
   end
 end

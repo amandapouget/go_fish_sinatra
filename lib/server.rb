@@ -97,7 +97,7 @@ class Server
     if user
       send_output(client, "Welcome back #{user.name}!")
     else
-      user = User.create(name: get_info(client, ASK_NAME))
+      user = RealUser.create(name: get_info(client, ASK_NAME))
       send_output(client, "Welcome, #{user.name}! Your unique id is #{user.id}. Don't lose it! You'll need it to log in again as you play.")
     end
     user.client = client
@@ -105,7 +105,7 @@ class Server
   end
 
   def make_match(users)
-    Match.new(users, hand_size: HAND_SIZE)
+    Match.create(users: users, hand_size: HAND_SIZE)
   end
 
   def play_match(match) # need to tell the players who they are playing

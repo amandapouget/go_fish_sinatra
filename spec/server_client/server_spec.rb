@@ -13,7 +13,7 @@ def start_server_with_clients_and_users
   @server = Server.new.tap { |server| server.start }
   @clients = Array.new(3) { MockClient.new.tap { |client| client.start } }
   @client_sockets = Array.new(3) { @server.accept }
-  @users = Array.new(3) { |index| create(:user, client: @client_sockets[index]) }
+  @users = Array.new(3) { |index| create(:real_user, client: @client_sockets[index]) }
   @clients.each { |client| client.erase_output }
 end
 
@@ -112,7 +112,7 @@ describe Server do
       end
 
       it 'does not add a user to @pending_users if the user does have a match in progress' do
-        only_match_in_progress = Match.new([@users[0], @users[1]])
+        only_match_in_progress = Match.create(users: [@users[0], @users[1]])
         @server.add_user(@users[0].client, @users[0].id)
         expect(@server.pending_users).not_to include(@users[0]) && include(@users[1])
       end
@@ -133,7 +133,6 @@ describe Server do
     end
 
     describe '#make_match' do
-      after { @users.each { |user| user.current_match = nil } }
       it 'takes two users and starts a match with those users' do
         match = @server.make_match(@users)
         expect(match).to be_a Match
@@ -150,7 +149,6 @@ describe Server do
     after { @server.stop }
 
     describe 'find_client' do
-      after { @users.each { |user| user.current_match = nil } }
       it 'rejoins a lost user to the game it was in before it was disconnected' do
         @match = @server.make_match(@users)
         @server.stop_connection(@client_sockets[1])
