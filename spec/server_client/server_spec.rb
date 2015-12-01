@@ -213,10 +213,12 @@ describe Server do
         end
 
         it 'tells the player he must go fish, waits for input, then makes the player go fish and then tells him what he drew' do
-          count = @match.players[2].count_cards
+          user = @match.users[2]
+          player = @match.player(user)
+          count = player.count_cards
           @clients[2].provide_input("\n")
-          @server.play_fish(@match, @users[2], "any rank")
-          expect(@match.players[2].count_cards).to eq count + 1
+          @server.play_fish(@match, user, "any rank")
+          expect(player.count_cards).to eq count + 1
           expect(@clients[2].output).to include(Server::GO_FISH) && include("You drew")
         end
       end
@@ -252,7 +254,7 @@ describe Server do
 
       describe '#tell_match' do
         it 'tells every player about the match from his point of view (message, cards, books, etc)' do
-          @clients.each { |client| client.erase_output }
+          @clients.each { |client| client.erase_output until client.output == "" }
           @server.tell_match(@match)
           num = rand(3)
           output = @clients[num].output

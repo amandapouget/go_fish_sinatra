@@ -3,7 +3,6 @@ require 'sinatra'
 require 'sinatra/reloader'
 require 'sinatra/activerecord'
 require 'pusher'
-require 'pry'
 also_reload 'lib/**/*.rb'
 Dir.glob('lib/**/*.rb') { |file| require_relative file }
 
@@ -36,7 +35,7 @@ end
 
 post '/subscribed' do
   this_user = User.find(params["user_id"].to_i)
-  match = Match.all.find { |match| match.users.include? this_user }
+  match = this_user.matches.sort_by { |match| match.created_at }.last
   match.users.each { |user| Pusher.trigger("waiting_for_players_channel_#{user.id}", 'send_to_game_event', { message: "#{match.id}/player/#{user.id}" }) } if match
   return nil
 end
@@ -44,11 +43,9 @@ end
 post '/start_with_robots' do
   user = User.find(params["user_id"].to_i)
   num_players = params["num_players"].to_i
-  until @match
-    @match = match_maker.match(RobotUser.new, num_players)
-  end
-  start(@match)
-  Pusher.trigger("waiting_for_players_channel_#{user.id}", 'send_to_game_event', { message: "#{@match.id}/player/#{user.id}" })
+  match = match_maker.match(RobotUser.new, num_players) until match
+  start(match)
+  redirect "/#{match.id}/player/#{user.id}"
   return nil
 end
 
@@ -66,8 +63,6 @@ post '/card_request' do
   match = Match.find_by_id(params["matchId"].to_i)
   opponent = match.players.find { |player| player.user_id == params["opponentUserId"].to_i }
   player = match.players.find { |player| player.user_id == params["playerUserId"].to_i }
-  if match.game.next_turn.user_id == player.user_id
-    match.run_play(player, opponent, params["rank"])
-  end
+  match.run_play(player, opponent, params["rank"])
   return nil
 end

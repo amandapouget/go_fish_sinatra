@@ -7,12 +7,12 @@ describe Match do
   let(:users) { match.users }
 
   it 'writes a match to database and reads it out with the right attributes' do
-    expect(match_from_database.users[0]).to be_a User
-    expect(match_from_database.players[0]).to be_a Player
+    expect(match_from_database.users.sample).to be_a User
+    expect(match_from_database.players.sample).to be_a Player
     expect(match_from_database.game).to be_a Game
     expect(match_from_database.users).to match_array users
     expect(players.map { |player| player.name }).to match_array users.map { |user| user.name }
-    expect(match_from_database.message).to eq match_from_database.players[0].name + Match::FIRST_PROMPT
+    expect(match.message).to eq match.game.next_turn.name + Match::FIRST_PROMPT
     expect(match_from_database.over).to eq false
     expect(match_from_database.hand_size).to eq match.hand_size
   end
@@ -23,7 +23,7 @@ describe Match do
   end
 
   it 'can tell you which player is matched to one of its users' do
-    user = users[0]
+    user = users.sample
     found_player = match.player(user)
     expect(found_player.name).to eq user.name
   end
@@ -78,6 +78,13 @@ describe Match do
     [:card_as, :card_ah, :card_2h, :card_2d].each { |card| let(card) { build(card) } }
     before { players[1...players.size].each { |player| player.cards = [card_2h] } }
 
+    it 'does nothing when its not a players turn' do
+      match.game.next_turn = match.players[0]
+      number_of_plays = match.game.requests.length
+      match.run_play(players[1], players[0], players[1].cards.sample.rank)
+      expect(match.game.requests.length).to eq number_of_plays
+    end
+
     it 'works when a player wins cards' do
       players[0].add_card(card_as)
       players[1].add_card(card_ah)
@@ -115,17 +122,22 @@ describe Match do
     end
   end
 
-  describe 'run play when some users are robots' do
+  describe 'correctly handles matches with robot players' do
     let(:real_user) { create(:real_user) }
     let(:real_player) { match.player(real_user) }
     let(:match) { create(:match, users: [real_user, create(:robot_user), create(:robot_user)]) }
     let(:cards) { [build(:card_as), build(:card_jh), build(:card_8d)] }
 
+    it 'upon creation, sets game.next_turn to be a real player' do
+      expect(match.game.next_turn).to eq real_player
+      expect(match.message).to eq real_player.name + Match::FIRST_PROMPT
+    end
+
     it 'recursively runs plays until it is a real_users turn' do
       match.game.next_turn = real_player
       match.players.each_with_index { |player, index| player.cards = [cards[index]] }
       match.run_play(real_player, match.opponents(real_player).sample, real_player.cards.sample.rank)
-      expect(match.game.requests.length).to eq 3
+      expect(match.game.requests.length).to eq match.players.length
       expect(match.game.next_turn).to eq real_player
     end
   end

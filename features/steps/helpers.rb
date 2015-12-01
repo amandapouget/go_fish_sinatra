@@ -59,10 +59,8 @@ module FreshGameCreate
 
   def start_three_game(users:, robots:)
     @num_players = 3
-    until @my_match
-      users.times { @my_match = match_maker.match(create(:real_user), 3) }
-      robots.times { @my_match = match_maker.match(create(:robot_user), 3) }
-    end
+    users.times { @my_match = match_maker.match(create(:real_user), 3) }
+    robots.times { @my_match = match_maker.match(create(:robot_user), 3) } until @my_match
     @my_match.save
     expect(Match.find(@my_match.id)).to eq @my_match
   end
@@ -76,10 +74,6 @@ module FreshGameCreate
 
   def save_and_reload
     @my_match.save
-    @my_match.reload
-  end
-
-  def reload
     @my_match.reload
   end
 end

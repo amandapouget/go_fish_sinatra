@@ -11,6 +11,7 @@ class Match < ActiveRecord::Base
 
   def set_defaults
     self.game ||= Game.new(players: self.users.map { |user| Player.new(name: user.name, user_id: user.id) }, hand_size: self.hand_size)
+    self.game.next_turn = game.players.find { |player| user(player).is_a? RealUser } if game.requests.length == 0
     self.message ||= game.next_turn.name + FIRST_PROMPT
   end
 
@@ -53,24 +54,26 @@ class Match < ActiveRecord::Base
   end
 
   def run_play(player, opponent, rank) # encapsulate the crap
-    rank == "six" ? rank_word = "sixe" : rank_word = rank
-    self.message = "#{player.name} asked #{opponent.name} for #{rank_word}s &"
-    if game.make_request(player, opponent, rank).won_cards?
-      self.message += " got cards"
-    else
-      self.message += " went fish"
-      self.message += " & got one" if rank == game.go_fish(player, rank).rank
+    if game.next_turn.user_id == player.user_id
+      rank == "six" ? rank_word = "sixe" : rank_word = rank
+      self.message = "#{player.name} asked #{opponent.name} for #{rank_word}s &"
+      if game.make_request(player, opponent, rank).won_cards?
+        self.message += " got cards"
+      else
+        self.message += " went fish"
+        self.message += " & got one" if rank == game.go_fish(player, rank).rank
+      end
+      if game.game_over?
+        end_match
+        self.message += "! Game over! Winner: #{game.winner.name}"
+      else
+        self.message += "! It's #{game.next_turn.name}'s turn!"
+      end
+      save
+      notify_observers
+      next_user = user(game.next_turn)
+      next_user.make_play(self) if next_user.is_a?(RobotUser) && !game.game_over?
     end
-    if game.game_over?
-      end_match
-      self.message += "! Game over! Winner: #{game.winner.name}"
-    else
-      self.message += "! It's #{game.next_turn.name}'s turn!"
-    end
-    save
-    notify_observers
-    next_user = user(game.next_turn)
-    next_user.make_play(self) if next_user.is_a?(RobotUser) && !game.game_over?
   end
 
   def end_match
