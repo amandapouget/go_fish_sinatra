@@ -70,7 +70,7 @@ describe Match do
     expect(view["message"]).to eq match.message
     expect(view["player"]).to eq JSON.parse(players[0].to_json)
     expect(view["player_index"]).to eq 0
-    expect(view["opponents"]).to eq match.opponents(players[0]).map { |opponent| {"index" => players.index(opponent), "name" => opponent.name, "icon" => opponent.icon} }
+    expect(view["opponents"]).to eq match.opponents(players[0]).map { |opponent| {"user_id" => opponent.user_id, "name" => opponent.name, "icon" => opponent.icon} }
     expect(view["scores"]).to eq players.map { |player| [player.name, player.books.size] }.push(["Fish Left", match.game.deck.count_cards])
   end
 
@@ -82,7 +82,6 @@ describe Match do
       players[0].add_card(card_as)
       players[1].add_card(card_ah)
       match.run_play(players[0], players[1], "ace")
-      match.reload
       expect(players[0].cards).to match_array [card_as, card_ah]
       expect(players[1].cards).to match_array [card_2h]
       expect(match.message).to eq "#{players[0].name} asked #{players[1].name} for aces & got cards! It's #{players[0].name}'s turn!"
@@ -92,7 +91,6 @@ describe Match do
       players[0].add_card(card_as)
       match.game.deck.cards.unshift(card_ah)
       match.run_play(players[0], players[1], "ace")
-      match.reload
       expect(players[0].cards).to match_array [card_as, card_ah]
       expect(players[1].cards).to match_array [card_2h]
       expect(match.message).to eq "#{players[0].name} asked #{players[1].name} for aces & went fish & got one! It's #{players[0].name}'s turn!"
@@ -102,7 +100,6 @@ describe Match do
       players[0].add_card(card_as)
       match.game.deck.cards.unshift(card_2d)
       match.run_play(players[0], players[1], "ace")
-      match.reload
       expect(players[0].cards).to match_array [card_as, card_2d]
       expect(players[1].cards).to match_array [card_2h]
       expect(match.message).to eq "#{players[0].name} asked #{players[1].name} for aces & went fish! It's #{players[1].name}'s turn!"
@@ -111,31 +108,36 @@ describe Match do
     it 'works when the game is over as a result' do
       players[0].add_card(card_2d)
       match.run_play(players[0], players[1], "two")
-      match.reload
       expect(players[0].cards).to match_array [card_2d, card_2h]
       expect(players[1].cards).to match_array []
       expect(match.message).to eq "#{players[0].name} asked #{players[1].name} for twos & got cards! Game over! Winner: none"
       expect(match.over).to be true
     end
+  end
 
-    # it 'informs observers when a play is complete' do
-    #   my_observer = double(update: nil)
-    #   expect(my_observer).to receive(:update)
-    #   match.add_observer(my_observer)
-    #   match.run_play(players[0], players[1], 'two')
-    # end
+  describe 'run play when some users are robots' do
+    let(:real_user) { create(:real_user) }
+    let(:real_player) { match.player(real_user) }
+    let(:match) { create(:match, users: [real_user, create(:robot_user), create(:robot_user)]) }
+    let(:cards) { [build(:card_as), build(:card_jh), build(:card_8d)] }
+
+    it 'recursively runs plays until it is a real_users turn' do
+      match.game.next_turn = real_player
+      match.players.each_with_index { |player, index| player.cards = [cards[index]] }
+      match.run_play(real_player, match.opponents(real_player).sample, real_player.cards.sample.rank)
+      expect(match.game.requests.length).to eq 3
+      expect(match.game.next_turn).to eq real_player
+    end
   end
 
   it 'can end itself' do
     match.end_match
-    match.reload
     expect(match.over).to be true
   end
 
   it 'can tell you if it has been ended' do
     expect(match.over).to be false
     match.end_match
-    match.reload
     expect(match.over).to be true
   end
 end

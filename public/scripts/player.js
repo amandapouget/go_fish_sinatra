@@ -1,6 +1,6 @@
-function PlayerView(match_id, player_index) {
-  this.match_id = match_id;
-  this.player_index = player_index;
+function PlayerView(matchId, userId) {
+  this.matchId = matchId;
+  this.userId = userId;
   this.listenForRankRequest();
 }
 
@@ -8,8 +8,8 @@ PlayerView.prototype.listenForOpponentSelection = function() {
   var object = this;
   $('.opponents .player').each(function(index) {
     $(this).click(function() {
-      object.opponent_index = $(this).attr('data-player-index');
-      console.log('Opponent selected: ' + object.opponent_index);
+      object.opponentUserId = $(this).attr('data-user-id');
+      console.log('Opponent selected: ' + object.opponentUserId);
     });
   });
 }
@@ -17,9 +17,8 @@ PlayerView.prototype.listenForOpponentSelection = function() {
 PlayerView.prototype.listenForRankRequest = function() {
   var object = this;
   $('#fish_blue').click(function(){
-    console.log('/' + object.match_id + '/card_request', { player_index: object.player_index, opponent_index: object.opponent_index, rank: object.rank });
-    if (object.rank && object.opponent_index) {
-      $.post('/' + object.match_id + '/card_request', { player_index: object.player_index, opponent_index: object.opponent_index, rank: object.rank }).success(function()  {
+    if (object.rank && object.opponentUserId) {
+      $.post('/card_request', { matchId: object.matchId, playerUserId: object.userId, opponentUserId: object.opponentUserId, rank: object.rank }).success(function()  {
         console.log('Card request info sent!');
       });
     }
@@ -50,7 +49,7 @@ PlayerView.prototype.setOpponents = function(opponents) {
       var opponentDiv = document.createElement('div');
       opponentDiv.className = "player";
       opponentDiv.id = "opponent_" + index;
-      opponentDiv.setAttribute("data-player-index", opponent.index);
+      opponentDiv.setAttribute("data-user-id", opponent.user_id);
       opponentsDiv.appendChild(opponentDiv);
       this.insertPlayer(opponentDiv, opponent.name, opponent.icon);
       var book = document.createElement('img');
@@ -116,7 +115,7 @@ PlayerView.prototype.setCards = function(cards) {
 
 PlayerView.prototype.refresh = function() {
   $.ajax({
-     url: '/' + this.match_id + '/player/' + this.player_index + '.json',
+     url: '/' + this.matchId + '/player/' + this.userId + '.json',
      dataType: 'json',
      complete: function(data){
      },
@@ -135,11 +134,11 @@ PlayerView.prototype.refresh = function() {
 
 $(document).ready(function() {
   var readyTracker = new ReadyTracker();
-  var match_id = window.location.pathname.split('/')[1];
-  var player_index = window.location.pathname.split('/')[3];
-  var playerView = new PlayerView(match_id, player_index);
+  var matchId = window.location.pathname.split('/')[1];
+  var userId = window.location.pathname.split('/')[3];
+  var playerView = new PlayerView(matchId, userId);
   var pusher = new Pusher('39cc3ae7664f69e97e12', { encrypted: true });
-  var channel = pusher.subscribe('game_play_channel_' + playerView.match_id);
+  var channel = pusher.subscribe('game_play_channel_' + playerView.matchId);
   channel.bind('pusher:subscription_succeeded', function() {
     playerView.refresh();
     readyTracker.setReadyOn();

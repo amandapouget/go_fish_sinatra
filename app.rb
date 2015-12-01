@@ -18,7 +18,7 @@ end
 
 def start(match)
   match.game.deal
-  MatchClientNotifier.new(match)
+  match.save
 end
 
 get '/' do
@@ -37,7 +37,7 @@ end
 post '/subscribed' do
   this_user = User.find(params["user_id"].to_i)
   match = Match.all.find { |match| match.users.include? this_user }
-  match.users.each { |user| Pusher.trigger("waiting_for_players_channel_#{user.id}", 'send_to_game_event', { message: "#{match.id}/player/#{match.users.index(user)}" }) } if match
+  match.users.each { |user| Pusher.trigger("waiting_for_players_channel_#{user.id}", 'send_to_game_event', { message: "#{match.id}/player/#{user.id}" }) } if match
   return nil
 end
 
@@ -48,24 +48,26 @@ post '/start_with_robots' do
     @match = match_maker.match(RobotUser.new, num_players)
   end
   start(@match)
-  Pusher.trigger("waiting_for_players_channel_#{user.id}", 'send_to_game_event', { message: "#{@match.id}/player/#{@match.users.index(user)}" })
+  Pusher.trigger("waiting_for_players_channel_#{user.id}", 'send_to_game_event', { message: "#{@match.id}/player/#{user.id}" })
   return nil
 end
 
-get '/:match_id/player/:player_index.?:format?' do
+get '/:match_id/player/:user_id.?:format?' do
   @match = Match.find_by_id(params["match_id"].to_i)
-  @player = @match.players[params["player_index"].to_i] if @match
-  @opponents = @match.opponents(@player) if @player
-  params['format'] == 'json' ? @match.view(@player).to_json : slim(:player)
+  @player = @match.players.find { |player| player.user_id == params["user_id"].to_i } if @match
+  if @player
+    params['format'] == 'json' ? @match.view(@player).to_json : slim(:player)
+  else
+    slim :no_player
+  end
 end
 
-post '/:match_id/card_request' do
-  match = Match.find_by_id(params["match_id"].to_i)
-  opponent = match.players[params["opponent_index"].to_i]
-  player = match.players[params["player_index"].to_i]
-  if match.game.next_turn == player
+post '/card_request' do
+  match = Match.find_by_id(params["matchId"].to_i)
+  opponent = match.players.find { |player| player.user_id == params["opponentUserId"].to_i }
+  player = match.players.find { |player| player.user_id == params["playerUserId"].to_i }
+  if match.game.next_turn.user_id == player.user_id
     match.run_play(player, opponent, params["rank"])
-    match.save
   end
   return nil
 end

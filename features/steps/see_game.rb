@@ -4,7 +4,8 @@ class Spinach::Features::SeeGame < Spinach::FeatureSteps
   step 'the game has started' do
     reset
     start_three_game(users: 3, robots: 0)
-    @match.game.deal
+    @my_match.game.deal
+    save_and_reload
   end
 
   step 'I look at the game' do
@@ -14,14 +15,14 @@ class Spinach::Features::SeeGame < Spinach::FeatureSteps
   step 'I can see: my cards, the score, the height of the stack of cards in the deck, the players (name, icon), and what\'s happening in the game.' do
     expect_page_has_cards(my_cards)
     expect(page).to have_selector '#books'
-    expect(page).to have_content @match.game.deck.count_cards
-    @match.players.each do |player|
+    expect(page).to have_content @my_match.game.deck.count_cards
+    @my_match.players.each do |player|
       expect(page).to have_selector "img[src = '#{player.icon}']"
       expect(page).to have_content player.name
     end
     expect(page).to have_selector "#fish_blue"
     expect(page).to have_selector "#speech"
-    expect(page).to have_content @match.message
+    expect(page).to have_content @my_match.message
   end
 
   step 'I cannot see: the cards of my opponents' do
@@ -34,7 +35,7 @@ class Spinach::Features::SeeGame < Spinach::FeatureSteps
   end
 
   step 'I visit the wrong page' do
-    visit "/#{@match.id}/player/#{@match.players.size}"
+    visit "/#{@my_match.id}/player/0"
   end
 
   step 'I get a funny error message' do

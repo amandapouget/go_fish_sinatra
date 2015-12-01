@@ -5,8 +5,8 @@ describe MatchClientNotifier do
   let(:notifier) { match.match_client_notifier }
 
   it 'pushes notification to subscribers when match updates' do
-    allow(notifier).to receive(:after_save)
-    expect(notifier).to receive(:after_save)
-    match.save
+    allow(notifier).to receive(:send_notice)
+    expect(notifier).to receive(:send_notice)
+    match.notify_observers
   end
 end

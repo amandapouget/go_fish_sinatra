@@ -252,9 +252,12 @@ describe Server do
 
       describe '#tell_match' do
         it 'tells every player about the match from his point of view (message, cards, books, etc)' do
+          @clients.each { |client| client.erase_output }
           @server.tell_match(@match)
           num = rand(3)
-          expect(@clients[num].output).to include @match.view(@match.player(@users[num]))
+          output = @clients[num].output
+          view = @match.view(@match.player(@users[num]))
+          expect(output).to include view
         end
       end
     end

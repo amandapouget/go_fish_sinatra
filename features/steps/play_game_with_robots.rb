@@ -7,13 +7,11 @@ class Spinach::Features::PlayGameWithRobots < Spinach::FeatureSteps
   end
 
   step 'it is already my turn' do
-    make_it_someones_turn(@me_player)
-    @player_whose_turn_it_is = @me_player
+    make_it_someones_turn(me_player)
   end
 
   step 'it is already the turn of my first opponent' do
-    make_it_someones_turn(@first_opponent)
-    @player_whose_turn_it_is = @first_opponent
+    make_it_someones_turn(first_opponent)
   end
 
   step 'the request is ignored' do
@@ -21,7 +19,7 @@ class Spinach::Features::PlayGameWithRobots < Spinach::FeatureSteps
   end
 
   step 'I ask my first opponent for cards he has' do
-    have_king([@me_player, @first_opponent])
+    have_king([me_player, first_opponent])
     @my_preplay_cards = my_cards.map { |card| card.icon }
     visit_player_page
     make_my_request
@@ -33,7 +31,7 @@ class Spinach::Features::PlayGameWithRobots < Spinach::FeatureSteps
   end
 
   step 'turn advances correctly and informs me of play' do
-    expect(page).to have_content /#{@second_opponent.name} asked \S* for/
-    expect(page).to have_content /#{@me_player.name}\'s turn/
+    expect(page).to have_content /#{second_opponent.name} asked \S* for/
+    expect(page).to have_content /#{me_player.name}\'s turn/
   end
 end

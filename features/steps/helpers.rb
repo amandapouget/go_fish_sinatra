@@ -20,27 +20,18 @@ module FreshGameCreate
     fill_form("New Player Who Joined", num_players)
   end
 
-  def start_three_game(users:, robots:)
-    @num_players = 3
-    until @match do
-      users.times { @match = match_maker.match(create(:real_user), 3) }
-      robots.times { @match = match_maker.match(create(:robot_user), 3) }
-    end
-    MatchClientNotifier.new(@match)
-    @me_player = @match.players.find { |player| player.is_a? Player }
-    @first_opponent = @match.opponents(@me_player)[0]
-    @second_opponent = @match.opponents(@me_player)[1]
-    @go_fish_card = @match.game.deck.cards[0]
-    @player_whose_turn_it_is = @match.game.next_turn
+  def visit_player_page
+    visit "/#{@my_match.id}/player/#{me_player.user_id}"
+    expect_page_ready
+  end
+
+  def expect_page_ready
+    expect(page).to have_selector '#ready'
   end
 
   def expect_page_has_cards(cards, expect_true = true)
     cards.each { |card| expect(page.has_selector?("img[src = '#{card.icon}']")) } if expect_true
     cards.each { |card| expect(page.has_no_selector?("img[src = '#{card.icon}']")) } unless expect_true
-  end
-
-  def my_cards
-    @me_player.cards
   end
 
   def current_cards_icons
@@ -50,23 +41,46 @@ module FreshGameCreate
   def game_with_three_players_each_has_one_ace
     reset
     start_three_game(users: 3, robots: 0)
-    @match.players.each { |player| player.cards = [build(:card_as)] }
+    @my_match.players.each { |player| player.cards = [build(:card_as)] }
+    @my_match.players.each { |player| expect(player.cards).to eq [build(:card_as)] }
   end
 
   def game_with_one_user_two_robots_each_has_one_different_card
     reset
     start_three_game(users: 1, robots: 2)
     cards = [build(:card_as), build(:card_ks), build(:card_qs)]
-    @match.players.each_with_index { |player, index| player.cards = [cards[index]] }
+    @my_match.players.each_with_index { |player, index| player.cards = [cards[index]] }
+    @my_match.players.each do |player|
+      expect(player.cards.length).to eq 1
+      cards.reject! { |card| card == player.cards[0] }
+    end
+    expect(cards).to eq []
   end
 
-  def visit_player_page
-    visit "/#{@match.id}/player/0"
-    expect_page_ready
+  def start_three_game(users:, robots:)
+    @num_players = 3
+    until @my_match
+      users.times { @my_match = match_maker.match(create(:real_user), 3) }
+      robots.times { @my_match = match_maker.match(create(:robot_user), 3) }
+    end
+    @my_match.save
+    expect(Match.find(@my_match.id)).to eq @my_match
   end
 
-  def expect_page_ready
-    expect(page).to have_selector '#ready'
+  def me_player; @my_match.players.find { |player| player.is_a? Player }; end
+  def first_opponent; @my_match.opponents(me_player)[0]; end
+  def second_opponent; @my_match.opponents(me_player)[1]; end
+  def player_whose_turn_it_is; @my_match.game.next_turn; end
+  def my_cards; me_player.cards; end
+  def go_fish_card; @go_fish_card ||= @my_match.game.deck.cards[0]; end
+
+  def save_and_reload
+    @my_match.save
+    @my_match.reload
+  end
+
+  def reload
+    @my_match.reload
   end
 end
 
@@ -78,15 +92,19 @@ module GamePlay
   end
 
   def make_it_someones_turn(player)
-    @match.game.next_turn = player
+    @my_match.game.next_turn = player
+    save_and_reload
+    expect(@my_match.game.next_turn.user_id).to eq player.user_id
   end
 
   def have_king(players)
     players.each { |player| player.cards.unshift(build(:card_ks)) }
+    save_and_reload
   end
 
   def have_jack(players)
     players.each { |player| player.cards.unshift(build(:card_js)) }
+    save_and_reload
   end
 
   def make_my_request
@@ -95,11 +113,11 @@ module GamePlay
 
   def make_opponent_request(match, player, opponent, rank)
     params = {
-      'match_id' => match.id,
-      'player_index' => match.players.index(player),
-      'opponent_index' => match.players.index(opponent),
+      'matchId' => match.id,
+      'playerUserId' => player.user_id,
+      'opponentUserId' => opponent.user_id,
       'rank' => rank
     }
-    post("/#{match.id}/card_request", params)
+    post("/card_request", params)
   end
 end
