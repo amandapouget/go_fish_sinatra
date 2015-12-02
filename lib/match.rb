@@ -53,26 +53,30 @@ class Match < ActiveRecord::Base
     }.to_json
   end
 
-  def run_play(player, opponent, rank) # encapsulate the crap
+  def run_play(player, opponent, rank) # would belong in a controller in a rails app
     if game.next_turn.user_id == player.user_id
-      rank == "six" ? rank_word = "sixe" : rank_word = rank
-      self.message = "#{player.name} asked #{opponent.name} for #{rank_word}s &"
-      if game.make_request(player, opponent, rank).won_cards?
-        self.message += " got cards"
-      else
-        self.message += " went fish"
-        self.message += " & got one" if rank == game.go_fish(player, rank).rank
-      end
-      if game.game_over?
-        end_match
-        self.message += "! Game over! Winner: #{game.winner.name}"
-      else
-        self.message += "! It's #{game.next_turn.name}'s turn!"
-      end
+      execute_turn(player, opponent, rank)
       save
       notify_observers
       next_user = user(game.next_turn)
       next_user.make_play(self) if next_user.is_a?(RobotUser) && !game.game_over?
+    end
+  end
+
+  def execute_turn(player, opponent, rank)
+    rank == "six" ? rank_word = "sixe" : rank_word = rank
+    self.message = "#{player.name} asked #{opponent.name} for #{rank_word}s &"
+    if game.make_request(player, opponent, rank).won_cards?
+      self.message += " got cards"
+    else
+      self.message += " went fish"
+      self.message += " & got one" if rank == game.go_fish(player, rank).rank
+    end
+    if game.game_over?
+      end_match
+      self.message += "! Game over! Winner: #{game.winner.name}"
+    else
+      self.message += "! It's #{game.next_turn.name}'s turn!"
     end
   end
 
