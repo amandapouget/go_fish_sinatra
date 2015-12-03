@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :player do
-    name { FAKENAMES.rotate![0] }
+    name { User::FAKENAMES.rotate![0] }
     user_id nil
     transient { cards { [] } }
 

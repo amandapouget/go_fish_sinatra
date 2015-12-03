@@ -1,7 +1,7 @@
 FactoryGirl.define do
   factory :real_user do
     client nil
-    name { FAKENAMES.rotate![0] }
+    name { User::FAKENAMES.rotate![0] }
   end
 
   factory :null_user do

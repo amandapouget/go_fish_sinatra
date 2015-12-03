@@ -2,7 +2,7 @@ class RobotUser < User
   before_create :set_defaults
 
   def set_defaults
-    self.name ||= FAKENAMES.rotate![0]
+    self.name ||= User::FAKENAMES.rotate![0]
     self.think_time ||= 3
   end
 

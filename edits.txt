@@ -24,3 +24,17 @@ upgrade to Rails
 make user_history/view_user/create_user pages, just needs to have an identifier (not username/password), "rankings" page [see slack directions]
 
 IN TWO WEEKS YOU NEED TO HAVE THE BASICS OF RAILS DOWN
+
+robots: move call to play to notify_observers, take out 'save' from match run play method
+helpers:
+-- make into two files
+-- use common steps not just methods as much as possible in these files
+  template method:
+  -- all it does is call other methods
+  -- if you start doing that, finish it (eg, game with three players each has one ace, then the last two lines of those methods should be extracted out into their own method (have_ace) )
+-- change card_as to card_a_s and make it uniform to the file names
+-- modify tests where all the players have the same card to have different suited cards using factory sequence ("if you give it the suit, it determines the suit, otherwise it sequences through the suits and picks one")
+-- refactor the method beginning on line 48
+
+rip out the @user_id from player (possibly change to just id)
+-- help: only test if your UI reflects the state of the game "It's Fred turn"
